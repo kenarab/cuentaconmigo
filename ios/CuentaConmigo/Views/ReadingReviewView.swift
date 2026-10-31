@@ -14,8 +14,6 @@ struct ReadingReviewView: View {
     let onEdit: (String, Int?) -> Void
 
     @Environment(\.dismiss) private var dismiss
-    @State private var zoom: CGFloat = 1
-    @State private var baseZoom: CGFloat = 1
     @State private var editing: ScrutinyClient.Reading?
     @State private var draft = ""
     @State private var highlighted: String?
@@ -28,12 +26,11 @@ struct ReadingReviewView: View {
             VStack(spacing: 0) {
                 legend
                 GeometryReader { geo in
-                    ScrollView([.horizontal, .vertical]) {
-                        page(width: geo.size.width * zoom)
+                    let width = geo.size.width
+                    let height = image.map { $0.size.height * width / max(1, $0.size.width) } ?? geo.size.height
+                    ZoomableView(contentSize: CGSize(width: width, height: height)) {
+                        page(width: width)
                     }
-                    .gesture(MagnifyGesture()
-                        .onChanged { zoom = min(4, max(1, baseZoom * $0.magnification)) }
-                        .onEnded { _ in baseZoom = zoom })
                 }
                 footer
             }
@@ -91,14 +88,14 @@ struct ReadingReviewView: View {
     }
 
     private func marker(_ reading: ScrutinyClient.Reading, scale: CGFloat) -> some View {
-        let cell = reading.cellBox
+        let cell = reading.cellBox.map { CGFloat($0) * scale }
         let edited = currentValue(reading.ref) != reading.value && currentValue(reading.ref) != nil
         let shown = currentValue(reading.ref) ?? reading.value
         let level = ConfidenceLevel(reading.confidence)
-        let fontSize = max(14, min(34, CGFloat(cell[3]) * scale * 0.55))
-        // Drawn at the right end of the cell, beside the handwriting.
-        let x = CGFloat(cell[0] + cell[2]) * scale - fontSize * 3.2
-        let y = CGFloat(cell[1]) * scale + (CGFloat(cell[3]) * scale - fontSize * 1.4) / 2
+        let fontSize = max(13, min(28, cell[3] * 0.6))
+        let digits = CGFloat(max(2, (shown.map(String.init) ?? "¿?").count + (edited ? 3 : 0)))
+        let size = CGSize(width: fontSize * 0.68 * digits + 14, height: fontSize * 1.35)
+        let origin = placement(for: reading, cell: cell, size: size, scale: scale)
         return Button {
             draft = shown.map(String.init) ?? ""
             editing = reading
@@ -123,8 +120,26 @@ struct ReadingReviewView: View {
             }
         }
         .buttonStyle(.plain)
-        .offset(x: x, y: y)
+        .contentShape(Rectangle().inset(by: -8))
+        .offset(x: origin.x, y: origin.y)
         .accessibilityLabel("\(title(for: reading.ref)): \(shown.map(String.init) ?? "sin leer"), \(edited ? "corregido" : level.spoken)")
+    }
+
+    /// Where to draw a reading so it never covers the handwritten number: in the free part
+    /// of the cell to the right of the handwriting, else to its left, else just above the cell.
+    private func placement(for reading: ScrutinyClient.Reading, cell: [CGFloat], size: CGSize, scale: CGFloat) -> CGPoint {
+        let y = cell[1] + (cell[3] - size.height) / 2
+        guard let ink = reading.valueBox?.map({ CGFloat($0) * scale }) else {
+            return CGPoint(x: cell[0] + cell[2] - size.width - 4, y: y)
+        }
+        let gap: CGFloat = 6
+        if cell[0] + cell[2] - (ink[0] + ink[2]) >= size.width + gap {
+            return CGPoint(x: ink[0] + ink[2] + gap, y: y)
+        }
+        if ink[0] - cell[0] >= size.width + gap {
+            return CGPoint(x: ink[0] - size.width - gap, y: y)
+        }
+        return CGPoint(x: max(0, ink[0] + (ink[2] - size.width) / 2), y: max(0, cell[1] - size.height - 2))
     }
 
     // MARK: - Legend, totals, navigation
