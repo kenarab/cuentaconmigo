@@ -1,0 +1,15 @@
+.DS_Store
+.claude/
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+dist/
+build/
+.env
+.env.*
+
+# Secretos, estado durable privado y datos sensibles: nunca en Git
+.private/
+.runtime/
+data/private/
