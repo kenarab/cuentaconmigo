@@ -61,6 +61,17 @@ Estado: ✅ implementado (prototipo) · 🟡 parcial · 🎨 en prototipo de pan
 | F-40 | Cuenta de garantía electoral publicada como primera propuesta a deliberar | reg-electoral-escrow | F-21 | P0 (demo) | 📝 |
 | F-41 | Documento de incidencia exportable desde una propuesta con consenso | civic-deliberation | F-22 | P2 | 📝 |
 
+## Simulación de la red de confianza (alcance agregado por el autor el 31/10/2026)
+
+| ID | Funcionalidad | SPEC | Depende de | Prioridad | Estado |
+| --- | --- | --- | --- | --- | --- |
+| F-60 | Reputación de participación ("credibilidad colectiva") simulada, con "por qué" y permisos por umbral | network-simulation, network-governance | NS-3 | P0 (autor) | 📝 |
+| F-61 | Mensajes directos entre seudónimos (simulados) | network-simulation | NS-6 | P0 (autor) | 📝 |
+| F-62 | Foros temáticos y de trabajo con argumentos a favor y en contra | network-simulation, civic-network | F-60 | P0 (autor) | 📝 |
+| F-63 | Encuestas sobre la red y votación de consenso (una persona, un voto) | network-simulation, civic-deliberation | NS-4, F-40 | P0 (autor) | 📝 |
+| F-64 | Agentes de IA rotulados: resumidor, verificador de fuentes, monitor, asistente | network-simulation | NS-5 | P0 (autor) | 📝 |
+| F-65 | Población sintética con escenarios (brigada, evidencia falsa) y reloj simulado | network-simulation | NS-2, NS-8 | P0 (autor) | 📝 |
+
 ## Transversal · Protección de participantes
 
 | ID | Funcionalidad | SPEC | Depende de | Prioridad propuesta | Estado |
@@ -73,6 +84,11 @@ Estado: ✅ implementado (prototipo) · 🟡 parcial · 🎨 en prototipo de pan
 - **F-P0 = b:** se muestran funcionando el escrutinio guiado (F-01..F-05, F-16, F-17) y
   la simulación del AMBA (F-10). La red, la identidad, la gobernanza y el backend se
   presentan como visión, con sus SPECs (`docs/demo-guion.md`).
+- **Ampliación del autor (31/10/2026):** entra al alcance de la hackatón una
+  **simulación funcionando** de la red de confianza: reputación de participación que
+  impacta en la app, mensajes, foros, encuestas y votación, e integración de agentes
+  (F-60 a F-65, [network-simulation](../network-simulation/SPEC.md)). El resto de la red
+  sigue como visión.
 - **F-ORD = e:** en paralelo. Andy con OCR y muestras (#19), Claude con app y backend
   (#17, #18, #26) y el autor con la prueba en el iPhone y el guion (#21).
 
