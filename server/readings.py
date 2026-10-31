@@ -28,6 +28,8 @@ except ImportError:  # pragma: no cover - reported by engine_status()
 
 ROOT = Path(__file__).resolve().parents[1]
 LAYOUTS = ROOT / "contracts/layouts"
+UNREADABLE = "?"  # same mark as the transcription sheet (data/ocr-samples)
+MIN_CONFIDENCE = 0.3  # below this a reading is shown as "?" (value kept only as a hint)
 MAX_ERROR = 0.02  # anchor residual tolerated, as a fraction of the image width
 
 
@@ -300,13 +302,22 @@ def read_telegram(image_bytes, template):
     base = {"origin": "ocr-server", "templateId": template["id"], "image": {"width": W, "height": H}}
     if best is None:
         return {**base, "layoutId": None, "alignment": {"ok": False, "anchorsUsed": 0, "meanErrorPx": None},
-                "fields": [], "notFound": expected}
+                "fields": [], "notFound": expected, "pending": expected}
     layout, t, used, err = best
     fields = []
     for cell in layout["cells"]:
         box = map_box(t, cell["box"])
         value, conf, vbox, empty, alts = read_cell(img, box)
+        # status/text: "?" marks a cell that should hold a value but could not be read,
+        # so the app shows an empty box for the person to fill.
+        if value is not None and conf >= MIN_CONFIDENCE:
+            status, text = "read", str(value)
+        elif empty and value is None:
+            status, text = "empty", ""
+        else:  # writing present but not recognized (or barely): ask the person
+            status, text = "unreadable", UNREADABLE
         field = {"ref": cell["ref"], "value": value, "confidence": conf, "empty": empty,
+                 "status": status, "text": text,
                  "valueBox": vbox, "cellBox": box, "_alts": alts}
         if "label" in cell:
             field["label"] = {"text": cell["label"]["text"], "box": map_box(t, cell["label"]["box"])}
@@ -318,4 +329,6 @@ def read_telegram(image_bytes, template):
     return {**base, "layoutId": layout["id"], "checks": checks,
             "alignment": {"ok": True, "anchorsUsed": used, "meanErrorPx": round(err, 1)},
             "masks": [map_box(t, m["box"]) for m in layout.get("masks", [])],
-            "fields": fields, "notFound": [r for r in expected if r not in found]}
+            "fields": fields, "notFound": [r for r in expected if r not in found],
+            "pending": [f["ref"] for f in fields if f["status"] == "unreadable"]
+                       + [r for r in expected if r not in found]}

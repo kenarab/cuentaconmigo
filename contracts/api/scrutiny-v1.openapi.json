@@ -79,6 +79,14 @@
             "type": "string"
           }
         }
+      },
+      "ReadingStatus": {
+        "description": "Per-cell reading status. 'unreadable' means the cell has writing that could not be read: text is '?' and the app shows an empty box to fill. 'pending' in the response lists unreadable cells plus expected cells that could not be located.",
+        "enum": [
+          "read",
+          "empty",
+          "unreadable"
+        ]
       }
     },
     "responses": {
@@ -441,6 +449,124 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/v1/readings": {
+      "post": {
+        "summary": "Per-cell readings of one page aligned to the form layout; nothing is stored",
+        "security": [
+          {
+            "device": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "templateId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "image/jpeg": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Readings (origin ocr-server, suggestions only)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "layoutId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "alignment": {
+                      "type": "object"
+                    },
+                    "fields": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "ref": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": [
+                              "integer",
+                              "null"
+                            ]
+                          },
+                          "confidence": {
+                            "type": "number"
+                          },
+                          "empty": {
+                            "type": "boolean"
+                          },
+                          "status": {
+                            "$ref": "#/components/schemas/ReadingStatus"
+                          },
+                          "text": {
+                            "type": "string",
+                            "description": "Value as text; '?' when unreadable; '' when empty"
+                          },
+                          "valueBox": {
+                            "type": [
+                              "array",
+                              "null"
+                            ]
+                          },
+                          "cellBox": {
+                            "type": "array"
+                          }
+                        }
+                      }
+                    },
+                    "notFound": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "pending": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Cells the person must fill: unreadable plus not located"
+                    },
+                    "checks": {
+                      "type": "array"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
           }
         }
       }

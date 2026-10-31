@@ -87,6 +87,21 @@ del teléfono ya entrega la hoja recortada y plana, así que la afín alcanza pa
 image: {width, height}, fields: [...], notFound: [...]}`. No guarda la imagen (RV-2 ★):
 sólo lee y responde. Requiere token de dispositivo.
 
+### Celdas sin lectura: marca "?" (pedido del autor, 31/10/2026)
+
+Cada celda de `POST /v1/readings` lleva `status` y `text`:
+
+| `status` | Cuándo | `text` | La app muestra |
+| --- | --- | --- | --- |
+| `read` | se leyó con confianza ≥ 0,3 | el número | el valor sugerido |
+| `empty` | no hay tinta | `""` | celda vacía (o cero, según AS-6) |
+| `unreadable` | hay escritura, pero no se reconoció o la confianza es < 0,3 | `"?"` | **el cuadro vacío para completar** |
+
+En las ilegibles, `value` y `confidence` quedan sólo como pista. `pending` lista las celdas
+que la persona tiene que completar: las ilegibles más las esperadas que no se pudieron
+ubicar (`notFound`). `"?"` es la misma marca de ilegible que usa la planilla de
+`data/ocr-samples`. El contrato está en `contracts/api/scrutiny-v1.openapi.json`.
+
 ## 6. Medición
 
 `server/eval_readings.py` compara las lecturas con los valores transcriptos de
