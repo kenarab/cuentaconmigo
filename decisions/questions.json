@@ -30,10 +30,10 @@
       {"id": "AS-12", "q": "Campos `fictitious`, `lockedAt`, `exportedAt`", "options": ["Agregar los tres al contrato", "Agregar sólo `fictitious`", "Dejarlos fuera del paquete exportado"]}
      ]},
     {"number": 3, "title": "Decidir: simulación del AMBA",
-     "context": "SPEC: `sdd/specs/amba-simulation/SPEC.md`. Sólo datos sintéticos.",
+     "context": "SPEC: `sdd/specs/amba-simulation/SPEC.md`. Datos reales por mesa de las generales 2023, CABA + 24 partidos (decisión del autor).",
      "questions": [
       {"id": "S-1", "q": "Plataforma", "options": ["Web estática con mapa (MapLibre) ★", "Notebook Python", "SwiftUI + MapKit", "Web para la demo + notebook para el análisis"]},
-      {"id": "S-2", "q": "Geografía", "options": ["Polígonos oficiales + puntos sintéticos ★", "Locales de votación reales si hay dataset público", "Grilla sintética sin geografía real"]},
+      {"id": "S-2", "q": "Geografía", "options": ["Polígonos oficiales ★", "Locales de votación reales si hay dataset público", "Grilla sin geografía real"]},
       {"id": "S-3", "q": "Modelo estadístico", "options": ["Estratificado por municipio ★", "Postestratificado con regresión", "Bayesiano jerárquico", "Estratificado ahora, bayesiano después"]}
      ]},
     {"number": 4, "title": "Decidir: visión, marca y posicionamiento legal",

@@ -30,10 +30,10 @@ Propuesta de Fable: `sdd/specs/app-screens/SPEC.md`. Revisión de Astra: `sdd/sp
 
 ## #3 · simulación del AMBA
 
-SPEC: `sdd/specs/amba-simulation/SPEC.md`. Sólo datos sintéticos.
+SPEC: `sdd/specs/amba-simulation/SPEC.md`. Datos reales por mesa de las generales 2023, CABA + 24 partidos (decisión del autor).
 
 - **S-1** · Plataforma: a) Web estática con mapa (MapLibre) ★ · b) Notebook Python · c) SwiftUI + MapKit · d) Web para la demo + notebook para el análisis · Otro
-- **S-2** · Geografía: a) Polígonos oficiales + puntos sintéticos ★ · b) Locales de votación reales si hay dataset público · c) Grilla sintética sin geografía real · Otro
+- **S-2** · Geografía: a) Polígonos oficiales ★ · b) Locales de votación reales si hay dataset público · c) Grilla sin geografía real · Otro
 - **S-3** · Modelo estadístico: a) Estratificado por municipio ★ · b) Postestratificado con regresión · c) Bayesiano jerárquico · d) Estratificado ahora, bayesiano después · Otro
 
 ## #4 · visión, marca y posicionamiento legal
