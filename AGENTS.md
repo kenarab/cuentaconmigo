@@ -2,22 +2,29 @@
 
 ## Producto y alcance
 
-Auditoría ciudadana **integral y no partidaria** del proceso electoral argentino de
-2027, en el que se elige presidente y se renueva el Congreso. La misión: que las
-elecciones no sean un negocio más para las plataformas, y que la presión pública
-basada en evidencia las ponga al servicio de la democracia. Construimos
-**herramientas externas**, independientes de las plataformas, en cuatro ejes
-(ver [sdd/specs/vision/SPEC.md](sdd/specs/vision/SPEC.md), fuente de prioridades):
+**Red social ad hoc, ciudadana y no partidaria, para cuidar el proceso democrático**
+de las elecciones argentinas de 2027, en las que se elige presidente y se renueva el
+Congreso. La acción política que hoy ocurre en redes de grandes empresas se canaliza
+en un espacio propio para debatir, llegar a consensos y decidir modalidades de acción.
+**No es una herramienta de acción política partidaria:** cuida las reglas de juego.
+Producto central: [civic-network](sdd/specs/civic-network/SPEC.md). Prioridades:
+[visión](sdd/specs/vision/SPEC.md).
 
-- **A. Plataformas** (eje central): uso indebido de publicidad electoral, algoritmos,
-  desinformación,
-  veda y compromisos, medidos desde afuera.
+- Todos los partidos políticos participan **en igualdad** de herramientas, reglas y visibilidad.
+- **Consenso antes que acción:** ninguna acción externa (frente a plataformas,
+  organismos o quien sea) se ejecuta sin un consenso registrado en la red y el
+  chequeo de `electoral_counsel`.
+
+Herramientas que la red puede activar por consenso:
+
+- **A. Plataformas**: uso indebido de publicidad electoral, algoritmos,
+  desinformación, veda y compromisos, medidos con herramientas propias.
 - **B. Desinformación**: detección, verificación y respuesta comunitaria.
 - **C. Campaña**: gasto y publicidad declarada vs. observada, plazos y debates.
-- **D. Jornada y escrutinio** (cierre del proceso de auditoría ciudadana): captura de telegramas y
-  actas, cotejo y proyección.
-- **E. Propuestas y regulación**: deliberación ciudadana de iniciativas (cualquiera
-  puede proponer) y su consolidación para incidencia parlamentaria.
+- **D. Jornada y escrutinio**, para cerrar el proceso de auditoría ciudadana:
+  captura de telegramas y actas, cotejo y proyección.
+- **E. Propuestas y regulación**: deliberación de iniciativas (cualquiera puede
+  proponer) y su consolidación para incidencia parlamentaria.
 
 La SPEC de cada módulo (en `sdd/specs/`) es la fuente del producto. Leerla antes de
 cambiar comportamiento. Ninguna tecnología, stack ni arquitectura está decidida:
