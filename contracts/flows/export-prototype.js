@@ -53,7 +53,46 @@ const subset = {
   }))
 };
 
+// Real sample telegrams transcribed by Andy (data/ocr-samples). The PDFs stay out of the
+// repo (personal data); the prototype only shows file name, codes and transcribed values.
+function parseCsv(text) {
+  const lines = text.replace(/^﻿/, '').trim().split(/\r?\n/);
+  const header = lines[0].split(';').map((s) => s.replace(/^"|"$/g, ''));
+  return lines.slice(1).map((line) => {
+    const out = {};
+    line.split(';').forEach((v, i) => { out[header[i]] = v.replace(/^"|"$/g, ''); });
+    return out;
+  });
+}
+const manifest = JSON.parse(fs.readFileSync(path.join(REPO, 'data/ocr-samples/manifest.json'), 'utf8').replace(/^﻿/, ''));
+const valueRows = parseCsv(fs.readFileSync(path.join(REPO, 'data/ocr-samples/planilla-valores.csv'), 'utf8'));
+const SPECIAL_ROWS = { blanco: 'blanco', nulos: 'nulos', recurridos: 'recurridos', impugnados: 'impugnados', comando: 'comando' };
+const samples = manifest.map((entry, i) => {
+  const rows = valueRows.filter((r) => r.archivo === entry.file);
+  const first = rows[0] || {};
+  const num = (r) => (r && r.valor !== '' && /^-?\d+$/.test(r.valor) ? parseInt(r.valor, 10) : null);
+  const find = (tipo, fila, columna) => rows.find((r) => r.tipo === tipo && r.fila === fila && (columna === undefined || r.columna === columna));
+  const pres = rows.filter((r) => r.columna === 'PRES');
+  const header = { electores: num(find('encabezado', 'electores')), votantes: num(find('encabezado', 'sobres')) };
+  const especiales = {};
+  Object.keys(SPECIAL_ROWS).forEach((k) => { const r = find('resumen', k, 'PRES'); if (r) especiales[SPECIAL_ROWS[k]] = num(r); });
+  return {
+    id: 'muestra-' + String(i + 1).padStart(2, '0'),
+    file: entry.file, year: entry.year, eleccion: first.eleccion || null, sha256: entry.sha256, archiveUrl: entry.archive_url,
+    mesa: { distrito: first.distrito || null, seccion: first.seccion ? first.seccion.padStart(3, '0') : null, circuito: first.circuito || null, mesa: first.mesa || null },
+    origin: 'borrador_ia',
+    header,
+    presidenteEspeciales: pres.length ? especiales : null,
+    totalPres: pres.length ? num(find('resumen', 'total', 'PRES')) : null,
+    rows: rows.map((r) => ({ tipo: r.tipo, fila: r.fila, columna: r.columna, comoFigura: r.como_figura, valor: num(r), estado: r.estado_celda }))
+  };
+});
+
 fs.mkdirSync(OUT, { recursive: true });
+fs.writeFileSync(path.join(OUT, 'samples.js'),
+  banner(['data/ocr-samples/manifest.json', 'data/ocr-samples/planilla-valores.csv']) +
+  '/* Transcriptions are borrador_ia (unconfirmed). PDFs are not included: they contain personal data. */\n' +
+  'window.OCR_SAMPLES = ' + JSON.stringify(samples) + ';\n');
 fs.writeFileSync(path.join(OUT, 'capture.flow.js'),
   banner(['contracts/flows/capture.flow.json', 'contracts/templates/' + templateId + '.json']) +
   'window.CAPTURE_FLOW = ' + JSON.stringify(flow, null, 1) + ';\n' +
@@ -65,4 +104,4 @@ fs.writeFileSync(path.join(OUT, 'flow-machine.js'),
   banner(['contracts/flows/flow-machine.js']) + fs.readFileSync(path.join(__dirname, 'flow-machine.js'), 'utf8'));
 
 const locales = subset.distritos.reduce((n, d) => n + d.secciones.reduce((m, s) => m + (s.locales ? s.locales.length : 0), 0), 0);
-console.log('wrote ' + OUT + ' (template ' + templateId + ', ' + locales + ' polling places in the roster subset)');
+console.log('wrote ' + OUT + ' (template ' + templateId + ', ' + locales + ' polling places in the roster subset, ' + samples.length + ' real samples)');

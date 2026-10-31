@@ -1,0 +1,790 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prototipo del flujo</title>
+<meta name="description" content="Prototipo navegable del flujo de captura de CuentaConmigo: F-1, F-2 y F-3 ejecutando el mismo statechart JSON (contracts/flows/capture.flow.json).">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@500&display=swap">
+<style>
+/* Same tokens as design/prototypes/escrutinio/index.html (reference until design/tokens exists). */
+:root{
+  --celeste:#7CB9E8; --azul:#1D4F91; --dorado:#F6B40E;
+  --bg:#EEF2F7; --surface:#FFFFFF; --surface-2:#F5F8FC; --fg:#14213A; --muted:#5B6B86; --border:#D3DCE8;
+  --accent:#1D4F91; --accent-fg:#FFFFFF; --accent-soft:#E3EEF9;
+  --warn-bg:#FFF1C2; --warn-fg:#5C4300; --warn-line:#E0A800;
+  --err:#B3261E; --err-bg:#FDECEA; --ok:#1E7A4A; --ok-bg:#E3F5EA;
+  --paper:#FDFBF3; --ink:#2B2B2B; --pen:#1B2F8F;
+  --panel-bg:#FFFFFF; --focus:#F6B40E;
+  --f-ui:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+  --f-panel:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --f-hand:"Caveat","Bradley Hand","Segoe Print",cursive;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1524; --surface:#172238; --surface-2:#1E2B45; --fg:#E7EDF7; --muted:#9FB0C8; --border:#2C3C58;
+    --accent:#7CB9E8; --accent-fg:#0E1524; --accent-soft:#1F3556;
+    --warn-bg:#4A3A05; --warn-fg:#FFE08A; --warn-line:#F6B40E;
+    --err:#F2857B; --err-bg:#4A1F1C; --ok:#6CD39A; --ok-bg:#163A28;
+    --panel-bg:#121B2E; --focus:#F6B40E; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1524; --surface:#172238; --surface-2:#1E2B45; --fg:#E7EDF7; --muted:#9FB0C8; --border:#2C3C58;
+  --accent:#7CB9E8; --accent-fg:#0E1524; --accent-soft:#1F3556;
+  --warn-bg:#4A3A05; --warn-fg:#FFE08A; --warn-line:#F6B40E;
+  --err:#F2857B; --err-bg:#4A1F1C; --ok:#6CD39A; --ok-bg:#163A28;
+  --panel-bg:#121B2E; --focus:#F6B40E; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-panel);font-size:15px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 40px}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+button{font:inherit;color:inherit;cursor:pointer}
+h1,h2,h3{text-wrap:balance;margin:0}
+.header{max-width:1280px;margin:0 auto 18px;display:flex;flex-wrap:wrap;gap:8px 18px;align-items:baseline}
+.header h1{font-size:20px;font-weight:600}
+.header p{margin:0;color:var(--muted);max-width:72ch}
+.header .theme{margin-left:auto}
+.stage{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,470px);gap:28px;align-items:start}
+.device{width:390px;height:844px;margin:0 auto;background:#0A0C10;border-radius:52px;padding:12px;box-shadow:0 20px 50px rgba(10,20,40,.35)}
+.phone{position:relative;width:100%;height:100%;border-radius:40px;overflow:hidden;background:var(--bg);display:flex;flex-direction:column;font-family:var(--f-ui);font-size:17px;color:var(--fg)}
+.statusbar{display:flex;justify-content:space-between;align-items:center;padding:14px 26px 4px;font-size:14px;font-weight:600;background:var(--bg)}
+.statusbar .net{font-weight:500;color:var(--muted);font-size:12px}
+.app{flex:1;min-height:0;display:flex;flex-direction:column}
+.nav{display:flex;align-items:center;gap:6px;padding:4px 8px;min-height:52px;background:var(--bg)}
+.nav .title{flex:1;text-align:center;font-weight:600;font-size:17px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav .stage-tag{font-size:12px;color:var(--muted);font-weight:500;padding:4px 8px;white-space:nowrap}
+.icon-btn{min-width:44px;min-height:44px;border:0;background:transparent;border-radius:12px;color:var(--accent);font-weight:500;display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:0 8px}
+.icon-btn:hover{background:var(--accent-soft)}
+.content{flex:1;min-height:0;overflow:auto;padding:4px 16px 20px;-webkit-overflow-scrolling:touch}
+.footer{padding:10px 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;background:var(--bg);border-top:1px solid var(--border)}
+.btn{min-height:44px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);padding:8px 16px;font-size:17px;font-weight:600;width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-align:center}
+.btn.primary{min-height:56px;background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.btn.quiet{border-color:transparent;background:transparent;color:var(--accent);min-height:44px}
+.btn.small{width:auto;min-height:44px;font-size:15px;padding:6px 14px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px}
+.row-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;min-height:64px;margin-bottom:8px;font-family:inherit;font-size:16px;color:inherit}
+.row-item .meta{color:var(--muted);font-size:14px;margin-top:2px}
+.row-item .grow{flex:1;min-width:0}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--surface-2);border:1px solid var(--border);white-space:nowrap}
+.pill.ok{background:var(--ok-bg);color:var(--ok);border-color:transparent}
+.pill.warn{background:var(--warn-bg);color:var(--warn-fg);border-color:transparent}
+.pill.err{background:var(--err-bg);color:var(--err);border-color:transparent}
+.empty{color:var(--muted);text-align:center;padding:40px 16px;font-size:16px}
+.h-screen{font-size:24px;font-weight:700;line-height:1.2;margin:12px 0 8px}
+.lead{color:var(--muted);margin:0 0 14px;font-size:15px}
+.hand{font-family:var(--f-hand)}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:14px;font-weight:600;margin-bottom:4px}
+.field .hint{font-size:13px;color:var(--muted);margin-top:4px}
+.field input,.field textarea{width:100%;min-height:46px;border:1.5px solid var(--border);border-radius:12px;background:var(--surface);color:var(--fg);font:inherit;font-size:18px;padding:8px 12px;font-variant-numeric:tabular-nums}
+.field textarea{min-height:96px;font-size:16px;resize:vertical}
+.radio{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:8px;font-family:inherit;font-size:16px;color:inherit;min-height:60px}
+.radio[aria-checked="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.radio .dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--muted);flex:none;margin-top:2px;display:grid;place-items:center}
+.radio[aria-checked="true"] .dot{border-color:var(--accent)}
+.radio[aria-checked="true"] .dot::after{content:"";width:12px;height:12px;border-radius:50%;background:var(--accent)}
+.radio .help{color:var(--muted);font-size:14px;margin-top:2px}
+.seg-ui{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.seg-ui button{flex:1;min-height:44px;border:1.5px solid var(--border);background:var(--surface);border-radius:12px;font-size:15px;font-weight:600;padding:4px 8px}
+.seg-ui button[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+/* cascading pickers */
+.picker{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:8px 12px;min-height:56px;margin-bottom:8px;font-family:inherit;color:inherit}
+.picker:disabled{opacity:.55;cursor:not-allowed}
+.picker .k{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase;display:block}
+.picker .v{font-size:16px;font-weight:500;display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.picker .v.placeholder{color:var(--muted);font-weight:400}
+.picker .chev{margin-left:auto;color:var(--muted);flex:none}
+.picker.auto{border-style:dashed}
+.search{width:100%;min-height:46px;border:1.5px solid var(--border);border-radius:12px;background:var(--surface);color:var(--fg);font:inherit;font-size:17px;padding:8px 12px;margin-bottom:8px}
+.list{display:flex;flex-direction:column;gap:4px}
+.list button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 12px;min-height:48px;font-family:inherit;color:inherit;font-size:15px}
+.list button .sub{font-size:13px;color:var(--muted)}
+.list button[aria-selected="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.list .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.list .grid button{align-items:center;justify-content:center;min-height:48px;font-variant-numeric:tabular-nums;font-weight:600}
+/* editor */
+.img-area{position:relative;background:#111827;border-radius:14px;overflow:hidden;height:200px;margin:6px 0 10px;display:flex;align-items:center;justify-content:center}
+.img-area svg{height:100%;width:auto;max-width:100%}
+.img-area .overlay{position:absolute;inset:auto 8px 8px 8px;display:flex;gap:6px;justify-content:space-between;align-items:center}
+.img-area .overlay .btn{width:auto;min-height:40px;font-size:13px;padding:4px 10px;border-radius:10px;background:rgba(255,255,255,.92);color:#14213A;border-color:transparent}
+.img-collapsed{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--surface-2);border:1px dashed var(--border);border-radius:12px;padding:6px 6px 6px 12px;margin:6px 0 10px;font-size:14px;color:var(--muted)}
+.section-h{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.section-h .sum{font-weight:600;letter-spacing:0;text-transform:none;font-variant-numeric:tabular-nums}
+.vrow{display:grid;grid-template-columns:minmax(0,1fr) 108px;gap:10px;align-items:center;padding:4px 0;border-bottom:1px solid var(--border)}
+.vrow label{font-size:15px;line-height:1.25;min-width:0}
+.vrow label .org{display:inline-block;margin-left:6px;font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-soft);padding:1px 6px;border-radius:6px;vertical-align:middle}
+.vrow input{width:100%;min-height:46px;border:1.5px solid var(--border);border-radius:12px;background:var(--surface);color:var(--fg);font:inherit;font-size:19px;text-align:right;padding:6px 10px;font-variant-numeric:tabular-nums}
+.vrow.invalid input{border-color:var(--err);background:var(--err-bg)}
+.vrow.flash input{outline:3px solid var(--focus);outline-offset:2px}
+.vrow input:disabled{background:var(--surface-2);color:var(--muted)}
+.chipbar{border-top:1px solid var(--border);background:var(--surface-2);padding:8px 12px 6px;font-size:13px}
+.chipbar .lbl{display:flex;justify-content:space-between;gap:8px;color:var(--muted);margin-bottom:6px;font-weight:500}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.chip{flex:none;min-width:44px;min-height:44px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);font-size:17px;font-weight:600;padding:0 12px;font-variant-numeric:tabular-nums}
+.chip.zero{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.counter{font-size:14px;color:var(--muted);text-align:center}
+.issue{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:12px;margin-bottom:8px;font-family:inherit;font-size:15px;color:inherit;line-height:1.35}
+.issue.error{border-color:var(--err)} .issue.warning{border-color:var(--warn-line)}
+.issue .go{color:var(--accent);font-weight:600;font-size:14px;margin-top:4px;display:block}
+.issue .ic{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px}
+.issue.error .ic{background:var(--err-bg);color:var(--err)} .issue.warning .ic{background:var(--warn-bg);color:var(--warn-fg)}
+.summary{border-radius:14px;padding:12px 14px;margin:8px 0 12px;font-weight:600}
+.summary.error{background:var(--err-bg);color:var(--err)} .summary.warning{background:var(--warn-bg);color:var(--warn-fg)} .summary.ok{background:var(--ok-bg);color:var(--ok)}
+.summary small{display:block;font-weight:400;font-size:14px;margin-top:4px}
+.mono{font-family:var(--f-mono);font-size:13px;word-break:break-all;color:var(--muted)}
+.thumbs{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 12px}
+.thumb{width:92px;height:116px;border-radius:12px;border:1.5px solid var(--border);background:#111827;overflow:hidden;padding:0;display:grid;place-items:center;position:relative}
+.thumb svg{height:100%;width:auto}
+.thumb .n{position:absolute;bottom:4px;left:4px;font-size:11px;font-weight:700;background:rgba(255,255,255,.9);color:#14213A;border-radius:6px;padding:1px 6px}
+.thumb .x{position:absolute;top:2px;right:2px;min-width:28px;min-height:28px;border-radius:50%;border:0;background:rgba(255,255,255,.92);color:#B3261E;font-weight:800;font-size:14px}
+.kv{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;font-size:15px;margin:0}
+.kv dt{color:var(--muted)} .kv dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.callout{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;font-size:14px;color:var(--fg);margin:10px 0}
+.callout.warn{background:var(--warn-bg);color:var(--warn-fg);border-color:transparent}
+.ro-table{width:100%;border-collapse:collapse;font-size:15px}
+.ro-table th{text-align:left;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:10px 0 4px}
+.ro-table td{padding:6px 0;border-bottom:1px solid var(--border)} .ro-table td:last-child{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.ro-table .org{font-size:11px;color:var(--accent);background:var(--accent-soft);padding:1px 6px;border-radius:6px;margin-left:6px;font-weight:700}
+.cmp{display:grid;grid-template-columns:minmax(0,1fr) 64px 64px 28px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:15px}
+.cmp .n{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.cmp .st{font-weight:800;text-align:center}
+.cmp.bad .st{color:var(--err)} .cmp.good .st{color:var(--ok)}
+.cmp-h{display:grid;grid-template-columns:minmax(0,1fr) 64px 64px 28px;gap:8px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:8px 0 2px}
+.cmp-h span:nth-child(2),.cmp-h span:nth-child(3){text-align:right}
+.sheet-bg{position:absolute;inset:0;background:rgba(10,15,30,.55);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+.sheet-bg.center{align-items:center;padding:20px}
+.sheet{background:var(--surface);border-radius:20px 20px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));width:100%;max-height:92%;overflow:auto;font-family:var(--f-ui);display:flex;flex-direction:column}
+.sheet-bg.center .sheet{border-radius:20px;max-height:100%}
+.sheet h2{font-size:19px;margin-bottom:8px}
+.sheet p,.sheet li{font-size:15px;margin:0 0 8px}
+.sheet .actions{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.sheet .scroll{overflow:auto;min-height:0;flex:1}
+.camera{position:absolute;inset:0;background:#000;z-index:25;display:flex;flex-direction:column;color:#fff}
+.camera .view{flex:1;min-height:0;display:grid;place-items:center;position:relative;padding:20px}
+.camera .view svg{max-height:100%;width:auto;max-width:100%;transform:rotate(-2deg)}
+.camera .frame{position:absolute;inset:34px 26px;border:2px solid rgba(124,185,232,.9);border-radius:10px;pointer-events:none}
+.camera .bar{display:flex;justify-content:space-around;align-items:center;padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px))}
+.camera .shutter{width:72px;height:72px;border-radius:50%;background:#fff;border:5px solid #9ca3af}
+.camera .bar .btn{width:auto;background:transparent;color:#fff;border-color:rgba(255,255,255,.4)}
+.share-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0}
+.share-grid .btn{flex-direction:column;font-size:12px;min-height:72px;gap:4px;padding:6px}
+.gallery{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.gallery button{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;background:var(--surface-2);border:1.5px solid var(--border);border-radius:12px;padding:10px;min-height:96px;font-family:inherit;color:inherit;font-size:14px}
+.gallery button strong{font-size:15px}
+.gallery button .sub{font-size:12px;color:var(--muted);line-height:1.3}
+.sample-box{background:var(--surface);border:1.5px dashed var(--warn-line);border-radius:14px;padding:10px 12px;margin:6px 0 10px;font-size:14px}
+.sample-head{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}
+.sample-head strong{font-size:14px;line-height:1.3}
+.sample-head .pill{align-self:flex-start}
+.sample-vals{font-size:13px;line-height:1.5;color:var(--fg);max-height:120px;overflow:auto;font-variant-numeric:tabular-nums}
+.sample-thumb{display:flex;flex-direction:column;gap:2px;align-items:center;justify-content:center;text-align:center;width:100%;height:100%;padding:6px;font-size:11px;line-height:1.2;color:var(--fg);background:var(--surface-2);border:1.5px dashed var(--warn-line);border-radius:12px}
+.toast{position:absolute;left:16px;right:16px;bottom:calc(90px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:10px 14px;border-radius:12px;font-size:14px;z-index:30;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+/* panel */
+.panel{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto;background:var(--panel-bg);border:1px solid var(--border);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:16px}
+.panel h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px}
+.panel .btn{font-size:14px;min-height:44px;font-family:var(--f-panel)}
+.state-box{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px;align-items:baseline}
+.state-box dt{color:var(--muted)} .state-box dd{margin:0}
+.state-box code{font-family:var(--f-mono);font-size:13px;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:0 6px}
+.stages{display:flex;gap:4px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px}
+.stages span{background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:2px 6px}
+.stages span.on{background:var(--accent-soft);color:var(--accent);border-color:var(--accent);font-weight:600}
+.evts{display:flex;flex-wrap:wrap;gap:6px}
+.evts button{min-height:34px;border:1px solid var(--border);background:var(--surface);border-radius:8px;padding:2px 10px;font-family:var(--f-mono);font-size:12.5px}
+.evts button.on{border-color:var(--ok);color:var(--ok);background:var(--ok-bg)}
+.evts button:disabled{opacity:.55;cursor:not-allowed}
+.evts button .p{font-family:var(--f-panel);font-size:11px;color:var(--muted);margin-left:4px}
+.log{list-style:none;margin:0;padding:0;font-size:13px;display:flex;flex-direction:column;gap:4px;max-height:220px;overflow:auto}
+.log li{display:grid;grid-template-columns:40px 1fr;gap:8px;padding:4px 6px;border-radius:8px;background:var(--surface-2)}
+.log li.ignored{opacity:.7;border-left:3px solid var(--err)}
+.log li.ok{border-left:3px solid var(--ok)}
+.log .t{font-family:var(--f-mono);color:var(--muted);font-size:12px}
+.log code{font-family:var(--f-mono);font-size:12px}
+.log .fx{color:var(--accent);font-family:var(--f-mono);font-size:12px}
+.ctx{font-family:var(--f-mono);font-size:12px;line-height:1.4;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:10px;max-height:300px;overflow:auto;white-space:pre-wrap;word-break:break-word;margin:0}
+.issues-mini{margin:6px 0 0;padding-left:18px;font-size:13px}
+.note p{margin:0 0 8px;font-size:14px}
+.note ul{margin:0 0 8px;padding-left:18px;font-size:13.5px}
+.seg{display:flex;gap:4px;flex-wrap:wrap}
+.seg button{min-height:36px;border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:4px 10px;font-size:13px}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+details summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (max-width:900px){
+  .stage{grid-template-columns:minmax(0,1fr)}
+  .device{width:100%;height:min(844px,calc(100dvh - 24px));border-radius:18px;padding:0;background:transparent;box-shadow:none}
+  .phone{border-radius:18px;border:1px solid var(--border)}
+  .panel{position:static;max-height:none}
+}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important} }
+</style>
+</head>
+<body>
+<header class="header">
+  <h1>Prototipo del flujo de captura · CuentaConmigo</h1>
+  <p>Las tres presentaciones (F-1 asistente, F-2 imagen + campos, F-3 doble carga) corren sobre el <strong>mismo statechart</strong> <code>contracts/flows/capture.flow.json</code> con el intérprete de referencia. Cambiá el diseño en la pantalla E-12 (ⓘ). Propuesta, no decisión.</p>
+  <div class="seg theme" role="group" aria-label="Tema"><button data-theme="auto" aria-pressed="true">Auto</button><button data-theme="light" aria-pressed="false">Claro</button><button data-theme="dark" aria-pressed="false">Oscuro</button></div>
+</header>
+
+<div class="stage">
+  <div class="device">
+    <div class="phone" id="phone">
+      <div class="statusbar"><span id="clock">20:47</span><span class="net" id="netstate">Sin red · todo local</span><span>▮▮▮ 38 %</span></div>
+      <div class="app" id="app"></div>
+    </div>
+  </div>
+  <aside class="panel" id="panel" aria-label="Panel de la máquina"></aside>
+</div>
+<div id="live" class="sr-only" aria-live="polite"></div>
+
+<script src="flow-machine.js"></script>
+<script src="capture.flow.js"></script>
+<script src="nomina.sample.js"></script>
+<script src="samples.js"></script>
+<script>
+/* ======================================================================
+   Shell around the machine. Everything that is not the flow (screens E-01
+   and E-12, overlays, simulated effects, example data) lives here.
+   Machine: window.FlowMachine; flow: window.CAPTURE_FLOW; template:
+   window.CAPTURE_TEMPLATE (generales-2023); roster subset: window.NOMINA_SAMPLE.
+   ====================================================================== */
+const FLOW = window.CAPTURE_FLOW, T = window.CAPTURE_TEMPLATE, R = window.NOMINA_SAMPLE;
+const DOCTYPE_LABEL = { certificado: 'Certificado de escrutinio', telegrama: 'Telegrama', acta: 'Acta de escrutinio' };
+const DOCTYPE_SHORT = { certificado: 'Certificado', telegrama: 'Telegrama', acta: 'Acta' };
+const DOCTYPE_HELP = { certificado: 'Copia que recibe quien fiscaliza la mesa.', telegrama: 'Documento que se remite al centro de cómputos.', acta: 'Queda con la documentación de la mesa. Sin manipular el original.' };
+const PRES_HELP = { f1: 'Una pregunta por pantalla. Imposible saltear pasos; más toques.', f2: 'Imagen arriba, campos abajo, orden libre. Menos toques; más información junta.', f3: 'Igual a F-2 y, al validar, otra persona re-tipea los totales sin ver la carga 1.' };
+
+/* No synthetic figures anywhere (author's rule). The simulated scanner shows an empty
+   form; the only numbers come from Andy's real transcriptions (window.OCR_SAMPLES,
+   borrador_ia). The sample images are not included: they contain personal data. */
+const SAMPLES = window.OCR_SAMPLES || [];
+const ELECCION_LABEL = { 'balotaje-2015': 'Balotaje 2015', 'paso-2017': 'PASO 2017' };
+function sampleById(id) { return SAMPLES.find((s) => s.id === id) || null; }
+function sampleTokens(s) { const out = []; s.rows.forEach((r) => { if (r.valor != null) { const t = String(r.valor); if (!out.includes(t)) out.push(t); } }); return out; }
+
+/* Messages for every validation code, in one dictionary. */
+const MSG = {
+  missing_mesa: (l) => `Falta el dato de mesa: ${l}.`,
+  missing_value: (l) => `Falta el valor de ${l}.`,
+  negative_value: (l) => `${l}: el valor no puede ser negativo.`,
+  votantes_exceed_electores: (v, e) => `Hay más votantes (${v}) que electores habilitados (${e}).`,
+  category_total_mismatch: (c, s, v) => `${c}: la suma de las filas (${s}) no coincide con el total de votantes (${v}). Si el documento dice eso, podés confirmar igual con una justificación.`
+};
+const EFFECT_SIM = { persistSettings: 'guarda el ajuste', persist: 'guarda el borrador', scan: 'abre el escáner (simulado)', importPhotos: 'abre Fotos (simulado)', ocr: 'lee números (simulado, 0,7 s)', hashEvidence: 'calcula huellas (simuladas)', export: 'abre Compartir (simulado)' };
+
+/* ---------- roster helpers (real 2025 roster subset, no invented places) ---------- */
+function distrito(id) { return R.distritos.find((d) => d.id === id); }
+function seccion(did, sid) { const d = distrito(did); return d && d.secciones.find((s) => s.id === sid); }
+function localesOf(did, sid) { const s = seccion(did, sid); return s ? s.locales : null; }
+function localByName(did, sid, name) { return (localesOf(did, sid) || []).find((l) => l.nombre === name) || null; }
+function mesasOf(local) { const out = []; local.mesas.forEach(([a, b, c]) => { for (let n = a; n <= b; n++) out.push({ n, circuito: c }); }); return out; }
+function localsByMesaNumber(did, sid, n) { return (localesOf(did, sid) || []).filter((l) => l.mesas.some(([a, b]) => n >= a && n <= b)); }
+function circuitoOf(local, n) { const r = local.mesas.find(([a, b]) => n >= a && n <= b); return r ? r[2] : (local.mesas.length === 1 ? local.mesas[0][2] : null); }
+function title(s) { return String(s).toLowerCase().replace(/(^|[\s./(-])([a-záéíóúñ])/g, (m, p, c) => p + c.toUpperCase()); }
+function mesaSummary(m) { const d = distrito(m.distrito), s = seccion(m.distrito, m.seccion); return [d ? title(d.nombre) : m.distrito, s ? title(s.nombre) : m.seccion, m.establecimiento ? title(m.establecimiento) : null, m.mesa ? 'mesa ' + m.mesa : null].filter(Boolean).join(' · '); }
+
+/* Mesa codes come from the sample itself; the establecimiento is filled only when the
+   2025 roster subset has a polling place that contains that mesa number. */
+function sampleMesa(s) {
+  const m = Object.assign({}, s.mesa);
+  const n = parseInt(m.mesa, 10);
+  const hits = Number.isInteger(n) ? localsByMesaNumber(m.distrito, m.seccion, n) : [];
+  m.establecimiento = hits.length === 1 ? hits[0].nombre : null;
+  return m;
+}
+function sampleLabel(s) { return `${ELECCION_LABEL[s.eleccion] || s.year} · distrito ${s.mesa.distrito} · sección ${s.mesa.seccion} · circuito ${s.mesa.circuito} · mesa ${s.mesa.mesa}`; }
+
+/* ---------- shell state ---------- */
+let S;
+function hhmm(d) { return (d || new Date()).toTimeString().slice(0, 5); }
+function fakeHash(seed) { let x = seed * 2654435761 % 4294967296, out = ''; for (let i = 0; i < 64; i++) { x = (x * 1103515245 + 12345) % 2147483648; out += '0123456789abcdef'[x % 16]; } return out; }
+function esc(s) { return String(s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch])); }
+function newCapture() {
+  const machine = FlowMachine.createMachine(FLOW, T, { presentation: S.settings.presentation });
+  return { id: 'c' + Date.now() + Math.random().toString(36).slice(2, 6), machine, createdAt: Date.now(), savedAt: null, lockedAt: null, exportedAt: null, exportVia: null, hashes: {}, ocr: {}, ocrBusy: false, pageCounter: 0 };
+}
+function initialState() {
+  return { view: 'home', captures: [], current: null, settings: { presentation: 'f2' }, log: [],
+    ui: { wiz: 0, page: 0, imgHidden: false, focused: null, flash: null, zoom: 1, viewing: null, returnTo: null }, overlay: null, toastTimer: null };
+}
+function cur() { return S.captures.find((c) => c.id === S.current) || null; }
+function M() { const c = cur(); return c ? c.machine : null; }
+function ctx() { return M().context; }
+function rowLabel(id) { return (T.rows.find((r) => r.id === id) || {}).label || id; }
+function catLabel(id) { return (T.categories.find((c) => c.id === id) || {}).label || id; }
+function pathLabel(path) {
+  const p = path.split('.');
+  if (p[0] === 'mesa') return (T.mesaFields.find((f) => f.id === p[1]) || {}).label || p[1];
+  if (p[0] === 'header') return (T.headerFields.find((f) => f.id === p[1]) || {}).label || p[1];
+  if (p[0] === 'cells') return p.length === 2 ? catLabel(p[1]) : `${catLabel(p[1])}: ${rowLabel(p[2])}`;
+  return path;
+}
+function fid(path) { return 'f-' + path.replace(/\./g, '-'); }
+function announce(t) { const l = document.getElementById('live'); if (l) { l.textContent = ''; setTimeout(() => { l.textContent = t; }, 50); } }
+function toast(t) { const old = document.querySelector('.toast'); old && old.remove(); const el = document.createElement('div'); el.className = 'toast'; el.setAttribute('role', 'status'); el.textContent = t; document.getElementById('phone').appendChild(el); clearTimeout(S.toastTimer); S.toastTimer = setTimeout(() => el.remove(), 2800); }
+
+/* ---------- dispatch: the only way the UI talks to the machine ---------- */
+function dispatch(type, payload, opts = {}) {
+  const c = cur(); if (!c) return null;
+  const r = c.machine.send(type, payload);
+  S.log.unshift({ t: hhmm(), event: type, from: r.from, to: r.state, effects: r.effects, ignored: r.ignored, source: r.transition && r.transition.source });
+  S.log = S.log.slice(0, 40);
+  if (!r.ignored) { runEffects(c, r.effects, r); if (r.from !== r.state) { S.ui.flash = null; S.ui.focused = null; if (r.state === 'validation' || r.state === 'confirmed') S.ui.returnTo = null; } }
+  else if (opts.announceIgnored) toast(`La máquina ignoró "${type}" en ${r.from}`);
+  if (opts.phone !== false) renderPhone();
+  renderPanel();
+  return r;
+}
+function runEffects(c, effects, r) {
+  effects.forEach((e) => {
+    if (e === 'persist') c.savedAt = hhmm();
+    else if (e === 'persistSettings') S.settings.presentation = c.machine.context.presentation;
+    else if (e === 'scan') S.overlay = { kind: 'camera' };
+    else if (e === 'importPhotos') S.overlay = { kind: 'photos' };
+    else if (e === 'ocr') { c.ocrBusy = true; setTimeout(() => { c.machine.context.pages.forEach((p) => { if (!c.ocr[p.id]) c.ocr[p.id] = p.source === 'sample' && c.sampleData ? sampleTokens(c.sampleData) : []; }); c.ocrBusy = false; if (cur() === c) { refreshChips(); renderPanel(); } }, 700); }
+    else if (e === 'hashEvidence') { c.machine.context.pages.forEach((p, i) => { c.hashes[p.id] = fakeHash(Date.now() % 100000 + i); }); c.lockedAt = hhmm(); }
+    else if (e === 'export') S.overlay = { kind: 'share' };
+  });
+}
+function enabled(type) { const m = M(); if (!m) return false; const e = m.availableEvents().find((x) => x.type === type); return !!e && e.enabled; }
+function presentation() { const m = M(); return m ? m.context.presentation : S.settings.presentation; }
+
+/* ---------- simulated document (SVG) ---------- */
+/* Empty 2023 form: layout only, no figures (the scanner is simulated). */
+function docSVG(c, page) {
+  const k = ctx(); const type = k.documentType || 'telegrama';
+  const t = { certificado: 'CERTIFICADO DE ESCRUTINIO', telegrama: 'TELEGRAMA DE ESCRUTINIO', acta: 'ACTA DE ESCRUTINIO' }[type];
+  const m = k.mesa; const cat = T.categories[0];
+  const idx = k.pages.indexOf(page); const total = k.pages.length;
+  const rows = T.rows.map((r, i) => { const y = 300 + i * 38;
+    return `<text x="50" y="${y + 26}" font-size="15" fill="var(--ink)" font-family="Arial,sans-serif">${esc(r.label)}</text><rect x="430" y="${y}" width="120" height="34" fill="none" stroke="var(--ink)" stroke-width="1.2"/>`; }).join('');
+  const box = (x, w, label, v) => `<text x="${x}" y="118">${label}</text><rect x="${x}" y="125" width="${w}" height="34" fill="none" stroke="var(--ink)"/><text x="${x + w / 2}" y="151" text-anchor="middle" font-size="22" class="hand" fill="var(--pen)">${esc(v || '')}</text>`;
+  return `<svg viewBox="0 0 600 800" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(`Formulario simulado sin cifras (${DOCTYPE_LABEL[type].toLowerCase()}), página ${idx + 1} de ${total}`)}">
+    <rect width="600" height="800" fill="var(--paper)" stroke="#C9C2A8"/>
+    <g transform="rotate(12 520 60)"><rect x="380" y="46" width="280" height="30" fill="var(--dorado)" opacity=".95"/><text x="520" y="67" text-anchor="middle" font-size="13" font-weight="700" font-family="Arial,sans-serif" fill="#14213A" letter-spacing="1">SIMULACIÓN · SIN CIFRAS</text></g>
+    <text x="50" y="60" font-size="22" font-weight="700" font-family="Arial,sans-serif" fill="var(--ink)">${t}</text>
+    <text x="50" y="84" font-size="12" font-family="Arial,sans-serif" fill="#6B6B6B">${esc(T.title)} · formato, no un documento real</text>
+    <g font-family="Arial,sans-serif" font-size="11" fill="#555">${box(50, 70, 'DISTRITO', m.distrito)}${box(130, 80, 'SECCIÓN', m.seccion)}${box(220, 110, 'CIRCUITO', m.circuito)}${box(340, 90, 'MESA', m.mesa)}${box(440, 110, 'ESTABLEC.', m.establecimiento ? m.establecimiento.slice(0, 8) + '…' : '')}</g>
+    <g font-family="Arial,sans-serif" font-size="14" fill="var(--ink)"><text x="50" y="205">Electores habilitados</text><rect x="430" y="182" width="120" height="32" fill="none" stroke="var(--ink)"/>
+    <text x="50" y="247">Total de votantes (sobres)</text><rect x="430" y="224" width="120" height="32" fill="none" stroke="var(--ink)"/></g>
+    <rect x="50" y="268" width="500" height="26" fill="#E6E2D3"/><text x="60" y="286" font-size="13" font-weight="700" font-family="Arial,sans-serif" fill="var(--ink)">${esc(cat.label.toUpperCase())}</text>
+    ${rows}
+    <text x="50" y="712" font-size="14" font-weight="700" font-family="Arial,sans-serif" fill="var(--ink)">Total de la categoría</text><rect x="430" y="686" width="120" height="34" fill="none" stroke="var(--ink)" stroke-width="1.6"/>
+    <g font-family="Arial,sans-serif" font-size="11" fill="#6B6B6B"><text x="60" y="760">Firmas: en blanco (sin datos de personas)</text></g>
+    <text x="550" y="790" text-anchor="end" font-size="11" font-family="Arial,sans-serif" fill="#6B6B6B">Página ${idx + 1} de ${total}</text></svg>`;
+}
+/* Page of a real sample: the official image is not included in the public prototype. */
+function sampleBox(c, page, compact) {
+  const s = c.sampleData; if (!s) return '';
+  const vals = s.rows.filter((r) => r.valor != null || r.estado !== 'numero');
+  const show = (r) => `${esc(r.fila)}${r.columna ? ' · ' + esc(r.columna) : ''}: <strong>${r.valor == null ? esc(r.comoFigura || '—') + ' (' + esc(r.estado) + ')' : r.valor}</strong>`;
+  if (compact) return `<div class="sample-thumb"><strong>Telegrama oficial</strong><span>imagen no incluida</span><span class="mono" style="font-size:10px;color:inherit">${esc(s.file.split('/')[1])}</span></div>`;
+  return `<div class="sample-box"><div class="sample-head"><strong>Telegrama oficial · imagen no incluida en el prototipo público (datos personales)</strong><span class="mono">${esc(s.file)}</span><span class="pill warn">transcripción borrador_ia</span></div><div class="sample-vals">${vals.map(show).join(' · ')}</div><p class="counter" style="text-align:left;margin:6px 0 0">${esc(ELECCION_LABEL[s.eleccion] || s.year)}: las agrupaciones no coinciden con la plantilla 2023; se cargan sólo encabezado y especiales que existan.</p></div>`;
+}
+function pageVisual(c, page) { return page.source === 'sample' ? sampleBox(c, page, false) : docSVG(c, page); }
+
+/* ---------- validation helpers for the screens ---------- */
+function issuesDetailed() {
+  const m = M(); const k = m.context; const v = m.values();
+  return m.issues().map((i) => {
+    const p = i.path.split('.'); let text = '', screenEvent = 'edit';
+    if (i.code === 'missing_mesa') { text = MSG.missing_mesa(pathLabel(i.path)); screenEvent = 'editMesa'; }
+    else if (i.code === 'missing_value' || i.code === 'negative_value') text = MSG[i.code](pathLabel(i.path));
+    else if (i.code === 'votantes_exceed_electores') text = MSG.votantes_exceed_electores(v.header.votantes, v.header.electores);
+    else if (i.code === 'category_total_mismatch') { const sum = T.rows.reduce((s, r) => s + ((v.cells[p[1]] || {})[r.id] || 0), 0); text = MSG.category_total_mismatch(catLabel(p[1]), sum, v.header.votantes); }
+    return Object.assign({}, i, { text, screenEvent });
+  });
+}
+function emptyCount() { const v = M().values(); let n = 0; if (v.header.votantes == null) n++; T.categories.forEach((c) => T.rows.forEach((r) => { if ((v.cells[c.id] || {})[r.id] == null) n++; })); return n; }
+function catSum(catId) { const v = M().values(); return T.rows.reduce((s, r) => s + (((v.cells[catId] || {})[r.id]) || 0), 0); }
+function valueOf(path) { const k = ctx(); const p = path.split('.'); const e = p[0] === 'header' ? k.header[p[1]] : (k.cells[p[1]] || {})[p[2]]; return e || null; }
+
+/* ---------- screen fragments ---------- */
+const ICON = {
+  back: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>',
+  lock: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>',
+  info: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 8h.01"/></svg>',
+  hand: '<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11m0-6.5a1.5 1.5 0 0 1 3 0V11m0-5a1.5 1.5 0 0 1 3 0v6.5m0-4a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-2a6 6 0 0 1-5-2.7L4.6 15a1.7 1.7 0 0 1 2.7-2L8 14"/></svg>',
+  check: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>',
+  chev: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>'
+};
+function stageTag(t) { return `<span class="stage-tag">${esc(t)}</span>`; }
+function lockedNote() { return `<div class="callout" style="display:flex;gap:8px;align-items:center">${ICON.lock}<span>Captura confirmada y bloqueada: no se puede editar ni borrar. Si hay un error, hacé una nueva captura de la misma mesa.</span></div>`; }
+
+function docTypeRadios() { const k = ctx(); return `<div role="radiogroup" aria-label="Tipo de documento">${T.documentTypes.map((t) => `<button class="radio" role="radio" aria-checked="${k.documentType === t}" data-act="set-type" data-type="${t}"><span class="dot"></span><span><span>${esc(DOCTYPE_LABEL[t])}</span><div class="help">${esc(DOCTYPE_HELP[t])}</div></span></button>`).join('')}</div>`; }
+
+function mesaPickers() {
+  const m = ctx().mesa; const d = distrito(m.distrito); const s = seccion(m.distrito, m.seccion); const ls = localesOf(m.distrito, m.seccion); const local = localByName(m.distrito, m.seccion, m.establecimiento);
+  const row = (key, label, value, placeholder, disabled, extra = '') => `<button class="picker ${extra}" data-act="pick" data-level="${key}" ${disabled ? 'disabled' : ''} aria-label="${esc(label)}: ${esc(value || placeholder)}"><span style="min-width:0;flex:1"><span class="k">${esc(label)}</span><span class="v ${value ? '' : 'placeholder'}">${esc(value || placeholder)}</span></span><span class="chev">${ICON.chev}</span></button>`;
+  let html = row('distrito', 'Distrito', d ? title(d.nombre) : '', 'Elegir el distrito', false);
+  html += row('seccion', 'Sección', s ? title(s.nombre) : '', d ? 'Elegir la sección' : 'Primero el distrito', !d);
+  if (s && ls === null) {
+    html += `<div class="callout warn">Esta sección no está incluida en el prototipo: sólo tiene establecimientos <strong>Comuna 1 (CABA)</strong> y <strong>Avellaneda (Buenos Aires)</strong>. Podés escribirlos a mano.</div>`;
+    html += ['circuito', 'establecimiento', 'mesa'].map((key) => `<div class="field"><label for="${fid('mesa.' + key)}">${esc(key === 'mesa' ? 'Mesa' : key === 'circuito' ? 'Circuito' : 'Establecimiento')}</label><input id="${fid('mesa.' + key)}" data-mesa="${key}" value="${esc(m[key] || '')}" inputmode="${key === 'establecimiento' ? 'text' : 'numeric'}" autocomplete="off"></div>`).join('');
+    return html;
+  }
+  html += row('establecimiento', 'Establecimiento', local ? title(local.nombre) : '', s ? 'Buscar por nombre, localidad o número de mesa' : 'Primero la sección', !s);
+  html += row('mesa', 'Mesa', m.mesa ? `Mesa ${m.mesa}` : '', local ? `Elegir entre ${local.mesas.map(([a, b]) => `${a}–${b}`).join(', ')}` : 'Primero el establecimiento', !local && !m.mesa);
+  html += `<div class="picker auto" aria-hidden="true" style="cursor:default"><span><span class="k">Circuito</span><span class="v ${m.circuito ? '' : 'placeholder'}">${esc(m.circuito || 'Se completa solo con la mesa')}</span></span></div>`;
+  if (local) html += `<p class="counter" style="text-align:left">${esc(title(local.direccion))} · ${esc(title(local.localidad))}</p>`;
+  return html;
+}
+
+function pagesBlock(ro) {
+  const c = cur(); const k = ctx();
+  const thumbs = k.pages.map((p, i) => `<div class="thumb" role="group" aria-label="Página ${i + 1} de ${k.pages.length}">${p.source === 'sample' ? sampleBox(c, p, true) : docSVG(c, p)}<span class="n">${i + 1}</span>${ro ? '' : `<button class="x" data-act="remove-page" data-id="${esc(p.id)}" aria-label="Quitar la página ${i + 1}">✕</button>`}</div>`).join('');
+  const sampleNote = k.sample ? `<div class="callout">${esc(k.sample.label)}: la mesa se completó sola desde el telegrama de ejemplo (${esc(c.sampleData ? ELECCION_LABEL[c.sampleData.eleccion] || c.sampleData.year : '')}). Los valores transcriptos (borrador_ia) aparecen como sugerencias en la carga.</div>` : '';
+  return `${sampleNote}<div class="thumbs">${thumbs || '<div class="empty" style="padding:12px 0;width:100%">Todavía no hay páginas.</div>'}</div>
+    ${ro ? '' : `<div style="display:flex;flex-direction:column;gap:8px"><button class="btn primary" data-evt="requestScan" style="min-height:48px">Escanear con la cámara</button><button class="btn" data-evt="requestPhotos">Importar de Fotos</button><button class="btn quiet" data-act="samples">Usar un telegrama de ejemplo</button></div>
+    <p class="counter" style="margin-top:10px">${k.pages.length} ${k.pages.length === 1 ? 'página guardada' : 'páginas guardadas'} en este teléfono · con poca luz, activá la linterna del escáner.</p>`}`;
+}
+
+function imageBlock() {
+  const c = cur(); const k = ctx(); if (!k.pages.length) return `<div class="img-collapsed"><span>Sin imagen: agregá una página en "Páginas".</span></div>`;
+  const i = Math.min(S.ui.page, k.pages.length - 1); const p = k.pages[i];
+  if (S.ui.imgHidden) return `<div class="img-collapsed"><span>Imagen oculta · pág. ${i + 1}/${k.pages.length}</span><button class="btn small" data-act="img-toggle">Mostrar imagen</button></div>`;
+  if (p.source === 'sample') return `${sampleBox(c, p, false)}<div class="img-collapsed"><span>pág. ${i + 1}/${k.pages.length} · ejemplo</span><span><button class="btn small" data-act="img-toggle">Ocultar</button> <button class="btn small" data-act="page-next" ${k.pages.length > 1 ? '' : 'disabled'} aria-label="Siguiente página">▶</button></span></div>`;
+  return `<div class="img-area">${docSVG(c, p)}<div class="overlay"><button class="btn" data-act="img-toggle">Ocultar</button><span style="color:#fff;font-size:12px;font-weight:600">pág. ${i + 1}/${k.pages.length}</span><button class="btn" data-act="page-next" aria-label="Siguiente página" ${k.pages.length > 1 ? '' : 'disabled'}>▶</button><button class="btn" data-act="view-page" data-i="${i}">⤢ Ampliar</button></div></div>`;
+}
+
+function valueRow(path, label, ro) {
+  const e = valueOf(path); const inv = M().issues().some((i) => i.path === path);
+  const org = e && e.origin === 'ocr-accepted' ? '<span class="org" aria-label="valor copiado del OCR">OCR</span>' : '';
+  return `<div class="vrow ${inv ? 'invalid' : ''} ${S.ui.flash === path ? 'flash' : ''}" id="${fid(path)}"><label for="${fid(path)}-i">${esc(label)}${org}</label><input id="${fid(path)}-i" data-field="${path}" value="${e ? e.value : ''}" inputmode="numeric" autocomplete="off" ${ro ? 'disabled' : ''} aria-invalid="${inv}"></div>`;
+}
+function headerSection(ro) { const v = M().values(); return `<div class="section-h"><span>Totales de la mesa</span></div>${T.headerFields.map((f) => valueRow('header.' + f.id, f.label + (f.required ? '' : ' (opcional)'), ro)).join('')}`; }
+function categorySection(cat, ro) { const v = M().values(); const sum = catSum(cat.id); const vt = v.header.votantes; return `<div class="section-h"><span>${esc(cat.label)}</span><span class="sum" aria-label="suma parcial">Σ ${sum}${vt != null ? ` / ${vt}` : ''}</span></div>${T.rows.map((r) => valueRow(`cells.${cat.id}.${r.id}`, r.label, ro)).join('')}`; }
+function chipbar() {
+  const c = cur(); const k = ctx(); if (!k.pages.length) return '';
+  const p = k.pages[Math.min(S.ui.page, k.pages.length - 1)]; const tokens = c.ocr[p.id];
+  if (c.ocrBusy && !tokens) return `<div class="chipbar"><div class="lbl"><span>Leyendo números…</span></div></div>`;
+  if (!tokens) return '';
+  if (!tokens.length) return `<div class="chipbar"><div class="lbl"><span>El OCR no detectó números (formulario simulado sin cifras). Tipeá los valores.</span></div></div>`;
+  const uniq = [...new Set(tokens)];
+  return `<div class="chipbar" id="chipbar"><div class="lbl"><span>Transcripción borrador_ia del ejemplo (sugerencia, nunca se aplica sola)</span><span id="chip-target">${S.ui.focused ? '→ ' + esc(pathLabel(S.ui.focused).split(': ').pop()) : 'tocá un campo'}</span></div><div class="chips"><button class="chip zero" data-act="chip" data-v="0" aria-label="Copiar cero al campo">Cero</button>${uniq.map((t) => `<button class="chip" data-act="chip" data-v="${esc(t)}" aria-label="Copiar ${esc(t)} al campo">${esc(t)}</button>`).join('')}<button class="chip" data-act="next-empty" style="font-size:14px">Siguiente vacío</button></div></div>`;
+}
+function counterText() { const n = emptyCount(); return `${n} ${n === 1 ? 'campo vacío' : 'campos vacíos'}`; }
+
+/* ---------- screens by machine state ---------- */
+function renderMachineScreen() {
+  const m = M(); const k = m.context; const st = m.state; const pres = k.presentation; const ro = k.locked;
+  if (st === 'bupWarning') return {
+    nav: { title: '', trailing: `<button class="icon-btn" data-act="ask-discard" aria-label="Cerrar y descartar el borrador">✕</button>` },
+    body: `<div style="text-align:center;color:var(--err);margin-top:10px">${ICON.hand}</div><h2 class="h-screen" style="text-align:center">Nunca fotografíes la Boleta Única</h2><p style="text-align:center;margin:0 0 16px">Está prohibido durante los comicios (Código Electoral, art. 71 inc. g).</p><div class="card" style="font-size:16px;line-height:1.4"><strong>Escaneá sólo el documento que te corresponde según tu función. Nunca la Boleta Única.</strong></div><div class="callout" style="margin-top:12px">La autorización para fotografiar el certificado, el telegrama o el acta está <strong>en revisión legal</strong>.</div><button class="btn quiet" data-act="about">Más información</button>`,
+    footer: `<button class="btn primary" data-evt="acceptBup">Entendido, continuar</button>`, announce: 'Nunca fotografíes la Boleta Única' };
+
+  if (st.startsWith('editing.')) {
+    if (pres === 'f1') return renderWizard(st);
+    return renderSplit();
+  }
+  if (st === 'validation') {
+    const list = issuesDetailed(); const errs = list.filter((i) => i.severity === 'error'), warns = list.filter((i) => i.severity === 'warning');
+    const noPages = !k.pages.length;
+    const summary = noPages ? `<div class="summary error">Agregá al menos una imagen del documento.<small>La captura es evidencia: sin imagen no se puede confirmar.</small></div>`
+      : errs.length ? `<div class="summary error">${errs.length === 1 ? 'Hay 1 error' : `Hay ${errs.length} errores`}${warns.length ? ` y ${warns.length} ${warns.length === 1 ? 'aviso' : 'avisos'}` : ''}<small>Los errores bloquean la confirmación. Tocá cada uno para ir al campo.</small></div>`
+      : warns.length ? `<div class="summary warning">${warns.length === 1 ? '1 aviso' : `${warns.length} avisos`}<small>Podés confirmar igual con una justificación de qué dice el documento.</small></div>`
+      : `<div class="summary ok">Todo cierra.<small>Las sumas no detectan valores intercambiados entre filas: revisá fila por fila contra la imagen antes de confirmar.</small></div>`;
+    const items = list.map((i) => `<button class="issue ${i.severity}" data-evt="${i.screenEvent}" data-path="${esc(i.path)}"><span class="ic" aria-hidden="true">${i.severity === 'error' ? '✗' : '!'}</span><span>${esc(i.text)}<span class="go">Ir al campo</span></span></button>`).join('');
+    const de = k.doubleEntry;
+    const deBlock = pres === 'f3' ? (de === 'pending' ? `<div class="callout warn"><strong>Verificación pendiente.</strong> Corregiste la carga 1: compará de nuevo con la carga 2 o cancelá la verificación.<div style="display:flex;gap:8px;margin-top:8px"><button class="btn small" data-evt="compareAgain">Comparar de nuevo</button><button class="btn small" data-evt="cancelDoubleEntry">Cancelar</button></div></div>`
+      : de === 'matched' ? `<div class="callout" style="display:flex;gap:8px;align-items:center"><span class="pill ok">${ICON.check} Verificada por doble carga</span><span style="font-size:13px;color:var(--muted)">Los totales coinciden con la carga 2.</span></div>`
+      : `<button class="btn" data-evt="requestDoubleEntry" ${enabled('requestDoubleEntry') ? '' : 'disabled'}>Verificar con otra persona (carga 2)</button>`) : '';
+    return { nav: { back: { evt: 'edit', label: 'Volver a la carga' }, title: 'Validación', trailing: stageTag('Revisar') },
+      body: `${summary}${noPages ? `<button class="issue error" data-evt="editPages"><span class="ic">✗</span><span>No hay páginas.<span class="go">Ir a las páginas</span></span></button>` : ''}${items}${deBlock}`,
+      footer: `<button class="btn primary" data-evt="proceed" ${enabled('proceed') ? '' : 'disabled'}>Confirmar captura</button>`,
+      announce: `${errs.length} errores, ${warns.length} avisos` };
+  }
+  if (st === 'confirming') {
+    const warns = issuesDetailed().filter((i) => i.severity === 'warning'); const n = Object.keys(k.header).length + T.categories.reduce((s, c) => s + Object.keys(k.cells[c.id] || {}).length, 0);
+    return { nav: { back: { evt: 'back', label: 'Volver a la validación' }, title: 'Confirmar captura', trailing: stageTag('Confirmar') },
+      body: `<div class="card"><dl class="kv"><dt>Mesa</dt><dd>${esc(k.mesa.mesa || '—')}</dd><dt>Documento</dt><dd>${esc(DOCTYPE_SHORT[k.documentType] || '—')}</dd><dt>Páginas</dt><dd>${k.pages.length}</dd><dt>Valores cargados</dt><dd>${n}</dd>${k.doubleEntry === 'matched' ? '<dt>Verificación</dt><dd>doble carga ✓</dd>' : ''}</dl><p class="counter" style="text-align:left;margin:8px 0 0">${esc(mesaSummary(k.mesa))}</p></div>
+        ${warns.length ? `<div class="field" style="margin-top:12px"><label for="just">${warns.length === 1 ? '1 aviso' : warns.length + ' avisos'} · ¿qué dice el documento?</label><textarea id="just" data-just placeholder="Por ejemplo: el total de votantes del documento no coincide con la suma de las filas.">${esc(k.justification || '')}</textarea><div class="hint">Mínimo 5 caracteres. No escribas nombres ni datos de personas.</div></div>` : ''}
+        <div class="callout">Al confirmar, la captura queda <strong>bloqueada como evidencia</strong>: no se puede editar ni borrar. Si hay un error, hacé una nueva captura de la misma mesa.</div>`,
+      footer: `<button class="btn primary" id="btn-confirm" data-evt="confirm" ${enabled('confirm') ? '' : 'disabled'}>${ICON.lock} Confirmar y bloquear</button><button class="btn quiet" data-evt="back">Volver a revisar</button>` };
+  }
+  if (st === 'handoff') return { nav: { title: 'Carga 2 de 2', trailing: stageTag('Verificar') },
+    body: `<h2 class="h-screen">Pasale el teléfono a la otra persona</h2><p class="lead">La segunda carga se hace <strong>sin ver la primera</strong> ni la imagen ni el OCR: sólo el total de votantes y el total de cada categoría. No se guardan nombres.</p><div class="callout">Si la otra persona es de otra fuerza, mejor: la verificación cruzada refuerza la neutralidad.</div>`,
+    footer: `<button class="btn primary" data-evt="secondReady">Empezar carga 2</button><button class="btn quiet" data-evt="cancelDoubleEntry">Saltear: carga simple</button>` };
+  if (st === 'values2') {
+    const s = k.second || { votantes: null, totals: {} };
+    const inp = (key, label, v) => `<div class="vrow"><label for="s-${key}">${esc(label)}</label><input id="s-${key}" data-second="${key}" value="${v == null ? '' : v}" inputmode="numeric" autocomplete="off"></div>`;
+    return { nav: { title: 'Carga 2 · a ciegas', trailing: stageTag('Verificar') },
+      body: `<p class="lead">Mirá el documento en papel y tipeá los totales. No se muestra la carga 1.</p>${inp('votantes', 'Total de votantes (sobres)', s.votantes)}${T.categories.map((c) => inp('total.' + c.id, 'Total · ' + c.label, (s.totals || {})[c.id])).join('')}<p class="counter" style="margin-top:12px">Sin imagen ni sugerencias del OCR en esta pantalla, a propósito.</p>`,
+      footer: `<button class="btn primary" id="btn-submit2" data-evt="submitSecond" ${enabled('submitSecond') ? '' : 'disabled'}>Comparar</button><button class="btn quiet" data-evt="cancelDoubleEntry">Cancelar la verificación</button>` };
+  }
+  if (st === 'compare') {
+    const v = m.values(); const mm = k.mismatches; const s = k.second;
+    const rows = [['Total de votantes', v.header.votantes, s.votantes, 'header.votantes']].concat(T.categories.map((c) => ['Total · ' + c.label, catSum(c.id), (s.totals || {})[c.id], 'cells.' + c.id]));
+    const html = rows.map(([l, a, b, p]) => { const bad = mm.some((x) => x.path === p); return `<div class="cmp ${bad ? 'bad' : 'good'}"><span>${esc(l)}</span><span class="n">${a == null ? '—' : a}</span><span class="n">${b == null ? '—' : b}</span><span class="st" aria-label="${bad ? 'difieren' : 'coinciden'}">${bad ? '✗' : '✓'}</span></div>`; }).join('');
+    const ok = mm.length === 0;
+    return { nav: { title: 'Comparación', trailing: stageTag('Verificar') },
+      body: `<div class="summary ${ok ? 'ok' : 'warning'}">${ok ? 'Las dos cargas coinciden' : `${mm.length} ${mm.length === 1 ? 'diferencia' : 'diferencias'}`}<small>${ok ? 'Los totales de la carga 2 son iguales a las sumas de la carga 1.' : 'Miren la imagen juntos y decidan cuál carga corregir.'}</small></div><div class="cmp-h"><span>Valor</span><span>Carga 1</span><span>Carga 2</span><span></span></div>${html}`,
+      footer: ok ? `<button class="btn primary" data-evt="acceptMatch">Aceptar y seguir</button>` : `<button class="btn primary" data-evt="fixFirstEntry">Corregir la carga 1</button><button class="btn" data-evt="retypeSecond">Repetir la carga 2</button><button class="btn quiet" data-evt="cancelDoubleEntry">Cancelar la verificación</button>` };
+  }
+  if (st === 'confirmed' || st === 'exported') {
+    const c = cur(); const v = m.values();
+    const table = `<table class="ro-table"><thead><tr><th>Campo</th><th>Valor</th></tr></thead><tbody>${T.headerFields.map((f) => { const e = k.header[f.id]; return `<tr><td>${esc(f.label)}</td><td>${e ? e.value : '—'}${e && e.origin === 'ocr-accepted' ? '<span class="org">OCR</span>' : ''}</td></tr>`; }).join('')}${T.categories.map((cat) => T.rows.map((r) => { const e = (k.cells[cat.id] || {})[r.id]; return `<tr><td>${esc(r.label)}</td><td>${e ? e.value : '—'}${e && e.origin === 'ocr-accepted' ? '<span class="org">OCR</span>' : ''}</td></tr>`; }).join('')).join('')}</tbody></table>`;
+    return { nav: { back: { act: 'home', label: 'Volver a mis capturas' }, title: `Mesa ${esc(k.mesa.mesa || '—')}`, trailing: `<span class="icon-btn" aria-label="Bloqueada">${ICON.lock}</span>` },
+      body: `<div class="card"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><strong>${esc(DOCTYPE_LABEL[k.documentType] || '')}</strong><span class="pill">${ICON.lock} Confirmada ${esc(c.lockedAt || '')}</span>${c.exportedAt ? `<span class="pill ok">${ICON.check} Exportada ${esc(c.exportedAt)}</span>` : '<span class="pill warn">No enviada · exportá manualmente</span>'}${k.doubleEntry === 'matched' ? '<span class="pill ok">Doble carga ✓</span>' : ''}${k.sample ? '<span class="pill">Ejemplo</span>' : ''}</div><p class="counter" style="text-align:left;margin:8px 0 0">${esc(mesaSummary(k.mesa))}</p></div>
+        ${k.justification ? `<div class="callout"><strong>Justificación:</strong> ${esc(k.justification)}</div>` : ''}
+        <div class="section-h"><span>Páginas y huellas</span></div>${k.pages.map((p, i) => `<div class="card" style="margin-bottom:6px"><strong>Página ${i + 1}</strong> · ${esc(p.source || '')}<div class="mono">sha256 ${esc(c.hashes[p.id] || '')}</div></div>`).join('')}
+        <div class="section-h"><span>Valores (sólo lectura)</span></div>${table}
+        <div class="callout" style="margin-top:12px">Antes de exportar: la imagen puede tener nombres y firmas de terceros; compartila sólo con quien corresponde. No se difunden resultados hasta 3 h después del cierre (art. 71 inc. h).</div>`,
+      footer: `<button class="btn primary" data-evt="export">${c.exportedAt ? 'Exportar de nuevo' : 'Exportar (JSON + imágenes)'}</button><button class="btn" data-act="new-same">Nueva captura de la misma mesa</button>` };
+  }
+  return { nav: { title: st }, body: `<div class="empty">Estado sin pantalla: ${esc(st)}</div>`, footer: '' };
+}
+
+/* F-1: one leaf per screen. */
+function renderWizard(st) {
+  const k = ctx(); const leaf = st.split('.')[1];
+  if (leaf === 'documentType') return { nav: { back: { evt: 'back', label: 'Volver al aviso' }, title: 'Nueva captura', trailing: stageTag('Paso 1 de 5') },
+    body: `<h2 class="h-screen">¿Qué documento vas a escanear?</h2><p class="lead">Según tu función te corresponde uno. Podés cambiarlo hasta confirmar.</p>${docTypeRadios()}`,
+    footer: `<button class="btn primary" data-evt="next" ${enabled('next') ? '' : 'disabled'}>Continuar</button>` };
+  if (leaf === 'mesa') return { nav: { back: { evt: 'back', label: 'Volver al tipo' }, title: 'Datos de la mesa', trailing: stageTag('Paso 2 de 5') },
+    body: `<p class="lead">Elegí en lugar de tipear: cada lista se filtra por la anterior y se puede buscar. ${S.ui.returnTo ? 'Corregí el dato y volvé a la validación.' : ''}</p>${mesaPickers()}`,
+    footer: S.ui.returnTo ? `<button class="btn primary" data-act="return">Volver a la validación</button>` : `<button class="btn primary" data-evt="next" ${enabled('next') ? '' : 'disabled'}>Continuar</button>` };
+  if (leaf === 'pages') return { nav: { back: { evt: 'back', label: 'Volver a la mesa' }, title: 'Escaneá el documento', trailing: stageTag('Paso 3 de 5') },
+    body: `<p class="lead">Una o más páginas. Se guardan con su huella; no se editan.</p>${pagesBlock(false)}`,
+    footer: S.ui.returnTo ? `<button class="btn primary" data-act="return">Volver a la validación</button>` : `<button class="btn primary" data-evt="next" ${enabled('next') ? '' : 'disabled'}>Continuar</button>` };
+  // values: header first, then one category per screen
+  const steps = [{ kind: 'header' }].concat(T.categories.map((c) => ({ kind: 'cat', cat: c })));
+  const i = Math.min(S.ui.wiz, steps.length - 1); const step = steps[i]; const last = i === steps.length - 1;
+  const body = `${imageBlock()}${step.kind === 'header' ? headerSection(false) : categorySection(step.cat, false)}<p class="counter" id="empty-count">${counterText()} en total · sección ${i + 1} de ${steps.length}</p>`;
+  return { nav: { back: i === 0 ? { evt: 'back', label: 'Volver a las páginas' } : { act: 'wiz-prev', label: 'Sección anterior' }, title: step.kind === 'header' ? 'Totales de la mesa' : step.cat.label, trailing: stageTag(`Paso ${4} de 5`) },
+    body, chipbar: chipbar(),
+    footer: S.ui.returnTo ? `<button class="btn primary" data-act="return">Volver a la validación</button>` : (last ? `<button class="btn primary" data-evt="next">Validar</button>` : `<button class="btn primary" data-act="wiz-next">Siguiente sección</button>`) };
+}
+
+/* F-2 / F-3: the whole editing region in one split view; only parent events. */
+function renderSplit() {
+  const k = ctx(); const pres = k.presentation;
+  const body = `${imageBlock()}
+    <div class="section-h"><span>Documento</span></div><div class="seg-ui" role="radiogroup" aria-label="Tipo de documento">${T.documentTypes.map((t) => `<button role="radio" aria-checked="${k.documentType === t}" aria-pressed="${k.documentType === t}" data-act="set-type" data-type="${t}">${esc(DOCTYPE_SHORT[t])}</button>`).join('')}</div>
+    <div class="section-h"><span>Mesa</span></div>${mesaPickers()}
+    <div class="section-h"><span>Páginas</span></div>${pagesBlock(false)}
+    ${headerSection(false)}${T.categories.map((c) => categorySection(c, false)).join('')}
+    <p class="counter" id="empty-count" style="margin-top:10px">${counterText()}</p>`;
+  return { nav: { title: k.mesa.mesa ? `Mesa ${esc(k.mesa.mesa)}` : 'Nueva captura', leading: `<button class="icon-btn" data-act="ask-discard" aria-label="Descartar el borrador">✕</button>`, trailing: stageTag(pres === 'f3' ? 'Carga 1 de 2' : 'Cargar') },
+    body, chipbar: chipbar(),
+    footer: S.ui.returnTo ? `<button class="btn primary" data-act="return">Volver a la validación</button>` : `<button class="btn primary" data-evt="review">Validar</button>` };
+}
+
+/* Shell screens outside the machine. */
+function renderHome() {
+  const list = [...S.captures].sort((a, b) => b.createdAt - a.createdAt);
+  const rows = list.length ? list.map((c) => { const k = c.machine.context; const st = k.locked ? (c.exportedAt ? `<span class="pill ok">${ICON.check} Exportada ${esc(c.exportedAt)}</span>` : `<span class="pill">${ICON.lock} Confirmada · no enviada</span>`) : `<span class="pill warn">Borrador · ${esc(c.machine.screen)}</span>`;
+    return `<button class="row-item" data-act="open" data-id="${c.id}"><div class="grow"><div><strong>Mesa ${esc(k.mesa.mesa || '—')}</strong> · ${esc(DOCTYPE_SHORT[k.documentType] || 'Sin tipo')}</div><div class="meta">${st} · ${k.pages.length} pág.</div></div>${ICON.chev}</button>`; }).join('')
+    : `<div class="empty">Todavía no hay capturas. Tocá "Nueva captura" al terminar el escrutinio de tu mesa.</div>`;
+  return { nav: { title: 'Escrutinio', trailing: `<button class="icon-btn" data-act="about" aria-label="Acerca de y ajustes">${ICON.info}</button>` }, body: rows, footer: `<button class="btn primary" data-act="new">Nueva captura</button>` };
+}
+function renderAbout() {
+  const p = presentation();
+  return { nav: { back: { act: 'about-back', label: 'Volver' }, title: 'Acerca de' },
+    body: `<div class="section-h"><span>Diseño de la carga (para comparar en la hackatón)</span></div>
+      <div role="radiogroup" aria-label="Diseño de la carga">${Object.keys(FLOW.presentations).map((id) => `<button class="radio" role="radio" aria-checked="${p === id}" data-act="set-pres" data-pres="${id}"><span class="dot"></span><span><span>${esc(FLOW.presentations[id].label)}</span><div class="help">${esc(PRES_HELP[id])}</div></span></button>`).join('')}</div>
+      <p class="counter" style="text-align:left">Cambiarlo no toca la captura: es la misma máquina con otra pantalla. En producción el selector no existiría (AA-8).</p>
+      <div class="section-h"><span>Plantilla en uso</span></div><div class="card"><dl class="kv"><dt>Identificador</dt><dd class="mono" style="color:inherit">${esc(T.id)}</dd><dt>Versión</dt><dd>${T.version}</dd><dt>Ficticia</dt><dd>${T.fictitious ? 'Sí' : 'No'}</dd></dl><p style="font-size:14px;margin:8px 0 0;color:var(--muted)">${esc(T.title)}. Las agrupaciones y filas reproducen el formulario público. El prototipo no usa cifras inventadas: sólo las transcripciones (borrador_ia) de telegramas oficiales de 2015/2017.</p></div>
+      <div class="section-h"><span>Flujo</span></div><div class="card"><dl class="kv"><dt>Statechart</dt><dd class="mono" style="color:inherit">${esc(FLOW.id)} v${FLOW.version}</dd><dt>Nómina de mesas</dt><dd>2025 (subconjunto)</dd></dl></div>
+      <div class="section-h"><span>Qué guarda esta app</span></div><div class="card" style="font-size:15px">Imágenes del documento, sus huellas digitales, los valores que cargás y la hora. <strong>No</strong> pide nombre, DNI, partido, ubicación ni contactos. Las imágenes pueden contener nombres y firmas de terceros: se guardan protegidas en el teléfono y sólo salen cuando vos las exportás.</div>
+      <div class="section-h"><span>Marco legal</span></div><div class="card" style="font-size:15px">Está prohibido fotografiar la Boleta Única (art. 71 inc. g). No se difunden resultados hasta 3 horas después del cierre (art. 71 inc. h). La autorización para fotografiar certificado, telegrama o acta está en revisión legal. Esta no es una herramienta de acción política partidaria: cuida el proceso, no vigila a nadie.</div>`, footer: '' };
+}
+
+/* ---------- overlays ---------- */
+function pickerOverlay(o) {
+  const m = ctx().mesa; const q = (o.query || '').trim(); const ql = q.toLowerCase();
+  let titleTxt = '', items = '', hint = '';
+  if (o.level === 'distrito') { titleTxt = 'Distrito'; items = R.distritos.filter((d) => !ql || d.nombre.toLowerCase().includes(ql) || d.id.includes(ql)).map((d) => `<button data-act="pick-set" data-level="distrito" data-v="${d.id}" aria-selected="${m.distrito === d.id}"><span>${esc(title(d.nombre))}</span><span class="sub">Distrito ${d.id}${R.distritos.indexOf(d) < 2 ? '' : ' · sin establecimientos en el prototipo'}</span></button>`).join(''); }
+  else if (o.level === 'seccion') { titleTxt = 'Sección'; const d = distrito(m.distrito); items = d.secciones.filter((s) => !ql || s.nombre.toLowerCase().includes(ql) || s.id.includes(ql)).map((s) => `<button data-act="pick-set" data-level="seccion" data-v="${s.id}" aria-selected="${m.seccion === s.id}"><span>${esc(title(s.nombre))}</span><span class="sub">Sección ${s.id}${s.locales === null ? ' · sin establecimientos en el prototipo' : ` · ${s.locales.length} establecimientos`}</span></button>`).join(''); }
+  else if (o.level === 'establecimiento') {
+    titleTxt = 'Establecimiento'; hint = 'Buscá por nombre, localidad, dirección o número de mesa.';
+    const ls = localesOf(m.distrito, m.seccion) || []; const n = /^\d+$/.test(q) ? parseInt(q, 10) : null;
+    const match = n != null ? localsByMesaNumber(m.distrito, m.seccion, n) : ls.filter((l) => !ql || l.nombre.toLowerCase().includes(ql) || l.localidad.toLowerCase().includes(ql) || l.direccion.toLowerCase().includes(ql));
+    items = match.slice(0, 60).map((l) => `<button data-act="pick-set" data-level="establecimiento" data-v="${esc(l.nombre)}" ${n != null ? `data-mesa="${n}"` : ''} aria-selected="${m.establecimiento === l.nombre}"><span>${esc(title(l.nombre))}</span><span class="sub">${esc(title(l.direccion))} · ${esc(title(l.localidad))} · mesas ${l.mesas.map(([a, b]) => `${a}–${b}`).join(', ')}${n != null ? ` · incluye la mesa ${n}` : ''}</span></button>`).join('');
+    if (!items) items = `<div class="empty">Sin resultados${n != null ? ` para la mesa ${n} en esta sección` : ''}.</div>`;
+    else if (match.length > 60) items += `<div class="empty" style="padding:8px">${match.length - 60} más: afiná la búsqueda.</div>`;
+  } else if (o.level === 'mesa') {
+    titleTxt = 'Mesa'; const local = localByName(m.distrito, m.seccion, m.establecimiento); const ms = local ? mesasOf(local) : [];
+    items = `<div class="grid">${ms.filter((x) => !q || String(x.n).includes(q)).map((x) => `<button data-act="pick-set" data-level="mesa" data-v="${x.n}" aria-selected="${m.mesa === String(x.n)}">${x.n}</button>`).join('')}</div>`;
+    hint = local ? `${esc(title(local.nombre))} · circuito ${local.mesas.map((r) => r[2]).filter((v, i, a) => a.indexOf(v) === i).join('/')}` : '';
+  }
+  return `<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pk-t" style="height:88%"><h2 id="pk-t">${esc(titleTxt)}</h2>${hint ? `<p class="counter" style="text-align:left">${hint}</p>` : ''}<input class="search" id="pk-q" type="search" placeholder="Buscar…" value="${esc(q)}" data-pick-q autocomplete="off" aria-label="Buscar ${esc(titleTxt.toLowerCase())}"><div class="scroll list">${items}</div><div class="actions"><button class="btn" data-act="overlay-close">Cancelar</button></div></div></div>`;
+}
+function samplesOverlay() {
+  return `<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sm-t" style="height:88%"><h2 id="sm-t">Telegramas de ejemplo (${SAMPLES.length} oficiales)</h2><p class="counter" style="text-align:left">Telegramas reales del balotaje 2015 y las PASO 2017 transcriptos por el equipo (borrador_ia, sin confirmar). Al elegir uno se completan los códigos de la mesa; las imágenes <strong>no</strong> se incluyen en el prototipo público porque tienen datos personales. La plantilla es 2023: las agrupaciones no coinciden, se sugieren sólo encabezado y especiales.</p><div class="scroll gallery">${SAMPLES.map((s) => `<button data-act="use-sample" data-id="${s.id}"><strong>${esc(ELECCION_LABEL[s.eleccion] || s.year)} · mesa ${esc(s.mesa.mesa)}</strong><span class="sub">distrito ${esc(s.mesa.distrito)} · sección ${esc(s.mesa.seccion)} · circuito ${esc(s.mesa.circuito)}<br><span class="mono" style="font-size:11px">${esc(s.file.split('/')[1])}</span></span><span class="pill warn">borrador_ia</span></button>`).join('')}</div><div class="actions"><button class="btn" data-act="overlay-close">Cancelar</button></div></div></div>`;
+}
+function cameraOverlay() { const c = cur(); const k = ctx(); const fake = { id: '__preview' }; k.pages.push(fake); const svg = docSVG(c, fake); k.pages.pop();
+  return `<div class="camera" role="dialog" aria-modal="true" aria-label="Escáner de documentos (simulado)"><div class="view">${svg}<div class="frame"></div></div><div class="bar"><button class="btn small" data-act="overlay-close">Cancelar</button><button class="shutter" data-act="shutter" aria-label="Capturar página"></button><button class="btn small" data-act="torch" aria-pressed="false">Linterna</button></div></div>`; }
+function photosOverlay() { return `<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ph-t"><h2 id="ph-t">Fotos (selector del sistema, simulado)</h2><p class="counter" style="text-align:left">Sin permiso amplio: sólo las fotos que elegís.</p><div class="thumbs"><button class="thumb" data-act="pick-photo" data-n="1" aria-label="Foto 1"><span class="n">1</span></button><button class="thumb" data-act="pick-photo" data-n="2" aria-label="Fotos 1 y 2"><span class="n">1+2</span></button></div><div class="actions"><button class="btn" data-act="overlay-close">Cancelar</button></div></div></div>`; }
+function shareOverlay() { const k = ctx(); return `<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-t"><h2 id="sh-t">Compartir (menú simulado)</h2><p class="mono">captura-${esc(k.mesa.mesa || 'mesa')}.json · ${k.pages.length} JPEG</p><div class="share-grid">${['AirDrop', 'Archivos', 'Mensajes', 'Correo'].map((n) => `<button class="btn" data-act="share" data-via="${n}">${n}</button>`).join('')}</div><div class="actions"><button class="btn" data-act="overlay-close">Cancelar (no se marca como exportada)</button></div></div></div>`; }
+function viewerOverlay() { const c = cur(); const k = ctx(); const p = k.pages[S.ui.viewing]; return `<div class="sheet-bg center"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="vw-t"><h2 id="vw-t">Página ${S.ui.viewing + 1} de ${k.pages.length}</h2><div style="background:#111827;border-radius:14px;height:420px;overflow:auto"><div style="transform:scale(${S.ui.zoom});transform-origin:top left;width:100%">${pageVisual(c, p)}</div></div><div class="actions" style="flex-direction:row"><button class="btn" data-act="zoom" data-d="-1">−</button><button class="btn" data-act="zoom" data-d="1">+</button><button class="btn primary" data-act="overlay-close" style="min-height:44px">Cerrar</button></div></div></div>`; }
+function dialogOverlay(d) { return `<div class="sheet-bg center"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="dlg-t"><h2 id="dlg-t">${esc(d.title)}</h2><p>${esc(d.body)}</p><div class="actions">${d.actions.map((a, i) => `<button class="btn ${a.primary ? 'primary' : ''}" data-act="dlg" data-i="${i}">${esc(a.label)}</button>`).join('')}</div></div></div>`; }
+
+/* ---------- render ---------- */
+function renderPhone() {
+  let scr;
+  if (S.view === 'about') scr = renderAbout();
+  else if (S.view === 'home' || !cur()) scr = renderHome();
+  else scr = renderMachineScreen();
+  const nav = scr.nav || {};
+  const back = nav.back ? `<button class="icon-btn" ${nav.back.evt ? `data-evt="${nav.back.evt}"` : `data-act="${nav.back.act}"`} aria-label="${esc(nav.back.label)}">${ICON.back}<span style="font-size:15px">Volver</span></button>` : (nav.leading || '<span style="min-width:44px"></span>');
+  let overlay = '';
+  const o = S.overlay;
+  if (o) overlay = o.kind === 'picker' ? pickerOverlay(o) : o.kind === 'samples' ? samplesOverlay() : o.kind === 'camera' ? cameraOverlay() : o.kind === 'photos' ? photosOverlay() : o.kind === 'share' ? shareOverlay() : o.kind === 'viewer' ? viewerOverlay() : o.kind === 'dialog' ? dialogOverlay(o) : '';
+  document.getElementById('app').innerHTML = `<div class="nav">${back}<div class="title">${nav.title || ''}</div>${nav.trailing || '<span style="min-width:44px"></span>'}</div><div class="content" id="content">${scr.body}</div>${scr.chipbar || ''}${scr.footer ? `<div class="footer">${scr.footer}</div>` : ''}${overlay}`;
+  if (scr.announce) announce(scr.announce);
+  if (S.ui.flash) { const el = document.getElementById(fid(S.ui.flash)); if (el) { el.scrollIntoView({ block: 'center' }); const i = el.querySelector('input'); i && i.focus(); } }
+  if (o && o.kind === 'picker') { const q = document.getElementById('pk-q'); if (q) { q.focus(); const l = q.value.length; q.setSelectionRange(l, l); } }
+}
+function refreshChips() { const bar = document.getElementById('chipbar'); const html = chipbar(); if (bar && html) { bar.outerHTML = html; } else if (!bar && html && cur() && M().state.startsWith('editing.')) renderPhone(); }
+function refreshEditorBits() {
+  const ec = document.getElementById('empty-count'); if (ec && cur()) ec.textContent = ec.textContent.includes('sección') ? ec.textContent.replace(/^\d+ campos? vacíos?/, counterText()) : counterText();
+  document.querySelectorAll('.section-h .sum').forEach((el) => { const sec = el.closest('.section-h'); const cat = T.categories.find((c) => sec.textContent.includes(c.label)); if (cat) { const vt = M().values().header.votantes; el.textContent = `Σ ${catSum(cat.id)}${vt != null ? ` / ${vt}` : ''}`; } });
+  const t = document.getElementById('chip-target'); if (t) t.textContent = S.ui.focused ? '→ ' + pathLabel(S.ui.focused).split(': ').pop() : 'tocá un campo';
+  const b2 = document.getElementById('btn-submit2'); if (b2) b2.disabled = !enabled('submitSecond');
+  const bc = document.getElementById('btn-confirm'); if (bc) bc.disabled = !enabled('confirm');
+}
+
+/* ---------- actions ---------- */
+function setValueFromInput(path, raw) {
+  const p = path.split('.'); const v = raw === '' ? null : parseInt(raw, 10);
+  if (raw !== '' && !Number.isInteger(v)) return;
+  const payload = p[0] === 'header' ? { header: { [p[1]]: v } } : { cells: { [p[1]]: { [p[2]]: v } } };
+  dispatch('setValues', payload, { phone: false });
+  const row = document.getElementById(fid(path)); if (row) row.classList.toggle('invalid', M().issues().some((i) => i.path === path));
+  refreshEditorBits();
+}
+function acceptChip(v) {
+  const path = S.ui.focused; if (!path) { toast('Primero tocá un campo'); return; }
+  const p = path.split('.'); const n = parseInt(v, 10);
+  const entry = { value: n, origin: v === '0' ? 'manual' : 'ocr-accepted' };
+  dispatch('setValues', p[0] === 'header' ? { header: { [p[1]]: entry } } : { cells: { [p[1]]: { [p[2]]: entry } } }, { phone: false });
+  const input = document.querySelector(`[data-field="${path}"]`); if (input) { input.value = String(n); const row = input.closest('.vrow'); row && row.classList.toggle('invalid', M().issues().some((i) => i.path === path)); const lbl = row && row.querySelector('label'); if (lbl && entry.origin === 'ocr-accepted' && !lbl.querySelector('.org')) lbl.insertAdjacentHTML('beforeend', '<span class="org">OCR</span>'); }
+  refreshEditorBits(); focusNextEmpty();
+}
+function focusNextEmpty() { const inputs = [...document.querySelectorAll('[data-field]')]; const i = inputs.findIndex((x) => x.dataset.field === S.ui.focused); const next = inputs.slice(i + 1).find((x) => x.value === '') || inputs.find((x) => x.value === ''); if (next) { next.focus(); S.ui.focused = next.dataset.field; refreshEditorBits(); } }
+function addPages(source, n) { const c = cur(); const pages = []; for (let i = 0; i < n; i++) { c.pageCounter++; pages.push({ id: `p${c.pageCounter}`, source, takenAt: hhmm() }); } S.overlay = null; dispatch('pagesAdded', { pages }); toast(n === 1 ? 'Página guardada con su huella' : `${n} páginas guardadas`); }
+function openCapture(id) { S.current = id; S.view = 'capture'; S.ui.page = 0; S.ui.wiz = 0; S.ui.returnTo = null; S.ui.flash = null; renderPhone(); renderPanel(); }
+function startNew() {
+  const c = newCapture(); S.captures.unshift(c); S.current = c.id; S.view = 'capture'; S.ui = Object.assign(S.ui, { page: 0, wiz: 0, returnTo: null, flash: null, focused: null, imgHidden: false });
+  renderPhone(); renderPanel();
+}
+function discardDraft() { const c = cur(); if (c && !c.machine.context.locked) S.captures = S.captures.filter((x) => x !== c); S.current = null; S.view = 'home'; S.overlay = null; renderPhone(); renderPanel(); toast('Borrador descartado'); }
+
+function act(a, d, el) {
+  const c = cur();
+  switch (a) {
+    case 'new': startNew(); break;
+    case 'open': openCapture(d.id); break;
+    case 'about': S.aboutReturn = S.view; S.view = 'about'; renderPhone(); break;
+    case 'about-back': S.view = (S.aboutReturn === 'capture' && cur()) ? 'capture' : 'home'; renderPhone(); break;
+    case 'home': S.view = 'home'; S.current = null; renderPhone(); renderPanel(); break;
+    case 'set-pres': S.settings.presentation = d.pres; if (M()) dispatch('setPresentation', { presentation: d.pres }); else { renderPhone(); renderPanel(); } break;
+    case 'set-type': dispatch('chooseDocumentType', { documentType: d.type }); break;
+    case 'pick': S.overlay = { kind: 'picker', level: d.level, query: '' }; renderPhone(); break;
+    case 'pick-set': {
+      const m = ctx().mesa; let payload;
+      if (d.level === 'distrito') payload = { distrito: d.v, seccion: null, circuito: null, establecimiento: null, mesa: null };
+      else if (d.level === 'seccion') payload = { seccion: d.v, circuito: null, establecimiento: null, mesa: null };
+      else if (d.level === 'establecimiento') { const l = localByName(m.distrito, m.seccion, d.v); const n = d.mesa ? parseInt(d.mesa, 10) : null; payload = { establecimiento: d.v, mesa: n != null ? String(n) : null, circuito: l ? circuitoOf(l, n != null ? n : -1) : null }; }
+      else { const l = localByName(m.distrito, m.seccion, m.establecimiento); const n = parseInt(d.v, 10); payload = { mesa: String(n), circuito: l ? circuitoOf(l, n) : m.circuito || null }; }
+      const nextLevel = d.level === 'distrito' ? 'seccion' : d.level === 'seccion' ? 'establecimiento' : (d.level === 'establecimiento' && payload.mesa == null) ? 'mesa' : null;
+      const sec = d.level === 'distrito' ? null : seccion(m.distrito, d.level === 'seccion' ? d.v : m.seccion);
+      S.overlay = nextLevel && !(nextLevel === 'establecimiento' && sec && sec.locales === null) ? { kind: 'picker', level: nextLevel, query: '' } : null;
+      dispatch('setMesa', { mesa: payload }); break; }
+    case 'overlay-close': S.overlay = null; renderPhone(); break;
+    case 'samples': S.overlay = { kind: 'samples' }; renderPhone(); break;
+    case 'use-sample': { const smp = sampleById(d.id); c.pageCounter++; c.sampleData = smp; S.overlay = null; dispatch('useSample', { sample: { id: smp.id, label: `${ELECCION_LABEL[smp.eleccion] || smp.year} · mesa ${smp.mesa.mesa}`, mesa: sampleMesa(smp), pages: [{ id: `p${c.pageCounter}`, file: smp.file, sha256: smp.sha256, takenAt: hhmm() }] } }); toast(`Mesa ${smp.mesa.mesa} completada desde el telegrama de ejemplo`); break; }
+    case 'shutter': addPages('scanner', 1); break;
+    case 'pick-photo': addPages('photos', parseInt(d.n, 10)); break;
+    case 'torch': el.setAttribute('aria-pressed', el.getAttribute('aria-pressed') !== 'true'); break;
+    case 'remove-page': dispatch('removePage', { id: d.id }); break;
+    case 'img-toggle': S.ui.imgHidden = !S.ui.imgHidden; renderPhone(); break;
+    case 'page-next': S.ui.page = (S.ui.page + 1) % ctx().pages.length; renderPhone(); break;
+    case 'view-page': S.ui.viewing = parseInt(d.i, 10); S.ui.zoom = 1; S.overlay = { kind: 'viewer' }; renderPhone(); break;
+    case 'zoom': S.ui.zoom = Math.min(3, Math.max(1, S.ui.zoom + (d.d === '1' ? 0.5 : -0.5))); renderPhone(); break;
+    case 'chip': acceptChip(d.v); break;
+    case 'next-empty': focusNextEmpty(); break;
+    case 'wiz-next': S.ui.wiz++; renderPhone(); break;
+    case 'wiz-prev': S.ui.wiz = Math.max(0, S.ui.wiz - 1); renderPhone(); break;
+    case 'return': S.ui.returnTo = null; S.ui.flash = null; dispatch('review'); break;
+    case 'share': S.overlay = null; c.exportedAt = hhmm(); c.exportVia = d.via; renderPhone(); renderPanel(); toast(`Exportada por ${d.via}`); break;
+    case 'new-same': { const k = ctx(); const pre = { mesa: Object.assign({}, k.mesa), type: k.documentType }; startNew(); S.pending = pre; toast('Nueva captura: al aceptar el aviso se precargan mesa y tipo'); break; }
+    case 'ask-discard': S.overlay = { kind: 'dialog', title: '¿Descartar este borrador?', body: 'Se borran las páginas y los valores cargados. Las capturas confirmadas no se tocan.', actions: [{ label: 'Descartar', primary: true, run: discardDraft }, { label: 'Seguir editando', run: () => { S.overlay = null; renderPhone(); } }] }; renderPhone(); break;
+    case 'dlg': S.overlay.actions[parseInt(d.i, 10)].run(); break;
+    default: break;
+  }
+}
+
+const phone = document.getElementById('phone');
+phone.addEventListener('click', (e) => {
+  const ev = e.target.closest('[data-evt]');
+  if (ev && !ev.disabled) {
+    const type = ev.dataset.evt;
+    let flash = null, returnTo = null;
+    if (ev.dataset.path && (type === 'edit' || type === 'editMesa' || type === 'editPages')) { returnTo = 'validation'; flash = type === 'edit' ? ev.dataset.path : null; if (type === 'edit' && presentation() === 'f1') { const p = ev.dataset.path.split('.'); S.ui.wiz = p[0] === 'header' ? 0 : 1 + T.categories.findIndex((c) => c.id === p[1]); } }
+    const r = dispatch(type, ev.dataset.path ? { path: ev.dataset.path } : undefined, { announceIgnored: true, phone: false });
+    if (r && !r.ignored && returnTo) { S.ui.returnTo = returnTo; S.ui.flash = flash; }
+    if (type === 'acceptBup' && r && !r.ignored && S.pending) { const pre = S.pending; S.pending = null; if (pre.type) dispatch('chooseDocumentType', { documentType: pre.type }, { phone: false }); if (pre.mesa && Object.keys(pre.mesa).length) dispatch('setMesa', { mesa: pre.mesa }, { phone: false }); }
+    renderPhone();
+    return;
+  }
+  const el = e.target.closest('[data-act]'); if (!el || el.disabled) return; act(el.dataset.act, el.dataset, el);
+});
+phone.addEventListener('input', (e) => {
+  const el = e.target; if (!cur()) return;
+  if (el.dataset.field !== undefined) { const v = el.value.replace(/[^0-9]/g, ''); if (v !== el.value) el.value = v; setValueFromInput(el.dataset.field, v); const lbl = el.closest('.vrow').querySelector('label .org'); lbl && lbl.remove(); }
+  else if (el.dataset.second !== undefined) { const v = el.value.replace(/[^0-9]/g, ''); if (v !== el.value) el.value = v; const n = v === '' ? null : parseInt(v, 10); const key = el.dataset.second; dispatch('setSecondValues', key === 'votantes' ? { votantes: n } : { totals: { [key.slice(6)]: n } }, { phone: false }); refreshEditorBits(); }
+  else if (el.dataset.just !== undefined) { dispatch('setJustification', { justification: el.value }, { phone: false }); refreshEditorBits(); }
+  else if (el.dataset.mesa !== undefined) { dispatch('setMesa', { mesa: { [el.dataset.mesa]: el.value.trim() || null } }, { phone: false }); const b = document.querySelector('[data-evt="next"]'); if (b) b.disabled = !enabled('next'); }
+  else if (el.dataset.pickQ !== undefined) { S.overlay.query = el.value; const list = document.querySelector('.sheet .list'); const tmp = document.createElement('div'); tmp.innerHTML = pickerOverlay(S.overlay); list.innerHTML = tmp.querySelector('.list').innerHTML; }
+});
+phone.addEventListener('focusin', (e) => { if (e.target.dataset && e.target.dataset.field) { S.ui.focused = e.target.dataset.field; refreshEditorBits(); } });
+phone.addEventListener('keydown', (e) => { if (e.key === 'Escape' && S.overlay) { S.overlay = null; renderPhone(); } });
+
+/* ---------- panel ---------- */
+const STAGE_OF = { 'E-02': 0, 'E-03': 0, 'E-04': 0, 'E-05': 0, 'E-07': 1, 'E-08': 2, 'E-09': 3, 'E-08b': 2, 'E-08c': 2, 'E-08d': 2, 'E-10': 4 };
+function renderPanel() {
+  const m = M(); const c = cur();
+  const stateBox = m ? `<dl class="state-box"><dt>Estado</dt><dd><code>${esc(m.state)}</code></dd><dt>Pantalla</dt><dd><code>${esc(m.screen)}</code>${S.view === 'about' ? ' <span style="color:var(--muted);font-size:12px">(mostrando E-12 del shell)</span>' : ''}</dd><dt>Presentación</dt><dd>${esc(FLOW.presentations[m.context.presentation].label)}${m.context.presentation !== 'f1' && m.state.startsWith('editing.') ? ' <span style="color:var(--muted);font-size:12px">· F-2/F-3 muestran toda la región editing; la hoja queda en documentType a propósito</span>' : ''}</dd><dt>Guardado</dt><dd>${c.savedAt ? 'borrador ' + esc(c.savedAt) : '—'}${c.lockedAt ? ' · bloqueada ' + esc(c.lockedAt) : ''}${c.exportedAt ? ' · exportada ' + esc(c.exportedAt) : ''}</dd></dl>`
+    : `<dl class="state-box"><dt>Estado</dt><dd><code>(sin captura)</code></dd><dt>Pantalla</dt><dd><code>${S.view === 'about' ? 'E-12' : 'E-01'}</code> · shell fuera de la máquina</dd><dt>Presentación</dt><dd>${esc(FLOW.presentations[S.settings.presentation].label)}</dd></dl>`;
+  const stage = m ? STAGE_OF[m.screen] : undefined;
+  const events = m ? m.availableEvents() : [];
+  const evts = events.map((e) => `<button ${e.needsPayload || !e.enabled ? 'disabled' : ''} class="${e.enabled ? 'on' : ''}" data-send="${e.type}" title="${esc(e.source)}${e.targets.filter(Boolean).length ? ' → ' + e.targets.filter(Boolean).join(' | ') : ' (interna)'}${e.enabled ? '' : ' · guardas no cumplidas'}">${esc(e.type)}${e.needsPayload ? '<span class="p">payload</span>' : ''}</button>`).join('');
+  const issues = m ? m.issues() : [];
+  const log = S.log.map((l) => `<li class="${l.ignored ? 'ignored' : 'ok'}"><span class="t">${l.t}</span><span><code>${esc(l.event)}</code> ${l.ignored ? `<span style="color:var(--err)">ignorado</span> en <code>${esc(l.from)}</code>` : `${l.from !== l.to ? `<code>${esc(l.from)}</code> → <code>${esc(l.to)}</code>` : `interna en <code>${esc(l.to)}</code>`}${l.effects.length ? ` · <span class="fx">${l.effects.join(', ')}</span> <span style="color:var(--muted)">(${l.effects.map((f) => EFFECT_SIM[f] || f).join('; ')})</span>` : ''}`}</span></li>`).join('');
+  document.getElementById('panel').innerHTML = `
+    <section><h2>Máquina</h2>${stateBox}<div class="stages">${['Preparar', 'Cargar', 'Revisar', 'Confirmar', 'Exportar'].map((s, i) => `<span class="${stage === i ? 'on' : ''}">${s}</span>`).join('')}</div></section>
+    <section><h2>Eventos disponibles desde el estado</h2>${m ? `<div class="evts">${evts}</div><p style="font-size:12px;color:var(--muted);margin:6px 0 0">Verde: las guardas pasan. Los que llevan payload se mandan desde la pantalla. Tocar uno lo envía sin payload.</p>` : '<p style="font-size:13px;color:var(--muted)">Creá una captura para ver la máquina.</p>'}</section>
+    <section><h2>Efectos y transiciones</h2>${log ? `<ul class="log">${log}</ul>` : '<p style="font-size:13px;color:var(--muted)">Todavía no se envió ningún evento.</p>'}</section>
+    <section><h2>Contexto</h2>${m ? `${issues.length ? `<ul class="issues-mini">${issues.map((i) => `<li><code>${esc(i.code)}</code> <span style="color:${i.severity === 'error' ? 'var(--err)' : 'var(--warn-fg)'}">${i.severity}</span> ${esc(i.path)}</li>`).join('')}</ul>` : '<p style="font-size:13px;color:var(--ok);margin:0 0 6px">validate(): sin observaciones</p>'}<pre class="ctx">${esc(JSON.stringify(m.context, null, 1))}</pre>` : ''}</section>
+    <section><h2>Datos de ejemplo</h2><div style="display:flex;flex-direction:column;gap:6px"><button class="btn" data-demo="sample" ${m && m.context.sample && m.state.startsWith('editing.') ? '' : 'disabled'}>Copiar los valores transcriptos del ejemplo (setValues, origen ocr-accepted)</button><button class="btn" data-demo="reset">Reiniciar el prototipo</button></div>
+      <p style="font-size:12px;color:var(--muted);margin:8px 0 0">Plantilla ${esc(T.id)} v${T.version}. Sin cifras inventadas: los únicos números salen de los ${SAMPLES.length} telegramas oficiales transcriptos en data/ocr-samples (borrador_ia). Nómina real 2025 (Ministerio del Interior), subconjunto Comuna 1 y Avellaneda. Huellas simuladas. Estado en memoria: al recargar se pierde.</p></section>
+    <section class="note"><details><summary>Cómo leer este prototipo</summary><ul><li>Un solo JSON (<code>capture.flow.json</code>) define estados, eventos, guardas y efectos; el intérprete es <code>flow-machine.js</code>, el mismo que corre los vectores con Node.</li><li>F-1 avanza con <code>next</code>/<code>back</code> de cada hoja. F-2 y F-3 usan sólo los eventos del padre <code>editing</code> y <code>review</code>.</li><li>Lo prohibido lo bloquea la máquina, no la pantalla: probá mandar <code>next</code> desde E-02 o <code>setValues</code> después de confirmar.</li><li>Los efectos no los ejecuta la máquina: el panel muestra qué nombre devolvió y cómo lo simuló el prototipo.</li><li>Decisiones abiertas: AS-2 (diseño), AS-5 (doble carga), AA-2/3/5/8/9.</li></ul></details></section>`;
+}
+document.getElementById('panel').addEventListener('click', (e) => {
+  const s = e.target.closest('[data-send]'); if (s) { dispatch(s.dataset.send, undefined, { announceIgnored: true }); return; }
+  const d = e.target.closest('[data-demo]'); if (!d) return;
+  if (d.dataset.demo === 'reset') { S = initialState(); renderPhone(); renderPanel(); toast('Prototipo reiniciado'); return; }
+  const m = M(); if (!m) return;
+  const c = cur(); const smp = c.sampleData; if (!smp) return;
+  const header = {}; if (smp.header.electores != null) header.electores = { value: smp.header.electores, origin: 'ocr-accepted' }; if (smp.header.votantes != null) header.votantes = { value: smp.header.votantes, origin: 'ocr-accepted' };
+  const cells = {}; if (smp.presidenteEspeciales) { cells.presidente = {}; Object.keys(smp.presidenteEspeciales).forEach((k) => { if (smp.presidenteEspeciales[k] != null && T.rows.some((r) => r.id === k)) cells.presidente[k] = { value: smp.presidenteEspeciales[k], origin: 'ocr-accepted' }; }); }
+  const payload = {}; if (Object.keys(header).length) payload.header = header; if (cells.presidente && Object.keys(cells.presidente).length) payload.cells = cells;
+  if (!payload.header && !payload.cells) { toast('Este ejemplo no tiene encabezado legible ni columna PRES'); return; }
+  const r = dispatch('setValues', payload, { announceIgnored: true });
+  if (r && !r.ignored) toast('Valores transcriptos copiados (borrador_ia). Las agrupaciones 2023 quedan vacías.');
+});
+document.querySelectorAll('[data-theme]').forEach((b) => b.addEventListener('click', () => { const v = b.dataset.theme; if (v === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', v); document.querySelectorAll('[data-theme]').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
+
+/* ---------- start ---------- */
+function tick() { const el = document.getElementById('clock'); if (el) el.textContent = hhmm(); }
+setInterval(tick, 30000);
+(function start() { S = initialState(); tick(); renderPhone(); renderPanel(); })();
+</script>
+</body>
+</html>
