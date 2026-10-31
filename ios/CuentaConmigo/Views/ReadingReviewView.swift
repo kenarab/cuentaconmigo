@@ -78,6 +78,21 @@ struct ReadingReviewView: View {
         return currentValue(reading.ref) ?? reading.value
     }
 
+    /// The form's own control: the rows of a category add up to the TOTAL written on the
+    /// telegram. When it closes, the scanned document is OK.
+    private func writtenCheck(_ category: String) -> (ok: Bool, text: String) {
+        let values = template.rows.map { shown(ref: "cells.\(category).\($0.id)") }
+        let sum = values.compactMap { $0 }.reduce(0, +)
+        let missing = values.filter { $0 == nil }.count
+        guard let total = shown(ref: "total.\(category)") else {
+            return (false, "Control escrito: no se leyó el TOTAL; corregilo sobre la imagen")
+        }
+        if missing == 0 && sum == total {
+            return (true, "Control escrito: suma \(sum) = total \(total) · documento OK")
+        }
+        return (false, "Control escrito: suma \(sum)\(missing > 0 ? " (faltan \(missing))" : "") ≠ total \(total) · no cierra")
+    }
+
     private func change(ref: String, to value: Int?) -> String {
         let original: Int? = readings.fields.first { $0.ref == ref }?.value
         let before: String = original.map { String($0) } ?? "sin leer"
@@ -110,6 +125,13 @@ struct ReadingReviewView: View {
         let unread = readings.fields.filter { shownValue($0) == nil }
         return NavigationStack {
             List {
+                Section {
+                    ForEach(template.categories, id: \.id) { category in
+                        let check = writtenCheck(category.id)
+                        Label(check.text, systemImage: check.ok ? "checkmark.seal.fill" : "xmark.octagon")
+                            .foregroundStyle(check.ok ? Color.green : Color.red)
+                    }
+                }
                 Section("Reconocidos automáticamente (\(r.accepted.count))") {
                     ForEach(r.accepted.sorted { $0.key < $1.key }, id: \.key) { ref, value in
                         LabeledContent(title(for: ref), value: "\(value)")
@@ -255,6 +277,12 @@ struct ReadingReviewView: View {
             return "\(category.label): suma \(sum)\(missing > 0 ? " (faltan \(missing))" : "") · \(check)"
         }
         return VStack(alignment: .leading, spacing: 4) {
+            ForEach(template.categories, id: \.id) { category in
+                let check = writtenCheck(category.id)
+                Label(check.text, systemImage: check.ok ? "checkmark.seal.fill" : "xmark.octagon")
+                    .font(.subheadline.bold())
+                    .foregroundStyle(check.ok ? Color.green : Color.red)
+            }
             ForEach(lines, id: \.self) { Text($0).font(.footnote) }
             Text("Alineación: \(readings.alignment.ok ? "\(readings.alignment.anchorsUsed) referencias impresas encontradas" : "no se pudo alinear; cargá a mano")")
                 .font(.caption).foregroundStyle(.secondary)
@@ -277,6 +305,7 @@ struct ReadingReviewView: View {
         if parts.first == "header", let field = template.headerFields.first(where: { $0.id == parts.last }) {
             return field.label
         }
+        if parts.first == "total" { return "TOTAL escrito (control)" }
         if parts.count == 3, let row = template.rows.first(where: { $0.id == parts[2] }) {
             return row.label
         }

@@ -391,7 +391,9 @@ struct CaptureEditorView: View {
             var readings = try await client.readings(jpeg: jpeg, templateId: current.templateId)
             // Only cells of this form can be checked on the image.
             readings = ScrutinyClient.ReadingSet(image: readings.image, alignment: readings.alignment,
-                                                 fields: readings.fields.filter { key(for: $0.ref) != nil },
+                                                 fields: readings.fields.filter {
+                                                     key(for: $0.ref) != nil || $0.ref.hasPrefix("total.")
+                                                 },
                                                  masks: readings.masks)
             readingSet = readings.fields.isEmpty ? nil : readings
             serverStatus = readingSet == nil

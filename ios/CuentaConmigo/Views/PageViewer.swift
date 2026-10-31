@@ -1,23 +1,29 @@
 import SwiftUI
 
-/// Full-screen, zoomable view of a stored page.
+/// Full-screen view of a stored page with native pinch to zoom, pan and double tap.
 struct PageViewer: View {
     let url: URL
     @Environment(\.dismiss) private var dismiss
-    @State private var scale: CGFloat = 1
 
     var body: some View {
         NavigationStack {
-            ScrollView([.horizontal, .vertical]) {
+            GeometryReader { geo in
                 if let image = UIImage(contentsOfFile: url.path) {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: UIScreen.main.bounds.width * scale)
-                        .gesture(MagnifyGesture().onChanged { scale = max(1, min(6, $0.magnification)) })
-                        .accessibilityLabel("Imagen del documento")
+                    let width = geo.size.width
+                    let height = image.size.height * width / max(1, image.size.width)
+                    ZoomableView(contentSize: CGSize(width: width, height: height)) {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: width, height: height)
+                            .accessibilityLabel("Imagen del documento")
+                    }
+                } else {
+                    ContentUnavailableView("No se encontró la imagen", systemImage: "photo")
                 }
             }
+            .navigationTitle("Pellizcá para ampliar")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) { Button("Listo") { dismiss() } }
             }
