@@ -1,5 +1,5 @@
 > Automatic English translation of [`contracts/README.md`](../../../contracts/README.md)
-> at commit `ab3d317`. The Spanish original prevails.
+> at commit `8fe408f`. The Spanish original prevails.
 
 # Shared contracts
 
@@ -13,6 +13,11 @@ and its vectors, then each implementation.
   samples in `data/ocr-samples/`; `demo-2027` is **fictitious** and only used in the vectors.
 - `vectors/validation.json`: validation rules; results compared as a set.
 - `vectors/digits.json`: normalization of OCR text to integers.
+- `flows/capture.flow.json`: capture flow as a declarative statechart, shared by
+  the F-1/F-2/F-3 presentations ([app-architecture](../sdd/specs/app-architecture/SPEC.md)).
+  Semantics in [`flows/README.md`](flows/README.md), reference interpreter `flows/flow-machine.js`.
+- `vectors/capture-flow.json`: expected flow transitions. To run all the
+  vectors in JS: `node contracts/flows/run-vectors.js`.
 - `examples/`: valid fictitious examples.
 
 Vectors and examples are fictitious. The 2015 and 2023 templates reproduce public

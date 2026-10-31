@@ -1,5 +1,5 @@
 > Automatic English translation of [`sdd/specs/app-architecture/SPEC.md`](../../../../../sdd/specs/app-architecture/SPEC.md)
-> at commit `1dd5c8f`. The Spanish original prevails.
+> at commit `6e223ab`. The Spanish original prevails.
 
 # SPEC · App architecture: decoupled core and interchangeable presentations
 
@@ -178,6 +178,14 @@ selector with **three** values also inside screen E-12 of the simulated phone, a
 —if AA-3 is accepted— the JS interpreter reading `capture.flow.json`. Astra review (`ux`,
 `legal`, `neutrality`) → decision by the author and Andy → only then Swift.
 
+**Status of stage 0 (31/10/2026):** done as a proposal, with the ★ options of AA-2,
+AA-3 and AA-5 as provisional. The flow is in `contracts/flows/` (reference JS
+interpreter and 79/79 vectors) and the prototype in `design/prototypes/flujo/`
+([private link](https://claude.ai/artifact/XKaKVJMsNjDmr91UJZ7rN7)). It includes the
+F-1/F-2/F-3 selector in E-12, drop-down lists with the 2025 roster and Andy's official
+telegrams as transcribed values. Still missing: visual verification in a browser, the
+Astra review (if the author authorizes it) and the author's approval.
+
 **Stage 1 · Hackathon, in Swift, with no new dependencies (option A).**
 1. `contracts/flows/capture.flow.json` + `contracts/vectors/capture-flow.json`
    (`contract-change`).
@@ -259,3 +267,17 @@ the migration does not change behavior.
 - XState v5, testing and `xstate/graph`: <https://stately.ai/docs/testing> · <https://stately.ai/docs/xstate-graph>
 - Design Tokens Format Module (DTCG): <https://www.designtokens.org/TR/2025.10/format/>
 - Server-driven UI, Airbnb Ghost Platform: <https://medium.com/airbnb-engineering/a-deep-dive-into-airbnbs-server-driven-ui-system-842244c5f5>
+
+## Adjustments from the electoral_counsel check (31/10/2026)
+
+Report: [checks/electoral_counsel.md](../../../../../sdd/specs/app-architecture/checks/electoral_counsel.md). The non-blocking
+mitigations are incorporated as requirements. The ⛔ items are left to the author.
+
+- **Legal guards in data** (A2): `capture.flow.json` is embedded in the app, or
+  signed if it is ever downloaded. The vectors prove that the Single Ballot (Boleta Única)
+  warning cannot be skipped and that nothing can be edited after confirming.
+- **Third-party channels** (A3): no workflow, bot or assistant sends photos or polling-table
+  data through third-party messaging. Those channels only guide the flow; the evidence
+  travels through the project's own channel.
+- **Handoff in F-3** (A4): handoff mode only shows the blind entry, without
+  access to the gallery or to other captures.

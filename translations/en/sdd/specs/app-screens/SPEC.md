@@ -1,5 +1,5 @@
 > Automatic English translation of [`sdd/specs/app-screens/SPEC.md`](../../../../../sdd/specs/app-screens/SPEC.md)
-> at commit `ab3d317`. The Spanish original prevails.
+> at commit `7452c86`. The Spanish original prevails.
 
 > Translation note: the wireframe blocks keep the original interface copy in
 > Rioplatense Spanish, since that is the text users will see; the surrounding
@@ -969,6 +969,25 @@ Minimum: alias, person verification status (RC-5), my proposals and
 arguments, my captures. Political affinity is never requested or shown.
 
 ---
+
+## Consensus proposal for #2 (31/10/2026) · pending the author's acceptance
+
+Andy's answer combined with what the author already indicated today (details in issue #2):
+
+| ID | Proposal | Origin |
+| --- | --- | --- |
+| AS-1 | N-C: one app with an "election day mode" | Andy + ★ |
+| AS-2 | F-1, F-2 and F-3 selectable in E-12 on the same flow (prototype: `design/prototypes/flujo/`) | author (3 designs) + Andy (F-1) |
+| AS-3 | Certificate preselected | Andy |
+| AS-4 | Record in the contract that the BU warning was accepted (`bupWarningAcknowledgedAt`) | ★ |
+| AS-5 | Minimal double entry now (votantes and totals) | Andy |
+| AS-6 | Empty = 0 with a warning, with an optional "Cero" (Zero) button | Andy + fundamental UX |
+| AS-7 | Resolved: no fictitious template and no warnings | author |
+| AS-8 | OCR / typed origin visible on screen | Andy |
+| AS-9 | "Acerca de" (About) later; E-12 only with the design selector | Andy |
+| AS-10..AS-12 | ★ (legal consultation before real use; see #23) | ★ |
+
+Once it is accepted, the coordinator marks it as a current decision and closes #2.
 
 ## 8. Questions for the author
 

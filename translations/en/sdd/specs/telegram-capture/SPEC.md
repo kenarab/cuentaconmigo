@@ -1,5 +1,5 @@
 > Automatic English translation of [`sdd/specs/telegram-capture/SPEC.md`](../../../../../sdd/specs/telegram-capture/SPEC.md)
-> at commit `ab3d317`. The Spanish original prevails.
+> at commit `7f53fdd`. The Spanish original prevails.
 
 # SPEC · Capture of telegrams and tally sheets (iOS prototype)
 
@@ -82,11 +82,82 @@ spaces and thousands separators (`.` `,` space), fixes common confusions
 (`O/o→0`, `l/I/|→1`, `S→5`, `B→8`) **only** if the token has at least one real
 digit, and rejects the rest. Vectors in `contracts/vectors/digits.json`.
 
+## Identifying the polling table with drop-down lists (author's request, 31/10/2026)
+
+**User experience is fundamental** (principle 9 of the [vision](../../../../../sdd/specs/vision/SPEC.md)).
+Identifying the polling table must not require typing codes:
+
+- **Cascading drop-down lists:** district → section → circuit → polling place
+  → polling table. Each list is filtered by the previous choice and supports text search
+  (polling place name, locality or polling table number).
+- **Fill in what is already known:** choosing the polling place fills in district,
+  section and circuit, and the polling table is chosen from that polling place's range. Typing
+  a valid polling table number fills in the rest.
+- **Remember** the last polling table and the polling tables of the day's plan ([fiscal-planning](../fiscal-planning/SPEC.md)),
+  always inside the phone.
+- Works offline: the lists come inside the app, by district.
+- Data: `data/establecimientos/nomina-2025.json` (Ministry of the Interior, 2025: 17,292
+  polling places with polling table ranges and circuit), copied into the app at build time.
+- Initial implementation on iOS (`MesaPicker`): district, section, polling place with
+  search and polling table. Choosing the polling table fills in the four codes. The text fields remain
+  for corrections. Pending: test it on the iPhone and add it to the prototype (#14).
+- On-demand geolocation (see below) is one more shortcut. The lists remain the
+  main path.
+
+## Demonstration mode with real sample telegrams (author's request, 31/10/2026)
+
+To try the app without having papers at hand:
+
+- In the Document section, a **"Usar un ejemplo"** (Use a sample) menu lists the official
+  telegrams that Andy transcribed (`data/ocr-samples/`: 2015 runoff and 2017 PASO).
+  Choosing one, the app adds the image and **fills in by itself** the identification of the
+  polling table (district, section, circuit and polling table). The figures are left to be entered or to
+  test the OCR. **No synthetic data is used** (author's instruction).
+- **Outside Git:** the images contain names, signatures and DNI numbers of real people and the
+  repository is public. `scripts/samples/fetch_ocr_samples.py` downloads them from the
+  official URLs or from the Internet Archive, verifies the SHA-256 from Andy's manifest,
+  converts page 1 to JPEG and leaves them in `ios/CuentaConmigo/Resources/Samples/`,
+  a folder ignored by Git. `ios/scripts/install-device.sh` runs it before building.
+- The page is recorded with `source: "sample"` (contract), so that it is never confused
+  with real evidence.
+- **Current limits:**
+  - The app uses the `generales-2023` template, while the samples are from 2015
+    and 2017: the political grouping rows do not match. Choosing the template according to the
+    sample's election is left as an improvement.
+  - There are no 2023 telegrams in the sample yet.
+  - One of the 15 PDFs (`2017/020600450_00222.pdf`) is not available in the Internet
+    Archive.
+
+## Location-based polling place suggestion, on demand (author's request, 31/10/2026)
+
+It comes from the author's first test on his iPhone: identifying the polling place and the
+polling table takes time. Proposal:
+
+- On the polling table identification screen, a **"Sugerir mi
+  establecimiento"** (Suggest my polling place) button. Only when it is tapped does the app request the location **once**:
+  "while using" permission or approximate location. The app never uses location in
+  the background nor leaves it enabled. **Policy:** only in specific cases.
+- The comparison is done **on the phone**, against the public list of
+  polling places of the district included in the app (or downloaded without sending the
+  location). The app shows the 3 closest; the person chooses one and completes the polling table.
+- **The location is not stored, not sent and does not go into the evidence package.**
+  Only the chosen polling place remains in the package, like any other polling table data.
+- Without permission or without signal, manual entry stays the same.
+- **Dependency:** a public dataset of polling places with coordinates and polling table
+  range (question Q1 of [amba-simulation](../amba-simulation/SPEC.md)). If none exists
+  with coordinates, it can be derived from the roster of polling places plus geocoding,
+  with human review.
+- Screen: added to the [app-screens](../app-screens/SPEC.md) prototype before
+  implementing it (review-pipeline).
+- Pending check: `electoral_counsel` (legal and security). Risk to assess: a
+  seized phone must not reveal routes; that is why no history is stored.
+
 ## Privacy and security
 
 - Photos may contain names and signatures: they are personal data (Law 25.326 (Ley 25.326)).
   They are stored in the app container with Data Protection `complete`, excluded
-  from iCloud backup. Location and contacts are not requested.
+  from iCloud backup. Contacts are not requested. Location is only requested on demand
+  to suggest the polling place (see above) and is never stored.
 - Permissions: camera only (scanner). Importing from Photos uses the picker without broad permission.
 - Export is decided by the person; the app sends nothing to the network in P0.
 
@@ -131,3 +202,20 @@ Flow: Home (captures) → New → Scan/Import → Polling table data → Values
 - Q3. What polling table identification does the form have printed (barcode/QR)?
   It could replace manual entry.
 - Q4. Central reception, poll watcher identity and capture anti-fraud (D-003).
+
+## Adjustments from the electoral_counsel check (31/10/2026)
+
+Report: [checks/electoral_counsel.md](../../../../../sdd/specs/telegram-capture/checks/electoral_counsel.md). The non-blocking
+mitigations are incorporated as requirements. The ⛔ items are left to the author.
+
+- **No location in the images:** when importing from Photos or scanning, the EXIF/GPS
+  metadata is removed **before** computing the hash and storing the page. That way, the
+  immutable original no longer contains the location (S1).
+- **Export:** before sharing, the app warns that the photos contain names and
+  signatures. The publishable copy with covered data is left for F-50 (L4).
+- **Authorship:** the hash proves the integrity of the file, not who generated it. Signing
+  with the device key comes with SB-8 (S2).
+- **Templates:** only templates embedded in the app, or signed if in the future they are
+  downloaded (S4).
+- L-1 (whether the certificate and telegram may be photographed) remains open for an electoral
+  lawyer before any real use.

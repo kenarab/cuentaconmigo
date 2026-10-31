@@ -1,5 +1,5 @@
 > Automatic English translation of [`sdd/specs/trust-chain-identity/SPEC.md`](../../../../../sdd/specs/trust-chain-identity/SPEC.md)
-> at commit `b594581`. The Spanish original prevails.
+> at commit `e314f0f`. The Spanish original prevails.
 
 # SPEC · Identity without personal data: trust chains via QR
 
@@ -272,3 +272,24 @@ party officers; labeling of party poll watchers; threat model (Sybil,
 device theft, coercion, quota abuse, compromise of a level 3 account,
 attack on the server on election day); applicable NIST SP 800-63 and OWASP MASVS
 controls.
+
+## Adjustments from the electoral_counsel check (31/10/2026)
+
+Report: [checks/electoral_counsel.md](../../../../../sdd/specs/trust-chain-identity/checks/electoral_counsel.md). The non-blocking
+mitigations are incorporated as requirements. The ⛔ items are left to the author.
+
+- **QR with a two-step exchange** (S1): the inviter's QR is not enough on its
+  own. The invited phone replies with its own QR or short code, and the inviter
+  scans or confirms it. That way a forwarded photo of the QR cannot be used to onboard people
+  remotely.
+- **Social recovery** (account hijacking risk): requires two in-person confirmations
+  from accounts in different branches, a 72 h wait with a notice to the
+  previous device, and it is not allowed during the electoral blackout.
+- **Unlinkable profiles:** the per-role hash is derived from a secret generated
+  on the phone, different for each role and never from a stable device
+  identifier.
+- **Fake account detection and opening by quorum:** still open (L2 ⛔ for
+  real data). TC-5 and TC-12 must be decided, and a detection method chosen that does not
+  read the graph in the clear.
+- **Party role accounts** (author's clarification): with TC-11 ★ and a per-party
+  engagement contract, L1 goes down to ⚠️.

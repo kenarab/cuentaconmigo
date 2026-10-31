@@ -1,5 +1,5 @@
 > Automatic English translation of [`sdd/specs/fiscal-planning/SPEC.md`](../../../../../sdd/specs/fiscal-planning/SPEC.md)
-> at commit `5754b3d`. The Spanish original prevails.
+> at commit `e314f0f`. The Spanish original prevails.
 
 # SPEC · Planning mode for poll watchers covering several polling tables
 
@@ -117,3 +117,25 @@ and summary. They are integrated into the navigation the author chooses in AS-1.
 Risks to assess: powers of the general poll watcher and of whoever covers several polling tables;
 use of captures from other forces; notices during election day and blackout; treatment of
 images with data of polling-table officials.
+
+## Adjustments from the electoral_counsel check (31/10/2026)
+
+Report: [checks/electoral_counsel.md](../../../../../sdd/specs/fiscal-planning/checks/electoral_counsel.md). The non-blocking
+mitigations are incorporated as requirements. The ⛔ items are left to the author.
+
+- **The list of followed polling tables does not reveal the route** (L4, S1). It is proposed to
+  replace the `PUT watchlist` with a **query by circuit**: the phone downloads
+  the events of the circuits it covers and filters on the phone which polling tables it follows. The
+  server does not store which polling tables each device follows nor when their states change.
+  If a list on the server were needed, the device is derived from the token (never
+  from the path) and the list is deleted at the close of election day.
+- **Notices during the embargo** (L2): while the window of art. 71 inc. h lasts, the
+  notices only say "there is a new capture / it matches / there are differences", without vote
+  figures.
+- **Injected differences** (S2): the "there are differences" notice requires a capture
+  confirmed by a second person or by a match with the OCR.
+- **Push** (S3): if system push is used, it must be silent and without content, and the
+  app fetches the details on its own.
+- **Exported summary** (S4): a warning that it reveals the route, and an option to export it
+  without times.
+- FP-3 "declared force" remains ⛔ if chosen.

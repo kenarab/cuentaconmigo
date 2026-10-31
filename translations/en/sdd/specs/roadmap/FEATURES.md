@@ -1,5 +1,5 @@
 > Automatic English translation of [`sdd/specs/roadmap/FEATURES.md`](../../../../../sdd/specs/roadmap/FEATURES.md)
-> at commit `5b76a7b`. The Spanish original prevails.
+> at commit `7452c86`. The Spanish original prevails.
 
 # Candidate features
 
@@ -29,6 +29,9 @@ Status: ✅ implemented (prototype) · 🟡 partial · 🎨 in screen prototype 
 | F-12 | Local backend: capture ingestion, server-side OCR, human review and official mirror | scrutiny-backend | SB-1…SB-4 | P0 | 📝 |
 | F-13 | Own quick count on a sample of polling tables, ahead of the official one | scrutiny-backend, amba-simulation | SB-5, SB-6, S-3 | P1 | 📝 |
 | F-14 | Planning mode for party poll watchers (fiscales) covering several polling tables, with notices of third-party captures | fiscal-planning | FP-1…FP-6 | P1 | 📝 |
+| F-15 | Suggest the polling place using location requested on demand (never in the background, without storing it) | telegram-capture, app-screens | polling places dataset (Q1) | P1 | 📝 |
+| F-16 | Identify the polling table with cascading drop-down lists and autocomplete (fundamental UX) | telegram-capture, app-screens | roster of polling places (`data/establecimientos/`) | P0 | 🟡 |
+| F-17 | Demonstration mode: choose a sample official telegram (Andy's samples, outside Git) that fills in the polling table | telegram-capture | `sample` contract | P0 | 🟡 |
 
 ## Citizen network (core product)
 
@@ -67,6 +70,14 @@ Status: ✅ implemented (prototype) · 🟡 partial · 🎨 in screen prototype 
 | --- | --- | --- | --- | --- | --- |
 | F-50 | Preserved evidence vs. publishable copy (data redacted, no EXIF) | participant-protection | PP-6 | P1 | 📝 |
 | F-51 | Data inventory and minimal retention | participant-protection | PP-7 | P1 | 📝 |
+
+## Proposed closing of #1 (31/10/2026) · pending the author's acceptance
+
+- **F-P0 = b:** the guided vote count (F-01..F-05, F-16, F-17) and the
+  AMBA simulation (F-10) are shown working. The network, identity, governance and the backend are
+  presented as vision, with their SPECs (`docs/demo-guion.md`).
+- **F-ORD = e:** in parallel. Andy with OCR and samples (#19), Claude with app and backend
+  (#17, #18, #26) and the author with the iPhone test and the script (#21).
 
 ## Proposed hackathon scope (P0)
 

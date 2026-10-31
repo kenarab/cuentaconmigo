@@ -1,5 +1,5 @@
 > Automatic English translation of [`sdd/specs/scrutiny-backend/SPEC.md`](../../../../../sdd/specs/scrutiny-backend/SPEC.md)
-> at commit `8e69e7b`. The Spanish original prevails.
+> at commit `853cf95`. The Spanish original prevails.
 
 # SPEC · Vote-count backend: server-side OCR, official mirror and quick count
 
@@ -612,3 +612,40 @@ Legal risks identified by the planner, for the role's analysis (they are not con
 
 Expected output: `sdd/specs/scrutiny-backend/checks/electoral_counsel.md` with ⛔/⚠️ and
 alternatives ordered by risk; ⛔ items stop implementation until the author decides.
+
+## Adjustments from the electoral_counsel check (31/10/2026)
+
+Report: [checks/electoral_counsel.md](../../../../../sdd/specs/scrutiny-backend/checks/electoral_counsel.md). The non-blocking
+mitigations are incorporated as requirements. The ⛔ items are left to the author.
+
+- **Object-level authorization** on every route: the device and the role come from the token,
+  never from an id in the path (OWASP API1).
+- **Brute-force-resistant enrollment:** high-entropy, single-use codes
+  with expiry, with an attempt limit per IP and per code.
+- **Fail-safe embargo:** if the server cannot determine the time or the configured
+  closing time, it responds `423 Locked`. The release uses the actual
+  closing time of each district (L3).
+- **Isolated image parser:** processing runs in a separate process without network, with size
+  and time limits; metadata is discarded.
+- **Operators:** authentication with a physical key (FIDO2) and logging of every access to
+  raw evidence.
+- **Images with sensitive data** (L6): restricted access and retention limited until
+  the final vote count (escrutinio definitivo) plus a period to be defined (PP-7). They are never published without covering the data.
+- **Volunteers who are not party poll watchers in the sample** (L4): they are not assigned to polling tables until there is
+  a clear legal basis. Meanwhile, the sample is covered with accredited party poll watchers who
+  agree to participate.
+- **Framing** (L5): it is presented as a civic verification tool, not as
+  official civic accompaniment. The questions are left for a lawyer.
+
+## OCR baseline measurement · 31/10/2026
+
+`scripts/ocr/baseline_tesseract.py` runs Tesseract 5 (Spanish, already installed on the
+server, no new installations) over the 14 available samples from
+`data/ocr-samples` at 300 dpi. It measures what share of the transcribed values appears among
+the numbers detected on the page, which is the help the app shows as chips.
+
+- **Total: 399/551 = 72.4 %.** Per telegram: 70–84 % in the 2017 PASO and 30–57 % in
+  those of the 2015 runoff.
+- **Provisional:** the cells are not yet confirmed by people (`borrador_ia`),
+  and small numbers (0, 1, 2) may match by chance. It does not measure position: the
+  extraction by template regions (SB-2) and a per-cell metric (SB-3) are still missing.

@@ -1,5 +1,5 @@
 > Automatic English translation of [`sdd/specs/amba-simulation/SPEC.md`](../../../../../sdd/specs/amba-simulation/SPEC.md)
-> at commit `05dc1e1`. The Spanish original prevails.
+> at commit `7452c86`. The Spanish original prevails.
 
 # SPEC · Geolocated simulation of the AMBA: projection with little data
 
@@ -81,6 +81,12 @@ covered because that election is over, but it must not be presented as a project
 an ongoing election. Any use with real data on election day must
 respect that window. Pending: `electoral_counsel` check of this change.
 
+## Proposed closing of #3 (31/10/2026) · pending the author's acceptance
+
+Confirm S-1, S-2 and S-3 as implemented (next section): static web
+with its own SVG map (a variant of S-1 without MapLibre, so it works offline),
+official polygons and a model stratified by elector ratio with a 95 % CI.
+
 ## Provisional implementation · 31/10/2026
 
 With the ★ recommendations as provisional until #3 is answered:
@@ -119,7 +125,15 @@ With the ★ recommendations as provisional until #3 is answered:
   bias and 5 % of polling tables; 96.0 % with bias 0.7 and 5 %; 93.5 % with no bias and 2 %; 95.5 % with
   bias 0.7 and 10 %. It stays close to nominal, slightly below with unbiased
   samples, because polling tables in the same circuit resemble each other.
-  Criterion 4 is pending: the totals still need to be checked against the published ones.
+- **Criterion 4 (cross-check of totals):**
+  - **Internal, exact:** the sum of the normalized file matches the official file
+    from DINE for the same polling tables: 7,819,730 affirmative votes in the AMBA.
+  - **External, approximate:** over affirmative votes of the full official file of
+    each district, CABA gives JxC 41.23 %, UxP 32.28 % and LLA 19.85 %. It matches the
+    41.2 % for Bullrich published by Buenos Aires Herald. PBA gives UxP 42.88 %, LLA 25.72 %
+    and JxC 24.10 %, in line with the "more than 42 %" for Massa published by Letra P.
+    Secondary sources: still to be checked against the official results site and the
+    final vote count (escrutinio definitivo) of the CNE.
 - Downloads and derived files stay in `data/private/`, outside Git. Git holds
   the scripts, the prototype and this provenance.
 
@@ -139,3 +153,15 @@ With the ★ recommendations as provisional until #3 is answered:
 - Q1. Is there a public dataset of 2023 polling places with coordinates and
   number of polling tables? Assign to electoral_analyst.
 - Q2. Answered by the author: CABA + 24 districts.
+
+## Adjustments from the electoral_counsel check (31/10/2026)
+
+Report: [checks/electoral_counsel.md](../../../../../sdd/specs/amba-simulation/checks/electoral_counsel.md). The non-blocking
+mitigations are incorporated as requirements. The ⛔ items are left to the author.
+
+- **2023 images with people's data** (L4): the sample of telegrams and tally sheets, if
+  downloaded, stays in `data/private/` only to test the capture and measure the OCR.
+  It is deleted after the hackathon or when the measurement ends, whichever comes
+  first, and is never shown without covering the data.
+- License attribution, the "Provisorio 2023" (Provisional 2023) label and building without `innerHTML` are already
+  applied (`a8feb7f`).
