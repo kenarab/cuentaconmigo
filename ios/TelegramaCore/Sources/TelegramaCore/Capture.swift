@@ -41,7 +41,8 @@ public struct Mesa: Codable, Equatable, Sendable {
     }
 }
 
-public enum PageSource: String, Codable, Sendable { case scanner, photos }
+/// `sample` marks bundled demo images (F-17), never real evidence.
+public enum PageSource: String, Codable, Sendable { case scanner, photos, sample }
 
 /// One immutable page image, referenced by file name and SHA-256 of its bytes.
 public struct Page: Codable, Equatable, Sendable {

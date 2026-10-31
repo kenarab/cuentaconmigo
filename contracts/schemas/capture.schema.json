@@ -92,7 +92,8 @@
           "source": {
             "enum": [
               "scanner",
-              "photos"
+              "photos",
+              "sample"
             ]
           }
         }
