@@ -184,6 +184,13 @@ Andy como valores transcriptos. Faltan la verificación visual en un navegador, 
 revisión Astra (si el autor la autoriza) y la aprobación del autor.
 
 **Etapa 1 · Hackatón, en Swift, sin dependencias nuevas (opción A).**
+
+*Avance 31/10/2026 (#17, sin compilar en el servidor):* selector F-1/F-2/F-3 en Ajustes
+(E-12) con `@AppStorage`. F-1 muestra el editor por pasos (documento, mesa, totales,
+cada categoría, revisión). F-2 es el editor de una pantalla. F-3 suma "Verificar con
+otra persona" (doble carga mínima a ciegas de votantes y totales). Todavía no corre
+el intérprete de `capture.flow.json`: las tres comparten el mismo modelo y el mismo
+validador del núcleo.
 1. `contracts/flows/capture.flow.json` + `contracts/vectors/capture-flow.json`
    (`contract-change`).
 2. `TelegramaCore`: `FlowMachine` (intérprete puro) + `ContractTests.testFlowVectors`.

@@ -19,6 +19,9 @@ struct CaptureEditorView: View {
     @State private var justification = ""
     @State private var message: String?
     @State private var showServer = false
+    @State private var showDoubleEntry = false
+    @State private var step = 0
+    @AppStorage("presentation") private var presentation = Presentation.split
     @State private var serverStatus: String?
     @FocusState private var focus: FieldKey?
 
@@ -40,6 +43,9 @@ struct CaptureEditorView: View {
             .ignoresSafeArea()
         }
         .sheet(item: $viewing) { PageViewer(url: $0) }
+        .sheet(isPresented: $showDoubleEntry) {
+            if let capture { DoubleEntryView(template: template, capture: capture) }
+        }
         .sheet(isPresented: $showServer) {
             ServerSettingsView(appVersion: CaptureStore.appInfo.version) { Task { await readWithServer() } }
         }
@@ -80,25 +86,69 @@ struct CaptureEditorView: View {
                     Label("Captura confirmada. Ya no se puede editar.", systemImage: "lock.fill")
                 }
             }
-            documentSection(capture)
-            mesaSection(capture)
-            if !detectedNumbers.isEmpty && !capture.isLocked { ocrSection }
-            Section("Totales de la mesa") {
-                ForEach(template.headerFields) { field in
-                    numberRow(field.label + (field.isRequired ? "" : " (opcional)"), key: .header(field.id))
-                }
+            if presentation == .wizard && !capture.isLocked {
+                wizardStep(capture, issues: issues)
+            } else {
+                documentSection(capture)
+                mesaSection(capture)
+                if !detectedNumbers.isEmpty && !capture.isLocked { ocrSection }
+                totalsSection
+                ForEach(template.categories) { categorySection($0) }
+                validationSection(issues)
+                actionsSection(capture, issues: issues)
             }
-            ForEach(template.categories) { category in
-                Section(category.label) {
-                    ForEach(template.rows) { row in
-                        numberRow(row.label, key: .cell(category.id, row.id))
-                    }
-                }
-            }
-            validationSection(issues)
-            actionsSection(capture, issues: issues)
         }
         .scrollDismissesKeyboard(.interactively)
+    }
+
+    private var totalsSection: some View {
+        Section("Totales de la mesa") {
+            ForEach(template.headerFields) { field in
+                numberRow(field.label + (field.isRequired ? "" : " (opcional)"), key: .header(field.id))
+            }
+        }
+    }
+
+    private func categorySection(_ category: FormTemplate.Category) -> some View {
+        Section(category.label) {
+            ForEach(template.rows) { row in
+                numberRow(row.label, key: .cell(category.id, row.id))
+            }
+        }
+    }
+
+    /// F-1: one section per screen. Steps: document, table, totals, each category, review.
+    @ViewBuilder
+    private func wizardStep(_ capture: Capture, issues: [ValidationIssue]) -> some View {
+        let count = 4 + template.categories.count
+        let current = min(step, count - 1)
+        Section {
+            ProgressView(value: Double(current + 1), total: Double(count))
+            Text("Paso \(current + 1) de \(count)").font(.footnote).foregroundStyle(.secondary)
+        }
+        switch current {
+        case 0: documentSection(capture)
+        case 1: mesaSection(capture)
+        case 2:
+            if !detectedNumbers.isEmpty { ocrSection }
+            totalsSection
+        case count - 1:
+            validationSection(issues)
+            actionsSection(capture, issues: issues)
+        default:
+            if !detectedNumbers.isEmpty { ocrSection }
+            categorySection(template.categories[current - 3])
+        }
+        Section {
+            HStack {
+                Button("Anterior") { step = max(current - 1, 0) }
+                    .disabled(current == 0)
+                Spacer()
+                Button("Siguiente") { step = min(current + 1, count - 1) }
+                    .disabled(current == count - 1)
+                    .buttonStyle(.borderedProminent)
+            }
+        }
     }
 
     private func documentSection(_ capture: Capture) -> some View {
@@ -220,6 +270,11 @@ struct CaptureEditorView: View {
                     Label("Exportar evidencia", systemImage: "square.and.arrow.up")
                 }
             } else {
+                if presentation == .doubleEntry {
+                    Button { showDoubleEntry = true } label: {
+                        Label("Verificar con otra persona", systemImage: "person.2")
+                    }
+                }
                 Button {
                     if issues.contains(where: { $0.severity == .warning }) {
                         showJustification = true

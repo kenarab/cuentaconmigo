@@ -5,6 +5,7 @@ struct HomeView: View {
     @Environment(CaptureStore.self) private var store
     @State private var path: [UUID] = []
     @State private var pendingDelete: Capture?
+    @State private var showSettings = false
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -36,6 +37,12 @@ struct HomeView: View {
                 }
             }
             .navigationTitle("Cuenta Conmigo")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { showSettings = true } label: { Label("Ajustes", systemImage: "gearshape") }
+                }
+            }
+            .sheet(isPresented: $showSettings) { SettingsView() }
             .confirmationDialog(pendingDelete?.isLocked == true ? "Esta evidencia no se envió. Si la borrás, se pierde."
                                                                  : "Se borran la captura y sus imágenes de este teléfono.",
                                 isPresented: Binding(get: { pendingDelete != nil }, set: { if !$0 { pendingDelete = nil } }),
