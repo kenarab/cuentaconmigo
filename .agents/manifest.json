@@ -23,6 +23,14 @@
       "git_integration": true,
       "delivery": "Scope, SDD, ownership, integration and handoff"
     },
+    "electoral_counsel": {
+      "instructions": ".agents/roles/electoral_counsel.md",
+      "suggested_model": null,
+      "execution": "ai",
+      "access": "read-only",
+      "git_integration": false,
+      "delivery": "Continuous legal risk analysis and recommended lines of action"
+    },
     "implementer": {
       "instructions": ".agents/roles/implementer.md",
       "suggested_model": null,

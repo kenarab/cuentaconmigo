@@ -78,6 +78,12 @@ Estos archivos son instrucciones declarativas: no son un sandbox ni activan agen
 
 ## Especificación, verificación y traspaso
 
+**Riesgo legal permanente:** toda SPEC, decisión, texto público o acción externa
+pasa por el rol `electoral_counsel`, que analiza los riesgos y las consecuencias
+legales y recomienda líneas de acción ([rol](.agents/roles/electoral_counsel.md)).
+Un ⛔ suyo frena la integración hasta que decida el autor. No reemplaza a un abogado
+o abogada electoral humano.
+
 Aplicar SDD proporcionado al cambio: problema/alcance, decisiones vigentes y pendientes,
 criterios de aceptación, plan, responsable, implementación y evidencia verificable.
 Actualizar la SPEC correspondiente **antes** de cambiar comportamiento o interfaz.

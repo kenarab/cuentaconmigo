@@ -12,12 +12,14 @@ description: Flujo SDD para cualquier cambio de comportamiento, interfaz o regla
 3. Escribir o actualizar la SPEC **antes** del código. Decisiones de arquitectura e
    instalaciones: preguntar al autor; dejarlas como pendientes en la SPEC.
 4. Si toca reglas compartidas entre plataformas, usar la skill `contract-change`.
-5. Indicar qué chequeadores requiere según la matriz de
+5. Pedir el chequeo de `electoral_counsel` (skill `role-check`) sobre la SPEC: es
+   obligatorio para todo cambio. Un ⛔ frena la integración hasta que decida el autor.
+6. Indicar qué otros chequeadores requiere según la matriz de
    `sdd/specs/multiagent-system/SPEC.md` (mientras sea propuesta, mencionarlo).
-6. Commit atómico de la SPEC + push. Luego implementar en commits atómicos, cada uno
+7. Commit atómico de la SPEC + push. Luego implementar en commits atómicos, cada uno
    verificado y pusheado.
-7. Registrar en `VERIFICATION.md`: fecha, revisión, comando, resultado y qué queda
+8. Registrar en `VERIFICATION.md`: fecha, revisión, comando, resultado y qué queda
    pendiente (p. ej. prueba en dispositivo). Autocontrol ≠ revisión independiente.
-8. Regenerar traducciones con la skill `translate-docs` en un commit propio.
+9. Regenerar traducciones con la skill `translate-docs` en un commit propio.
 
 Español para documentos y discusión; inglés para código y mensajes de commit.

@@ -20,6 +20,18 @@ sobre arquitectura, instalaciones, publicación o contacto externo.
 | **owner** (humano) | Decide, acepta, prueba en campo y es el único contacto externo | — |
 | **planner** | Divide el pedido en tareas, convoca a los chequeadores, consolida alternativas y es el único que integra Git | coordinate |
 
+### 1 bis. Asesoría permanente
+
+| Rol | Qué hace | Acceso |
+| --- | --- | --- |
+| **electoral_counsel** (experto en derecho electoral) | Analiza **todo el tiempo** los riesgos y las consecuencias legales de cada decisión, SPEC, texto público y acción externa. Cuando hay que evitar una situación, recomienda una línea de acción concreta. Puede marcar ⛔ y frenar una integración hasta que el owner decida | read-only; escribe sólo en `docs/legal/` y en `checks/` |
+
+A diferencia de legal_analyst, que investiga y documenta normas, electoral_counsel
+opina sobre decisiones concretas: qué puede pasar, quién podría reclamar, qué
+sanción hay y qué hacer en su lugar. Interviene en **todas** las filas de la matriz.
+Su informe no es asesoramiento legal profesional; los ⛔ y las preguntas de fondo se
+derivan a un abogado o abogada electoral humano (D-MA-3).
+
 ### 2. Chequeo de dominio (sólo lectura: chequean y proponen, no implementan)
 
 | Rol | Chequea | Propone |
@@ -58,6 +70,7 @@ sobre arquitectura, instalaciones, publicación o contacto externo.
 ```
 pedido del owner
    └─ planner: SPEC borrador + lista de chequeadores requeridos
+        └─ electoral_counsel: riesgos legales y líneas de acción (siempre)
         └─ chequeadores (en paralelo, sólo lectura)
              → informe: ✅ ok / ⚠️ riesgo / ⛔ bloqueo + alternativas
         └─ planner: consolida en DECISION.md (opciones, pros/contras, recomendación)
@@ -69,7 +82,7 @@ pedido del owner
 
 ### Matriz de chequeos obligatorios
 
-| Cambio | Chequeadores mínimos |
+| Cambio | Chequeadores mínimos (además de electoral_counsel, siempre) |
 | --- | --- |
 | Captura y manejo de evidencia | electoral, legal, data_protection, security |
 | Plataformas: métricas, tablero y presión pública | platform_accountability, legal, neutrality, data_protection |
@@ -111,6 +124,7 @@ pedido del owner
 ## Decisiones pendientes del owner
 
 - D-MA-1: límite de agentes en paralelo.
-- D-MA-2: ¿qué roles se activan ya? Propuesta: platform_accountability, legal,
+- D-MA-2: ¿qué roles se activan ya? electoral_counsel ya está activo (pedido del
+  owner, 31/10/2026). Propuesta para el resto: platform_accountability, legal,
   data_protection y neutrality (el eje A es el central).
 - D-MA-3: ¿se busca un abogado electoral humano que valide `docs/legal/`?
