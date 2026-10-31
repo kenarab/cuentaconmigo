@@ -297,6 +297,10 @@ Valores que vienen de la app ya confirmados por la persona (`manual` /
 lectura automática aparte; la doble carga es una segunda carga humana. Nunca el OCR
 reemplaza una carga humana.
 
+Lectura del servidor devuelta a quien carga para validar, revisión asistida sobre la
+imagen y confianza del acta por revisiones independientes: ver
+[assisted-review](../assisted-review/SPEC.md) (pedido del autor, 31/10/2026).
+
 ## 5. Lenguaje, stack y motores OCR
 
 ### 5.1 Python para el prototipo (recomendación)
