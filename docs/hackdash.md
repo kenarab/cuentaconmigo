@@ -6,15 +6,17 @@ CuentaConmigo
 
 ## Tagline
 
-Una red ciudadana para cuidar la democracia. Elecciones 2027.
+Potenciamos tu voz en las redes y fortalecemos la democracia.
 
 ## Descripción (convocatoria)
 
-Millones de ciudadanos hacemos acción política todos los días en redes que pertenecen
-a grandes empresas, con reglas que no elegimos. **CuentaConmigo** propone una red
-social ad hoc, ciudadana y no partidaria, para cuidar el proceso democrático de las
-elecciones 2027, en las que elegimos presidente y renovamos el Congreso. Ahí podemos
-debatir, llegar a consensos y decidir juntos cómo actuar: auditar campañas de
+Millones de ciudadanos opinamos, discutimos y nos organizamos todos los días en las
+redes sociales, pero cada uno por su lado ese esfuerzo pesa poco. **CuentaConmigo** es
+una red social ciudadana y no partidaria para cuidar el proceso democrático de las
+elecciones 2027, en las que elegimos presidente y renovamos el Congreso: potencia el
+esfuerzo individual para que nuestra incidencia en las redes corporativas sea más
+efectiva y, sobre todo, para fortalecer la capacidad de la propia democracia. Ahí
+debatimos, llegamos a consensos y decidimos juntos cómo actuar: auditar campañas de
 desinformación pagadas con dinero electoral, proponer regulaciones como congelar el
 gasto de campaña en plataformas hasta después de la elección, o las ideas que traiga
 cada participante. Todos los partidos políticos participan en igualdad de condiciones,
