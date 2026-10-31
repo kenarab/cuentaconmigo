@@ -1,0 +1,152 @@
+﻿[
+    {
+        "file":  "2015/010010001_0001.pdf",
+        "year":  "2015",
+        "original_url":  "http://www.resultados.gob.ar:80/bltgetelegr/01/001/0001/010010001_0001.pdf",
+        "archive_url":  "https://web.archive.org/web/20151129071959id_/http://www.resultados.gob.ar:80/bltgetelegr/01/001/0001/010010001_0001.pdf",
+        "snapshot":  "20151129071959",
+        "bytes":  110714,
+        "sha256":  "07def879621ea21d6d508d8d01ea1d3f9a7fe0b69176fd61b303456761a06a7f",
+        "downloaded_at":  "2026-10-31T16:23:48.4710414Z"
+    },
+    {
+        "file":  "2015/010010001_0002.pdf",
+        "year":  "2015",
+        "original_url":  "http://www.resultados.gob.ar:80/bltgetelegr/01/001/0001/010010001_0002.pdf",
+        "archive_url":  "https://web.archive.org/web/20151129042958id_/http://www.resultados.gob.ar:80/bltgetelegr/01/001/0001/010010001_0002.pdf",
+        "snapshot":  "20151129042958",
+        "bytes":  106874,
+        "sha256":  "97a3001947b4696a96f6e4aac17c070b30d8c073d24b8193a7b8861eca2f03c4",
+        "downloaded_at":  "2026-10-31T16:23:52.2094906Z"
+    },
+    {
+        "file":  "2015/060010004_0054.pdf",
+        "year":  "2015",
+        "original_url":  "http://www.resultados.gob.ar/bltgetelegr/06/001/0004/060010004_0054.pdf",
+        "archive_url":  "https://web.archive.org/web/20151123080452id_/http://www.resultados.gob.ar/bltgetelegr/06/001/0004/060010004_0054.pdf",
+        "snapshot":  "20151123080452",
+        "bytes":  44725,
+        "sha256":  "97b68f800ad2fe4fbe33a7d5ae9271b3e0e618e27d9a3521ca0e6c46fdb6b1ce",
+        "downloaded_at":  "2026-10-31T16:23:56.5316158Z"
+    },
+    {
+        "file":  "2017/010010001_00001.pdf",
+        "year":  "2017",
+        "original_url":  "http://www.resultados.gob.ar/99/resu/content/telegramas/01/001/0001/010010001_00001.pdf",
+        "archive_url":  "https://web.archive.org/web/20170814042629id_/http://www.resultados.gob.ar/99/resu/content/telegramas/01/001/0001/010010001_00001.pdf",
+        "snapshot":  "20170814042629",
+        "bytes":  91587,
+        "sha256":  "32cbc9555e488e13d5b7028378e3c43cd7315e6398a7cb2f16d55b204bddc30d",
+        "downloaded_at":  "2026-10-31T16:23:59.4722081Z"
+    },
+    {
+        "file":  "2017/010060069_02491.pdf",
+        "year":  "2017",
+        "original_url":  "http://www.resultados.gob.ar/99/resu/content/telegramas/01/006/0069/010060069_02491.pdf",
+        "archive_url":  "https://web.archive.org/web/20170814043228id_/http://www.resultados.gob.ar/99/resu/content/telegramas/01/006/0069/010060069_02491.pdf",
+        "snapshot":  "20170814043228",
+        "bytes":  80203,
+        "sha256":  "1a737fe27f70221d74cfea5fc31a34c4f123a01d45a2fb3cf6f541e49aca3859",
+        "downloaded_at":  "2026-10-31T16:24:01.1916318Z"
+    },
+    {
+        "file":  "2017/010100111_04592.pdf",
+        "year":  "2017",
+        "original_url":  "http://www.resultados.gob.ar/99/resu/content/telegramas/01/010/0111/010100111_04592.pdf",
+        "archive_url":  "https://web.archive.org/web/20170814042454id_/http://www.resultados.gob.ar/99/resu/content/telegramas/01/010/0111/010100111_04592.pdf",
+        "snapshot":  "20170814042454",
+        "bytes":  82436,
+        "sha256":  "1fef5da0d9d1283b340de5edbfcaa7706f9a78f24e863ee3af630cff1f4068cb",
+        "downloaded_at":  "2026-10-31T16:24:03.2022287Z"
+    },
+    {
+        "file":  "2017/020010001_00006.pdf",
+        "year":  "2017",
+        "original_url":  "http://www.resultados.gob.ar/99/resu/content/telegramas/02/001/0001/020010001_00006.pdf",
+        "archive_url":  "https://web.archive.org/web/20170814034925id_/http://www.resultados.gob.ar/99/resu/content/telegramas/02/001/0001/020010001_00006.pdf",
+        "snapshot":  "20170814034925",
+        "bytes":  132063,
+        "sha256":  "ea439cf78fe53d6a4d566ffeb1ffc638c1a510fccf84e562a352a507137722ef",
+        "downloaded_at":  "2026-10-31T16:24:05.2666188Z"
+    },
+    {
+        "file":  "2017/020600450_00222.pdf",
+        "year":  "2017",
+        "original_url":  "http://www.resultados.gob.ar/99/resu/content/telegramas/02/060/0450/020600450_00222.pdf",
+        "archive_url":  "https://web.archive.org/web/20170814034954id_/http://www.resultados.gob.ar/99/resu/content/telegramas/02/060/0450/020600450_00222.pdf",
+        "snapshot":  "20170814034954",
+        "bytes":  126809,
+        "sha256":  "2e79f09f518fdd6af6dba62e819602e7a4b4635ad6565ea7a5b991ccd7759632",
+        "downloaded_at":  "2026-10-31T16:24:07.2954406Z"
+    },
+    {
+        "file":  "2017/020840711D00167.pdf",
+        "year":  "2017",
+        "original_url":  "http://www.resultados.gob.ar/99/resu/content/telegramas/02/084/0711D/020840711D00167.pdf",
+        "archive_url":  "https://web.archive.org/web/20170814035027id_/http://www.resultados.gob.ar/99/resu/content/telegramas/02/084/0711D/020840711D00167.pdf",
+        "snapshot":  "20170814035027",
+        "bytes":  141120,
+        "sha256":  "90f88267f7f4a1dec55e14086e1fd61e60f0c2c04f868d810128b94d0f2654ee",
+        "downloaded_at":  "2026-10-31T16:24:09.3089597Z"
+    },
+    {
+        "file":  "2017/030060051_00526.pdf",
+        "year":  "2017",
+        "original_url":  "http://www.resultados.gob.ar/99/resu/content/telegramas/03/006/0051/030060051_00526.pdf",
+        "archive_url":  "https://web.archive.org/web/20170814043601id_/http://www.resultados.gob.ar/99/resu/content/telegramas/03/006/0051/030060051_00526.pdf",
+        "snapshot":  "20170814043601",
+        "bytes":  75607,
+        "sha256":  "1d625f8a70df13daf0441edf82b55cf81604082408b9d4833d16671d431278e3",
+        "downloaded_at":  "2026-10-31T16:24:14.0745098Z"
+    },
+    {
+        "file":  "2017/030120103_00767.pdf",
+        "year":  "2017",
+        "original_url":  "http://www.resultados.gob.ar/99/resu/content/telegramas/03/012/0103/030120103_00767.pdf",
+        "archive_url":  "https://web.archive.org/web/20170814043607id_/http://www.resultados.gob.ar/99/resu/content/telegramas/03/012/0103/030120103_00767.pdf",
+        "snapshot":  "20170814043607",
+        "bytes":  85972,
+        "sha256":  "d32db0c7a89c8640ba8cd519a92f0699ca6c6a0336f4aa47adeb085a37b67205",
+        "downloaded_at":  "2026-10-31T16:24:16.3710250Z"
+    },
+    {
+        "file":  "2017/030130124_00836.pdf",
+        "year":  "2017",
+        "original_url":  "http://www.resultados.gob.ar/99/resu/content/telegramas/03/013/0124/030130124_00836.pdf",
+        "archive_url":  "https://web.archive.org/web/20170814043557id_/http://www.resultados.gob.ar/99/resu/content/telegramas/03/013/0124/030130124_00836.pdf",
+        "snapshot":  "20170814043557",
+        "bytes":  81274,
+        "sha256":  "26443815b65c5ed4f3c9e4035b5aeae5baecc05a749c1ab5ddaf025a06f02da2",
+        "downloaded_at":  "2026-10-31T16:24:18.1301790Z"
+    },
+    {
+        "file":  "2017/040010001_00001.pdf",
+        "year":  "2017",
+        "original_url":  "http://www.resultados.gob.ar/99/resu/content/telegramas/04/001/0001/040010001_00001.pdf",
+        "archive_url":  "https://web.archive.org/web/20170814035854id_/http://www.resultados.gob.ar/99/resu/content/telegramas/04/001/0001/040010001_00001.pdf",
+        "snapshot":  "20170814035854",
+        "bytes":  51898,
+        "sha256":  "bdfc5f04b4a1731676c8b6335c17e56c73546178f2a1a4e710febc4dfd4cdd2b",
+        "downloaded_at":  "2026-10-31T16:24:20.0748413Z"
+    },
+    {
+        "file":  "2017/040010005A00373.pdf",
+        "year":  "2017",
+        "original_url":  "http://www.resultados.gob.ar/99/resu/content/telegramas/04/001/0005A/040010005A00373.pdf",
+        "archive_url":  "https://web.archive.org/web/20170814035553id_/http://www.resultados.gob.ar/99/resu/content/telegramas/04/001/0005A/040010005A00373.pdf",
+        "snapshot":  "20170814035553",
+        "bytes":  52536,
+        "sha256":  "f4b015182261153266f9d75e8962da601875765afb0b2a4a76b34711dc06a426",
+        "downloaded_at":  "2026-10-31T16:24:21.7549845Z"
+    },
+    {
+        "file":  "2017/040010007B00729.pdf",
+        "year":  "2017",
+        "original_url":  "http://www.resultados.gob.ar/99/resu/content/telegramas/04/001/0007B/040010007B00729.pdf",
+        "archive_url":  "https://web.archive.org/web/20170814035630id_/http://www.resultados.gob.ar/99/resu/content/telegramas/04/001/0007B/040010007B00729.pdf",
+        "snapshot":  "20170814035630",
+        "bytes":  51577,
+        "sha256":  "8369e09b61c09c0de742717efd375f54762400d954c685f37bedc93b3cf22de0",
+        "downloaded_at":  "2026-10-31T16:24:24.0769749Z"
+    }
+]
