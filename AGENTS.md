@@ -100,6 +100,9 @@ Actualizar la SPEC correspondiente **antes** de cambiar comportamiento o interfa
 [sdd/README.md](sdd/README.md) explica el flujo. Una propuesta o revisión no equivale
 a aceptación del autor.
 
+**Prototipación de pantallas:** ninguna pantalla se implementa sin un prototipo navegable
+aprobado (`design/prototypes/`), según [review-pipeline](sdd/specs/review-pipeline/SPEC.md).
+
 Ejecutar comprobaciones pertinentes al diff y conservar comandos, revisión y
 resultados. No instalar herramientas faltantes ni repetir pruebas sin justificación.
 Un simulador o imágenes de ejemplo no acreditan funcionamiento en campo.

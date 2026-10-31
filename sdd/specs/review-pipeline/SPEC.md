@@ -21,6 +21,7 @@ repo y que el autor decida con las alternativas consolidadas.
 | --- | --- | --- |
 | 0. Sync | planner (Claude Code) | `git pull --rebase`, PRs abiertos |
 | 1. Propuesta | **Fable** para UX, textos y alternativas creativas; **Claude** para SPECs técnicas y código | SPEC o diseño con alternativas |
+| 1b. Prototipo de pantallas | **Fable** | Prototipo navegable en `design/prototypes/<flujo>/index.html`, publicado como Artifact privado, con las alternativas comparables |
 | 2. Validación | **Astra** (`gpt-6-astra` vía Codex CLI, sandbox de sólo lectura), una corrida por lente | `sdd/specs/<id>/checks/<lente>.astra.md` |
 | 3. Consolidación | planner (Claude) | `sdd/specs/<id>/DECISION.md`: opciones, hallazgos, recomendación |
 | 4. Decisión | **autor** | SPEC aceptada, o cambios pedidos |
@@ -28,6 +29,16 @@ repo y que el autor decida con las alternativas consolidadas.
 | 6. Verificación | executor (sin modelo): `ios/scripts/verify.sh` | resultados en `VERIFICATION.md` |
 | 7. Revisión de código | Astra, lente `code` (sólo lectura) | `checks/code.astra.md` |
 | 8. Integración | planner: commit + push; los PRs de Andy se revisan con la skill `review-pr` | `main` actualizado |
+
+## Metodología: prototipación de pantallas
+
+Decisión del autor (31/10/2026): toda pantalla nueva o cambiada se **prototipa antes de
+implementarse**. El orden es SPEC con alternativas → prototipo navegable (HTML, datos
+ficticios, alternativas que se pueden alternar) → revisión de Astra (lentes `ux`,
+`legal` y `neutrality` sobre el prototipo) → decisión del autor y de Andy → implementación
+nativa (SwiftUI y luego Compose) fiel al prototipo aprobado. El prototipo aprobado es la
+referencia visual de la SPEC; una diferencia en la implementación es un bug o un cambio
+que requiere una nueva decisión.
 
 ## Lentes de validación
 
