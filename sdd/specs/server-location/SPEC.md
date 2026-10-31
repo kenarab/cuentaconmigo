@@ -55,6 +55,10 @@ con rutas absolutas como `/v1/...`, porque descartaría el prefijo.
      - se rota cambiando `CC_APP_ENROLL_CODE` y `.private/server.json`;
      - nunca va en Git, en `Info.plist` ni en enlaces públicos.
    - Pendiente: chequeo de `electoral_counsel`.
+   - **Modo de prueba vigente (decisión del autor, 31/10/2026):** el código de la app es
+     `0000` (`CC_OPEN_TEST=1`). Cualquiera que conozca la URL puede darse de alta. Lo
+     frenan los límites (5 altas cada 10 minutos por IP y 120 capturas por hora por
+     dispositivo). **Cerrarlo antes de cualquier uso con datos reales.**
 6. **Placeholder y texto de ayuda** sin direcciones de LAN; ejemplo
    `https://newbery.duckdns.org/cuentaconmigo`.
 7. **Prueba de conexión** antes del alta: `GET /v1/health`. Si falla, mostrar «No se pudo

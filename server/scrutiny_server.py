@@ -41,6 +41,8 @@ ENROLL_CODE = os.environ.get("CC_ENROLL_CODE") or secrets.token_urlsafe(18)
 CODES_FILE = os.environ.get("CC_ENROLL_CODES_FILE")
 # Shared code bundled in the team's app builds (zero-config); rate limited like any enrollment.
 APP_CODE = os.environ.get("CC_APP_ENROLL_CODE")
+# Test mode decided by the owner (31/10/2026): accept a weak shared code such as "0000".
+OPEN_TEST = os.environ.get("CC_OPEN_TEST") == "1"
 PUBLIC = os.environ.get("CC_PUBLIC") == "1"
 TRUST_PROXY = os.environ.get("CC_TRUST_PROXY") == "1"
 MAX_BLOB = 15 * 1024 * 1024
@@ -384,7 +386,7 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main():
-    if PUBLIC and APP_CODE and len(APP_CODE) < 24:
+    if PUBLIC and APP_CODE and len(APP_CODE) < 24 and not OPEN_TEST:
         sys.exit("CC_APP_ENROLL_CODE must have 24+ characters")
     if PUBLIC and not CODES_FILE and len(ENROLL_CODE) < 16:
         sys.exit("CC_PUBLIC=1 requires CC_ENROLL_CODES_FILE or a CC_ENROLL_CODE of 16+ characters")
@@ -394,6 +396,8 @@ def main():
             JOBS.put(row["sha256"])
     threading.Thread(target=ocr_worker, daemon=True).start()
     host, port = os.environ.get("CC_HOST", "127.0.0.1"), int(os.environ.get("CC_PORT", "8740"))
+    if OPEN_TEST:
+        print("WARNING: CC_OPEN_TEST=1, weak shared enrollment code accepted (test only)", file=sys.stderr)
     shown = "single-use codes file" if CODES_FILE else ENROLL_CODE
     print(f"scrutiny server {VERSION} on http://{host}:{port} · public={PUBLIC} · data {DATA} · enrollment: {shown}",
           file=sys.stderr)
