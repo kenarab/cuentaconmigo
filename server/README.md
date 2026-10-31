@@ -22,7 +22,7 @@ Endpoints implementados: `GET /v1/health`, `GET /v1/ocr/engines`,
 `POST /v1/devices/enroll`, `POST /v1/captures` (devuelve `missingBlobs`),
 `PUT /v1/blobs/{sha256}` (verifica el hash, archivo de sólo lectura),
 `GET /v1/captures/{id}`, `GET /v1/captures/{id}/ocr` (números detectados, siempre
-`origin: "ocr"`) `GET /v1/log/head` (cabeza del registro de comprobantes) y `POST /v1/readings?templateId=…`
+`origin: "ocr"`), `GET /v1/log/head` (cabeza del registro de comprobantes) y `POST /v1/readings?templateId=…`
 (imagen JPEG → lectura por celda alineada a la diagramación de `contracts/layouts/`, con
 confianza y cajas; no guarda la imagen; ver `sdd/specs/form-layouts/SPEC.md`).
 Medición: `python3 server/eval_readings.py`. Necesita Pillow (`python3 -c "import PIL"`).
