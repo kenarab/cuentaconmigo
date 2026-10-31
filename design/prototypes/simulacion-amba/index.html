@@ -87,13 +87,14 @@ th:first-child, td:first-child { text-align: left; }
       <div class="kpi"><span class="muted">Error máx. estratificada</span><b id="k-strat">–</b></div>
     </div>
     <table>
-      <thead><tr><th>Lista</th><th>Oficial 2023</th><th>Ingenua</th><th>Estratificada</th><th>IC 95 %</th></tr></thead>
+      <thead><tr><th>Lista</th><th>Provisorio 2023</th><th>Ingenua</th><th>Estratificada</th><th>IC 95 %</th></tr></thead>
       <tbody id="rows"></tbody>
     </table>
-    <p class="muted">Porcentajes sobre votos afirmativos. Oficial: escrutinio provisorio DINE de las mismas mesas. Ingenua: suma de las mesas cargadas. Estratificada: razón por electores dentro de cada comuna o partido, expandida a su padrón; los estratos sin datos se imputan con la razón global.</p>
+    <p class="muted">Porcentajes sobre votos afirmativos. Provisorio 2023: escrutinio provisorio de la DINE en las mismas mesas (no es el definitivo). Ingenua: suma de las mesas cargadas. Estratificada: razón por electores dentro de cada comuna o partido, expandida a su padrón; los estratos sin datos se imputan con la razón global.</p>
     <h2 style="margin-top:14px">Error máximo vs. mesas cargadas</h2>
     <svg id="chart" viewBox="0 0 400 170" role="img" aria-label="Error de cada método según el avance"></svg>
     <div class="legend"><span><i style="background:var(--naive)"></i>Ingenua</span><span><i style="background:var(--strat)"></i>Estratificada</span></div>
+    <p class="muted">Fuentes: DINE, resultados provisorios por mesa de las generales 2023 (datos.gob.ar). Límites de partidos: Provincia de Buenos Aires, datos abiertos, CC BY 4.0. Comunas: Ciudad de Buenos Aires, datos abiertos. Procedencia en <code>data/amba-simulation/manifest.json</code>.</p>
   </section>
 </main>
 <script>
@@ -240,9 +241,19 @@ function render() {
   $("k-strat").textContent = est ? pts(eS) : "–";
   $("k-naive").className = est && eN > 0.02 ? "err-bad" : "";
   $("k-strat").className = est && eS > 0.02 ? "err-bad" : "";
-  $("rows").innerHTML = D.lists.map((l, k) => `<tr><td><span class="sw" style="background:${css(LIST_COLORS[k % 5])}"></span>Lista ${l.letter}</td>
-    <td>${pct(D.truth[k])}</td><td>${est ? pct(est.naive[k]) : "–"}</td><td>${est ? pct(est.strat[k]) : "–"}</td>
-    <td>${est ? "± " + pts(est.half[k]) : "–"}</td></tr>`).join("");
+  const tbody = $("rows");
+  tbody.replaceChildren(...D.lists.map((l, k) => {
+    const tr = document.createElement("tr");
+    const name = document.createElement("td");
+    const sw = document.createElement("span");
+    sw.className = "sw"; sw.style.background = css(LIST_COLORS[k % 5]);
+    name.append(sw, "Lista " + l.letter);
+    tr.append(name);
+    for (const v of [pct(D.truth[k]), est ? pct(est.naive[k]) : "–", est ? pct(est.strat[k]) : "–", est ? "± " + pts(est.half[k]) : "–"]) {
+      const td = document.createElement("td"); td.textContent = v; tr.append(td);
+    }
+    return tr;
+  }));
   const rgb = css("--map-full"), empty = css("--map-empty");
   D.strata.forEach((st, s) => {
     const p = D.paths[s]; if (!p) return;
