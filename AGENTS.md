@@ -133,6 +133,10 @@ export npm_config_cache="$HOME/home.codex/tmp/npm-cache" PYTHONDONTWRITEBYTECODE
 ```
 
 Secretos y estado durable privado quedan fuera de Git en `.private/` y `.runtime/`.
+**Datos fuera de Git reproducibles:** quien baje o genere datos que quedan fuera de Git
+(`data/private/`, recursos ignorados de la app) deja en el mismo commit un manifiesto
+(URL, licencia, fecha, SHA-256) y un script que los reconstruye y verifica en otra
+computadora, enganchado en `scripts/private-data.sh`. Nunca bajar a mano sin dejar el script.
 No copiar credenciales, conversaciones ni datos personales a este repo.
 
 ## Git e integración

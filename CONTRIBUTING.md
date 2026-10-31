@@ -59,3 +59,15 @@ Las decisiones humanas se toman en issues `decision-humana` con plantilla
 
 Ninguna pantalla se implementa sin un prototipo aprobado (`design/prototypes/`).
 Flujo completo en [sdd/specs/review-pipeline/SPEC.md](sdd/specs/review-pipeline/SPEC.md).
+
+## Datos que no están en Git
+
+Los datos grandes o con datos personales (`data/private/`, telegramas de ejemplo, recursos
+generados de la app) no se suben. En una computadora nueva se reconstruyen todos con:
+
+```sh
+scripts/private-data.sh
+```
+
+Cada paso baja de la fuente pública que figura en su manifiesto y verifica el SHA-256.
+Si agregás datos nuevos fuera de Git, sumá su manifiesto y su script a ese comando.
