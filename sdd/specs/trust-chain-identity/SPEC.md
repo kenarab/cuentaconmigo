@@ -66,18 +66,46 @@ contenido de las opiniones. Los valores son propuestas para calibrar (TC-2).
      que hayan aportado. Lo extraído y lo confirmado se recalculan por separado.
 - Ninguna medida se basa en opiniones políticas expresadas.
 
+## Dos redes desconectadas (precisión del autor, 31/10/2026)
+
+- **Red de confianza:** identidad seudónima, invitaciones, reputación, deliberación
+  y gobernanza. Es la que describen las secciones anteriores.
+- **Red de publicación de actas:** alta de dispositivos para capturar telegramas y
+  actas, envío, cotejo y avisos ([scrutiny-backend](../scrutiny-backend/SPEC.md),
+  [fiscal-planning](../fiscal-planning/SPEC.md)).
+- **Pueden estar desconectadas entre sí.** Un dispositivo de captura no necesita una
+  cuenta de la red de confianza, y desde una red no se puede saber quién es quién en
+  la otra: claves, identificadores y bases separados. La calidad de una captura se
+  valida por coincidencia con otras capturas y con el escrutinio oficial, no por la
+  reputación de quien la sube.
+- Si más adelante se quisiera que las capturas confirmadas sumen reputación, se haría
+  con una credencial anónima ("aporté N capturas coincidentes") que no vincule las
+  cuentas (TC-8, TC-13).
+
 ## Partidos políticos
 
-- **Registro institucional** con responsables identificados (por ejemplo, apoderados),
-  verificado contra el registro de la justicia electoral (a verificar con
-  `electoral_counsel`). Los datos personales de los responsables se tratan con su
-  consentimiento, fuera de Git y con acceso restringido.
+**Subredes de partidos con reglas especiales** (precisión del autor, 31/10/2026):
+
+- **No identifican personas. Identifican roles clave en forma genérica**, por ejemplo
+  "apoderado/a nacional", "coordinación de fiscales de la sección X" o "fiscal
+  general del circuito Y". Cada rol es una **cuenta de rol** con su propia clave.
+  Distintas personas pueden ocuparlo a lo largo del tiempo (traspaso de clave o
+  delegación con vencimiento), y quién lo ocupa en cada momento queda **dentro del
+  partido**.
+- Los fiscales de mesa se dan de alta en la **red de publicación de actas** con el QR
+  institucional de una cuenta de rol. Sin rótulo personal: el servidor sabe que el
+  dispositivo fue habilitado por un rol de un partido, no quién es la persona.
+- **Registro institucional del partido:** la cuenta raíz del partido se verifica una
+  vez contra el registro de la justicia electoral (a verificar con
+  `electoral_counsel`). Los datos de quien hace ese trámite se tratan con su
+  consentimiento, fuera de Git, con acceso restringido y sin quedar asociados a las
+  cuentas de rol.
 - **Mismas características para todos los partidos** (neutralidad):
   - cuenta institucional rotulada como tal, separada de las cuentas de personas;
   - publicación de posiciones oficiales en los espacios de deliberación, con las
     mismas reglas y límites;
-  - **alta de sus fiscales** con un QR institucional: las cuentas quedan rotuladas
-    "fiscal de [partido]", fuera de la jerarquía ciudadana. No suman cupos ni niveles
+  - **alta de sus fiscales** en la red de publicación de actas, con el QR de una
+    cuenta de rol. Quedan fuera de la red de confianza: no suman cupos ni niveles
     ciudadanos, para que un partido no pueda capturar la red;
   - asignación de mesas a sus fiscales (se integra con
     [fiscal-planning](../fiscal-planning/SPEC.md));
@@ -193,7 +221,9 @@ ponderar (TC-9):
 | TC-8 | Credenciales anónimas (prueba de que alguien es una persona sin vincularla a su cuenta) | Después de la hackatón ★ · ahora |
 | TC-9 | Usuarios por teléfono | 1 por defecto, hasta 3 con "teléfono compartido" ★ · siempre 1 · sin límite con atestación |
 | TC-10 | Nombre y alcance de la reputación | "Reputación de participación", habilita invitaciones y foros ★ · sólo cupos de invitación · otro nombre |
-| TC-11 | Grafos de partidos | Separados del ciudadano, sin aristas cruzadas ★ · rótulo partidario dentro del grafo ciudadano |
+| TC-11 | Grafos de partidos | Subredes con cuentas de rol genéricas, separadas del grafo ciudadano y sin aristas cruzadas ★ (precisión del autor) · rótulo partidario dentro del grafo ciudadano |
+| TC-13 | Relación entre la red de confianza y la de publicación de actas | Desconectadas ★ (precisión del autor) · vinculadas con credencial anónima · vinculadas por cuenta |
+| TC-14 | Traspaso de cuentas de rol de partido | Delegación con vencimiento firmada por el rol superior ★ · traspaso de clave · una cuenta por persona dentro del rol |
 | TC-12 | Apertura de aristas | Quórum de custodios de distinto origen ★ · operador de la red con registro · nunca (sólo comprobantes en el teléfono) |
 
 ## Criterios de aceptación
