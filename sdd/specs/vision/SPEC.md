@@ -69,6 +69,20 @@ pre-campaña ── campaña ── debates ── veda ── jornada ── es
 - V-3. Alianzas a buscar: organizaciones de chequeo, sociedad civil, universidades
   y observatorios de medios. La decisión y el contacto son del autor.
 
+## Posicionamiento legal (decisión V-4, pendiente)
+
+Según el relevamiento legal, el "acompañamiento cívico" de la justicia electoral
+(CNE, Acordada 128/11, texto completo sin verificar) exige organizaciones sin fines
+de lucro y sin vínculo partidario. Un proyecto que se apoya en fiscales partidarios
+no encaja en ese rol tal como está planteado. Opciones:
+
+1. Herramienta abierta que cualquier fiscal de cualquier fuerza pueda usar, sin
+   ser observador acreditado (la app sólo registra documentos que el fiscal ya recibe).
+2. Constituir o aliarse con una organización sin fines de lucro y sin vínculo
+   partidario que se acredite como observadora.
+3. Las dos: la organización audita las plataformas (ejes A–C) y la herramienta del
+   eje D queda abierta a todos los fiscales.
+
 ## Criterios de aceptación de la visión
 
 1. Cada SPEC de módulo enlaza a esta visión e indica su eje.

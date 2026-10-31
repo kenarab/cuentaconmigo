@@ -39,6 +39,13 @@ Recomendación: S-1 web estática (se puede mostrar en un proyector, cualquiera 
 abre con un link y no requiere instalar nada en el teléfono); S-2 polígonos oficiales
 con puntos sintéticos; S-3 estratificado, que es explicable en un minuto.
 
+## Restricción legal
+
+El Código Electoral (art. 71 inc. h) prohíbe publicar proyecciones durante los
+comicios y hasta tres horas después del cierre. La simulación usa sólo datos
+sintéticos y no se presenta como proyección real. Cualquier uso con datos reales
+el día de la elección debe respetar esa ventana.
+
 ## Criterios de aceptación
 
 1. Con 5 % de las mesas cargadas sin sesgo, la proyección estratificada queda a

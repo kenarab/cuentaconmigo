@@ -85,6 +85,20 @@ Español rioplatense simple, botones grandes, tipografía dinámica y VoiceOver.
 Flujo: Inicio (capturas) → Nueva → Escanear/Importar → Datos de mesa → Valores
 (imagen arriba, campos abajo) → Revisión de validaciones → Confirmar → Exportar.
 
+## Restricciones legales (de [docs/legal/MARCO_LEGAL.md](../../../docs/legal/MARCO_LEGAL.md))
+
+- **Nunca fotografiar la Boleta Única** (Código Electoral art. 71 inc. g, multa art. 128).
+  La app lo advierte antes de escanear y sólo admite telegrama, acta o certificado.
+- Fotografiar el certificado o el telegrama no está prohibido expresamente, pero
+  tampoco está autorizado de forma explícita: es la pregunta prioritaria para un
+  abogado electoral (L-1).
+- El fiscal tiene derecho a recibir el **certificado de escrutinio** (art. 102): es el
+  documento que esperamos capturar con más frecuencia.
+- No publicar agregados ni proyecciones hasta tres horas después del cierre
+  (art. 71 inc. h). La app no publica nada; el futuro backend debe respetar esa ventana.
+- El partido al que representa un fiscal es una opinión política, es decir un dato
+  sensible (Ley 25.326, arts. 2 y 7). No registrarlo sin una decisión legal previa.
+
 ## Criterios de aceptación
 
 1. `swift test` del núcleo pasa todos los vectores de `contracts/vectors`.
