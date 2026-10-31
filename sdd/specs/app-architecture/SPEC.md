@@ -212,6 +212,27 @@ también a Python; C (Crux) si además se quiere el shell web generado. Migraci�
 módulos: normalización y validación → máquina → paquete/hash. Los vectores garantizan que
 la migración no cambia comportamiento.
 
+## Decisión del autor · núcleo compartido (AA-7) · 31/10/2026
+
+**Rust + UniFFI desde ya, no en la etapa 3.** El autor pidió usar el mismo código en
+todas las plataformas, con la menor duplicación posible: una API interna amplia en un
+núcleo y pantallas propias de cada plataforma.
+
+- **Núcleo `core/` (crate Rust `cc_core`):**
+  - modelo de captura y plantillas, validación y normalización de dígitos;
+  - hash SHA-256;
+  - flujo F-1/F-2/F-3 (statechart de `contracts/flows/`);
+  - guardado de capturas y comprobantes;
+  - cliente del servidor: alta, envío, lecturas con "?";
+  - nómina y filtros de las listas en cascada.
+  
+  Pasa los mismos vectores de `contracts/`.
+- **Bindings:** UniFFI genera Swift (iOS) y Kotlin (Android). No se escriben a mano.
+- **Por plataforma, sólo:** pantallas (SwiftUI / Jetpack Compose), cámara y escáner,
+  llavero (Keychain / Keystore), OCR del teléfono y permisos.
+- **Orden:** primero el núcleo, después la app Android mínima sobre el núcleo, y por
+  último iOS migra de TelegramaCore al núcleo (se compila en la Mac).
+
 ## 7. Decisiones pendientes
 
 | ID | Decisión | Opciones (★ = recomendada) |
