@@ -86,6 +86,14 @@
       "access": "script-only",
       "git_integration": false,
       "delivery": "Established commands, exit codes and artifacts; no model"
+    },
+    "design_coordinator": {
+      "instructions": ".agents/roles/design_coordinator.md",
+      "suggested_model": null,
+      "execution": "ai",
+      "access": "coordinate",
+      "git_integration": true,
+      "delivery": "Human-in-the-loop decision pipeline: issues, comparisons, applied consensus"
     }
   }
 }

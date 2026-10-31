@@ -2,7 +2,7 @@
   "schema_version": 1,
   "mode": "explicit_dispatch",
   "source_manifest": ".agents/manifest.json",
-  "source_sha256": "ad673549608cf97bad7b37f3ac1cf348bd4a8e26002fc40d6bba7f40e6c8dc9f",
+  "source_sha256": "f87bf1a17a34063537895a1019ec58e3a8189fc393be142ac85f2ca1ed911810",
   "integration_owner": "planner",
   "max_active_agents": 2,
   "global_max_active_agents": 4,
@@ -78,6 +78,14 @@
       "access": "script-only",
       "git_integration": false,
       "delivery": "Established commands, exit codes and artifacts; no model"
+    },
+    "design_coordinator": {
+      "instructions": ".agents/roles/design_coordinator.md",
+      "suggested_model": null,
+      "execution": "ai",
+      "access": "coordinate",
+      "git_integration": true,
+      "delivery": "Human-in-the-loop decision pipeline: issues, comparisons, applied consensus"
     }
   },
   "policy": {
