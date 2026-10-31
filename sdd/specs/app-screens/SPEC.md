@@ -345,8 +345,9 @@ Criterios comunes a todas las pantallas [P0]:
   futura necesitara red, se encola (E-11) y se dice claramente.
 - Idioma: rioplatense simple, voseo, sin jerga técnica ("hash" aparece sólo como
   "huella digital (SHA-256)" en la pantalla de detalle).
-- Una captura confirmada **nunca** se edita ni se borra desde la app; corregir =
-  nueva captura de la misma mesa (se ofrece como acción).
+- Una captura confirmada **nunca** se edita; corregir = nueva captura de la misma mesa
+  (se ofrece como acción). **Sí se puede borrar de la lista** (instrucción del autor,
+  31/10/2026; ver telegram-capture, "Borrar capturas de la lista").
 - Sin datos personales: no se pide nombre, DNI, partido ni ubicación. Las fotos
   pueden contenerlos: se guardan protegidas y no se muestran fuera de la app.
 
@@ -396,14 +397,14 @@ Criterios comunes a todas las pantallas [P0]:
   Borrador/Confirmada/Exportada/Envío pendiente, cantidad de páginas, hora);
   botón primario fijo abajo.
 - Acciones: Nueva captura → E-02; tocar un borrador → retoma en el paso donde
-  quedó; tocar una confirmada → E-10; deslizar para borrar sólo borradores (con
-  confirmación); ⓘ → E-12.
+  quedó; tocar una confirmada → E-10; deslizar para borrar cualquier captura, con
+  confirmación (el texto cambia si la captura confirmada todavía no se envió); ⓘ → E-12.
 - Estados: vacío (texto de arriba); error de almacenamiento ("No se pudo leer el
   almacenamiento. Reiniciá la app; tus capturas no se borraron."); offline: sin
   cambios (es local).
 - Accesibilidad: cada fila es un solo elemento con etiqueta compuesta ("Mesa 0421,
   certificado, confirmada, 2 páginas"); el botón primario es el último elemento.
-- Aceptación: una captura confirmada no ofrece borrar; el orden es por fecha de
+- Aceptación: toda captura ofrece borrar con confirmación; el orden es por fecha de
   creación descendente; con VoiceOver se puede crear una captura y volver a la
   lista sin tocar la pantalla.
 

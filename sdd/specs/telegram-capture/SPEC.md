@@ -148,6 +148,22 @@ mesa lleva tiempo. Propuesta:
 - Chequeo pendiente: `electoral_counsel` (legal y seguridad). Riesgo a evaluar: un
   teléfono incautado no debe revelar recorridos; por eso no se guarda historial.
 
+## Borrar capturas de la lista (instrucción del autor, 31/10/2026)
+
+Cualquier captura, borrador o confirmada, se puede **borrar de la lista** deslizando y
+confirmando. Reemplaza la regla anterior de "sólo borradores".
+
+- **Borrador:** "Se borran la captura y sus imágenes de este teléfono."
+- **Confirmada y ya enviada** (o exportada): "Se borra de este teléfono. La copia enviada
+  queda en el servidor como evidencia." El borrado local no toca la copia del servidor ni
+  su cadena de custodia.
+- **Confirmada y no enviada ni exportada:** aviso más fuerte: "Esta evidencia no se envió
+  ni se exportó. Si la borrás, se pierde." Botón destructivo "Borrar igual".
+- Borrar elimina del teléfono el JSON y las imágenes (no las oculta). Es coherente con la
+  minimización de datos (Ley 25.326): las imágenes pueden tener nombres y firmas.
+- Pendiente (TG-DEL): si conviene además un "deshacer" de unos segundos o una papelera de
+  7 días. ★ Deshacer de 5 segundos, sin papelera.
+
 ## Privacidad y seguridad
 
 - Las fotos pueden contener nombres y firmas: son datos personales (Ley 25.326).
