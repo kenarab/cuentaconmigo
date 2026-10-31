@@ -1,0 +1,81 @@
+{
+  "local_path": "data/private/amba-simulation/raw/",
+  "note": "Descargas sin modificar, fuera de Git por tamaño. Volver a descargar desde la URL y verificar el SHA-256.",
+  "sources": [
+    {
+      "file": "2023_generales_1.zip",
+      "description": "DINE · Resultados provisorios Elecciones 2023 - Generales (por mesa)",
+      "url": "https://www.argentina.gob.ar/sites/default/files/2023_generales_1.zip",
+      "license": "Datos abiertos (datos.gob.ar)",
+      "downloaded": "2026-10-31",
+      "bytes": 28028857,
+      "sha256": "2562b18c741ba5740d264e5328f206cb25f709ed0a4f8cf962f301e423e79c6b"
+    },
+    {
+      "file": "limite-partidos-pba.zip",
+      "description": "PBA · Límites de los partidos (GeoJSON/KML/SHP)",
+      "url": "https://catalogo.datos.gba.gob.ar/dataset/627f65de-2510-4bf4-976b-16035828b5ae/resource/2cc73f96-98f7-42fa-a180-e56c755cf59a/download/limite-partidos-pba.zip",
+      "license": "CC BY 4.0",
+      "downloaded": "2026-10-31",
+      "bytes": 7796169,
+      "sha256": "a3795546438997c8e0f8bb91ddd126988a3c5b4bccb99de4b47ab3599b14df3b"
+    },
+    {
+      "file": "limite-partidos-pba.csv",
+      "description": "PBA · Límites de los partidos (atributos)",
+      "url": "https://catalogo.datos.gba.gob.ar/dataset/627f65de-2510-4bf4-976b-16035828b5ae/resource/6cd47ea4-37af-4fdb-9d38-678c1067b7e9/download/limite-partidos-pba.csv",
+      "license": "CC BY 4.0",
+      "downloaded": "2026-10-31",
+      "bytes": 5892,
+      "sha256": "f0193786a6f054ecd4dd939a40214c3393247ef4c36ebdbe3bdfda217fd90106"
+    },
+    {
+      "file": "circuitos-electorales-pba.zip",
+      "description": "PBA · Circuitos electorales (polígonos)",
+      "url": "https://catalogo.datos.gba.gob.ar/dataset/4fe68b69-c788-4c06-ac67-26e4ebc7416b/resource/37bd466c-4a80-4e2e-be11-a68cfe60aa1e/download/circuitos-electorales-pba.zip",
+      "license": "CC BY 4.0",
+      "downloaded": "2026-10-31",
+      "bytes": 7382682,
+      "sha256": "cc71ac9768806c2079687ff2de7c403acdd4a3855d671dfdd427c324ff85f4f8"
+    },
+    {
+      "file": "circuitos-electorales-pba.csv",
+      "description": "PBA · Circuitos electorales (atributos)",
+      "url": "https://catalogo.datos.gba.gob.ar/dataset/4fe68b69-c788-4c06-ac67-26e4ebc7416b/resource/43d4314f-c540-4b00-8c41-1104141bda19/download/circuitos-electorales-pba.csv",
+      "license": "CC BY 4.0",
+      "downloaded": "2026-10-31",
+      "bytes": 61717,
+      "sha256": "752662aa55610a2266a02728aeae22830064e3dd9168dd103b675d3c4e2dd8d1"
+    },
+    {
+      "file": "caba_comunas.geojson",
+      "description": "CABA · Comunas (polígonos)",
+      "url": "https://cdn.buenosaires.gob.ar/datosabiertos/datasets/ministerio-de-educacion/comunas/comunas.geojson",
+      "license": "Datos abiertos BA",
+      "downloaded": "2026-10-31",
+      "bytes": 584528,
+      "sha256": "c128dadf5b8a3c43c68cad4dacd8c0995d774b93060a785b156861bcb9de062e"
+    },
+    {
+      "file": "georef_departamentos_06.json",
+      "description": "Georef · Departamentos de PBA (centroides)",
+      "url": "https://apis.datos.gob.ar/georef/api/departamentos?provincia=06&max=200&campos=id,nombre,centroide",
+      "license": "Datos abiertos (datos.gob.ar)",
+      "downloaded": "2026-10-31",
+      "bytes": 13626,
+      "sha256": "5b7a6796c0a9418deb7326725fdeb873a5f336528c4de5b81dedac05e533cced"
+    }
+  ],
+  "derived": [
+    {
+      "file": "mesas_2023_amba.json",
+      "script": "scripts/amba-simulation/normalize.py",
+      "sha256": "bf63ecc35a179367ad701185a8bc21f44e660746e2268bc0b336314726a9912b"
+    },
+    {
+      "file": "strata_2023_amba.geojson",
+      "script": "scripts/amba-simulation/geography.py",
+      "sha256": "824289b4452af29bf1e138c83f013e18723db7679e5a0baaf3844a69c7c91824"
+    }
+  ]
+}
