@@ -1,0 +1,659 @@
+<title>Prototipo de escrutinio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@500&display=swap">
+<style>
+/* Layout: un iPhone (390×844) centrado a la izquierda y un panel de diseño pegajoso a la derecha;
+   en teléfono el marco desaparece, la pantalla ocupa el ancho y el panel va debajo. */
+:root{
+  --celeste:#7CB9E8; --azul:#1D4F91; --dorado:#F6B40E;
+  --bg:#EEF2F7; --surface:#FFFFFF; --surface-2:#F5F8FC; --fg:#14213A; --muted:#5B6B86; --border:#D3DCE8;
+  --accent:#1D4F91; --accent-fg:#FFFFFF; --accent-soft:#E3EEF9;
+  --warn-bg:#FFF1C2; --warn-fg:#5C4300; --warn-line:#E0A800;
+  --err:#B3261E; --err-bg:#FDECEA; --ok:#1E7A4A; --ok-bg:#E3F5EA;
+  --paper:#FDFBF3; --ink:#2B2B2B; --pen:#1B2F8F;
+  --panel-bg:#FFFFFF; --focus:#F6B40E;
+  --f-ui:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+  --f-panel:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --f-hand:"Caveat","Bradley Hand","Segoe Print",cursive;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1524; --surface:#172238; --surface-2:#1E2B45; --fg:#E7EDF7; --muted:#9FB0C8; --border:#2C3C58;
+    --accent:#7CB9E8; --accent-fg:#0E1524; --accent-soft:#1F3556;
+    --warn-bg:#4A3A05; --warn-fg:#FFE08A; --warn-line:#F6B40E;
+    --err:#F2857B; --err-bg:#4A1F1C; --ok:#6CD39A; --ok-bg:#163A28;
+    --panel-bg:#121B2E; --focus:#F6B40E; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1524; --surface:#172238; --surface-2:#1E2B45; --fg:#E7EDF7; --muted:#9FB0C8; --border:#2C3C58;
+  --accent:#7CB9E8; --accent-fg:#0E1524; --accent-soft:#1F3556;
+  --warn-bg:#4A3A05; --warn-fg:#FFE08A; --warn-line:#F6B40E;
+  --err:#F2857B; --err-bg:#4A1F1C; --ok:#6CD39A; --ok-bg:#163A28;
+  --panel-bg:#121B2E; --focus:#F6B40E; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-panel);font-size:15px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 40px}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+button{font:inherit;color:inherit;cursor:pointer}
+h1,h2,h3{text-wrap:balance;margin:0}
+.header{max-width:1240px;margin:0 auto 18px;display:flex;flex-wrap:wrap;gap:8px 18px;align-items:baseline}
+.header h1{font-size:20px;font-weight:600}
+.header p{margin:0;color:var(--muted);max-width:70ch}
+.stage{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,440px);gap:28px;align-items:start}
+/* marco del teléfono */
+.device{width:390px;height:844px;margin:0 auto;background:#0A0C10;border-radius:52px;padding:12px;box-shadow:0 20px 50px rgba(10,20,40,.35)}
+.phone{position:relative;width:100%;height:100%;border-radius:40px;overflow:hidden;background:var(--bg);display:flex;flex-direction:column;font-family:var(--f-ui);font-size:17px;color:var(--fg)}
+.statusbar{display:flex;justify-content:space-between;align-items:center;padding:14px 26px 4px;font-size:14px;font-weight:600;background:var(--bg)}
+.statusbar .net{font-weight:500;color:var(--muted);font-size:12px}
+.app{flex:1;min-height:0;display:flex;flex-direction:column}
+.nav{display:flex;align-items:center;gap:6px;padding:4px 8px;min-height:52px;background:var(--bg)}
+.nav .title{flex:1;text-align:center;font-weight:600;font-size:17px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav .stage-tag{font-size:12px;color:var(--muted);font-weight:500;padding:4px 8px;white-space:nowrap}
+.icon-btn{min-width:44px;min-height:44px;border:0;background:transparent;border-radius:12px;color:var(--accent);font-weight:500;display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:0 8px}
+.icon-btn:hover{background:var(--accent-soft)}
+.content{flex:1;min-height:0;overflow:auto;padding:4px 16px 20px;-webkit-overflow-scrolling:touch}
+.footer{padding:10px 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;background:var(--bg);border-top:1px solid var(--border)}
+.btn{min-height:44px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);padding:8px 16px;font-size:17px;font-weight:600;width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-align:center}
+.btn.primary{min-height:56px;background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.btn.primary:disabled{opacity:.45;cursor:not-allowed}
+.btn.quiet{border-color:transparent;background:transparent;color:var(--accent);min-height:44px}
+.btn.small{width:auto;min-height:44px;font-size:15px;padding:6px 14px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.banner{background:var(--warn-bg);color:var(--warn-fg);border-left:5px solid var(--warn-line);padding:10px 12px;border-radius:10px;font-size:14px;line-height:1.35;display:flex;gap:8px;align-items:flex-start;margin:4px 0 10px;cursor:pointer;width:100%;text-align:left;border-top:0;border-right:0;border-bottom:0;font-family:inherit}
+.banner strong{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.banner.hilite{outline:3px solid var(--focus);outline-offset:3px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px}
+.row-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;min-height:64px;margin-bottom:8px;font-family:inherit;font-size:16px;color:inherit}
+.row-item .meta{color:var(--muted);font-size:14px;margin-top:2px}
+.row-item .grow{flex:1;min-width:0}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--surface-2);border:1px solid var(--border);white-space:nowrap}
+.pill.ok{background:var(--ok-bg);color:var(--ok);border-color:transparent}
+.pill.warn{background:var(--warn-bg);color:var(--warn-fg);border-color:transparent}
+.pill.err{background:var(--err-bg);color:var(--err);border-color:transparent}
+.empty{color:var(--muted);text-align:center;padding:40px 16px;font-size:16px}
+.h-screen{font-size:24px;font-weight:700;line-height:1.2;margin:12px 0 8px}
+.lead{color:var(--muted);margin:0 0 14px;font-size:15px}
+.hand{font-family:var(--f-hand)}
+/* formularios */
+.field{margin-bottom:12px}
+.field label{display:block;font-size:14px;font-weight:600;margin-bottom:4px}
+.field .hint{font-size:13px;color:var(--muted);margin-top:4px}
+.field input,.field textarea{width:100%;min-height:46px;border:1.5px solid var(--border);border-radius:12px;background:var(--surface);color:var(--fg);font:inherit;font-size:18px;padding:8px 12px;font-variant-numeric:tabular-nums}
+.field textarea{min-height:96px;font-size:16px;resize:vertical}
+.field input:disabled{background:var(--surface-2);color:var(--muted)}
+.field.invalid input{border-color:var(--err);background:var(--err-bg)}
+.field .err-msg{color:var(--err);font-size:13px;margin-top:4px;font-weight:500}
+.field.flash input{outline:3px solid var(--focus);outline-offset:2px}
+.radio{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:8px;font-family:inherit;font-size:16px;color:inherit;min-height:60px}
+.radio[aria-checked="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.radio .dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--muted);flex:none;margin-top:2px;display:grid;place-items:center}
+.radio[aria-checked="true"] .dot{border-color:var(--accent)}
+.radio[aria-checked="true"] .dot::after{content:"";width:12px;height:12px;border-radius:50%;background:var(--accent)}
+.radio .help{color:var(--muted);font-size:14px;margin-top:2px}
+/* editor */
+.img-area{position:relative;background:#111827;border-radius:14px;overflow:hidden;height:210px;margin:6px 0 10px;display:flex;align-items:center;justify-content:center}
+.img-area svg{height:100%;width:auto;max-width:100%}
+.img-area .overlay{position:absolute;inset:auto 8px 8px 8px;display:flex;gap:6px;justify-content:space-between;align-items:center}
+.img-area .overlay .btn{width:auto;min-height:40px;font-size:13px;padding:4px 10px;border-radius:10px;background:rgba(255,255,255,.92);color:#14213A;border-color:transparent}
+.img-collapsed{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--surface-2);border:1px dashed var(--border);border-radius:12px;padding:6px 6px 6px 12px;margin:6px 0 10px;font-size:14px;color:var(--muted)}
+.section-h{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px;display:flex;justify-content:space-between;align-items:baseline}
+.section-h .sum{font-weight:600;letter-spacing:0;text-transform:none;font-variant-numeric:tabular-nums}
+.vrow{display:grid;grid-template-columns:minmax(0,1fr) 108px;gap:10px;align-items:center;padding:4px 0;border-bottom:1px solid var(--border)}
+.vrow label{font-size:16px;line-height:1.25;min-width:0}
+.vrow label .org{display:inline-block;margin-left:6px;font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-soft);padding:1px 6px;border-radius:6px;vertical-align:middle}
+.vrow input{width:100%;min-height:46px;border:1.5px solid var(--border);border-radius:12px;background:var(--surface);color:var(--fg);font:inherit;font-size:19px;text-align:right;padding:6px 10px;font-variant-numeric:tabular-nums}
+.vrow.invalid input{border-color:var(--err);background:var(--err-bg)}
+.vrow.flash input{outline:3px solid var(--focus);outline-offset:2px}
+.vrow input:disabled{background:var(--surface-2);color:var(--muted)}
+.chipbar{border-top:1px solid var(--border);background:var(--surface-2);padding:8px 12px 6px;font-size:13px}
+.chipbar .lbl{display:flex;justify-content:space-between;gap:8px;color:var(--muted);margin-bottom:6px;font-weight:500}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.chip{flex:none;min-width:44px;min-height:44px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);font-size:17px;font-weight:600;padding:0 12px;font-variant-numeric:tabular-nums}
+.chip.zero{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.chip.next{font-size:14px;font-weight:600}
+.chipbar .warn-note{color:var(--warn-fg);background:var(--warn-bg);border-radius:8px;padding:4px 8px;margin-top:6px;font-size:12px;line-height:1.3}
+.counter{font-size:14px;color:var(--muted);text-align:center}
+/* validación */
+.issue{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:12px;margin-bottom:8px;font-family:inherit;font-size:15px;color:inherit;line-height:1.35}
+.issue.error{border-color:var(--err)} .issue.warning{border-color:var(--warn-line)}
+.issue .go{color:var(--accent);font-weight:600;font-size:14px;margin-top:4px;display:block}
+.issue .ic{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px}
+.issue.error .ic{background:var(--err-bg);color:var(--err)} .issue.warning .ic{background:var(--warn-bg);color:var(--warn-fg)}
+.summary{border-radius:14px;padding:12px 14px;margin:8px 0 12px;font-weight:600}
+.summary.error{background:var(--err-bg);color:var(--err)} .summary.warning{background:var(--warn-bg);color:var(--warn-fg)} .summary.ok{background:var(--ok-bg);color:var(--ok)}
+.summary small{display:block;font-weight:400;font-size:14px;margin-top:4px}
+/* visor */
+.viewer{background:#111827;border-radius:14px;height:360px;overflow:auto;display:grid;place-items:center;margin:6px 0 8px}
+.viewer svg{width:100%;height:auto;max-width:100%;transform-origin:top left}
+.pager{display:flex;justify-content:center;align-items:center;gap:8px;margin-bottom:8px}
+.mono{font-family:var(--f-mono);font-size:13px;word-break:break-all;color:var(--muted)}
+.thumbs{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 12px}
+.thumb{width:92px;height:116px;border-radius:12px;border:1.5px solid var(--border);background:#111827;overflow:hidden;padding:0;display:grid;place-items:center;position:relative}
+.thumb svg{height:100%;width:auto}
+.thumb .n{position:absolute;bottom:4px;left:4px;font-size:11px;font-weight:700;background:rgba(255,255,255,.9);color:#14213A;border-radius:6px;padding:1px 6px}
+.thumb.add{background:var(--surface-2);color:var(--accent);font-weight:600;font-size:13px;border-style:dashed}
+.state-card{border:1.5px solid var(--err);background:var(--err-bg);border-radius:14px;padding:12px 14px;margin:10px 0;font-size:15px;color:var(--fg)}
+.state-card h3{font-size:16px;color:var(--err);margin-bottom:4px}
+.kv{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;font-size:15px}
+.kv dt{color:var(--muted)} .kv dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.callout{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;font-size:14px;color:var(--fg);margin:10px 0}
+.callout.warn{background:var(--warn-bg);color:var(--warn-fg);border-color:transparent}
+.ro-table{width:100%;border-collapse:collapse;font-size:15px}
+.ro-table th{text-align:left;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:10px 0 4px}
+.ro-table td{padding:6px 0;border-bottom:1px solid var(--border)} .ro-table td:last-child{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.ro-table .org{font-size:11px;color:var(--accent);background:var(--accent-soft);padding:1px 6px;border-radius:6px;margin-left:6px;font-weight:700}
+/* overlays dentro del teléfono */
+.sheet-bg{position:absolute;inset:0;background:rgba(10,15,30,.55);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+.sheet-bg.center{align-items:center;padding:20px}
+.sheet{background:var(--surface);border-radius:20px 20px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));width:100%;max-height:90%;overflow:auto;font-family:var(--f-ui)}
+.sheet-bg.center .sheet{border-radius:20px;max-height:100%}
+.sheet h2{font-size:19px;margin-bottom:8px}
+.sheet p,.sheet li{font-size:15px;margin:0 0 8px}
+.sheet ul{padding-left:20px;margin:0 0 10px}
+.sheet .actions{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.camera{position:absolute;inset:0;background:#000;z-index:25;display:flex;flex-direction:column;color:#fff}
+.camera .view{flex:1;min-height:0;display:grid;place-items:center;position:relative;padding:20px}
+.camera .view svg{max-height:100%;width:auto;max-width:100%;transform:rotate(-2deg)}
+.camera .frame{position:absolute;inset:34px 26px;border:2px solid rgba(124,185,232,.9);border-radius:10px;pointer-events:none}
+.camera .bar{display:flex;justify-content:space-around;align-items:center;padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px))}
+.camera .shutter{width:72px;height:72px;border-radius:50%;background:#fff;border:5px solid #9ca3af}
+.camera .bar .btn{width:auto;background:transparent;color:#fff;border-color:rgba(255,255,255,.4)}
+.share-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0}
+.share-grid .btn{flex-direction:column;font-size:12px;min-height:72px;gap:4px;padding:6px}
+.toast{position:absolute;left:16px;right:16px;bottom:calc(90px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:10px 14px;border-radius:12px;font-size:14px;z-index:30;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+/* panel */
+.panel{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto;background:var(--panel-bg);border:1px solid var(--border);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:16px}
+.panel h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.screen-list{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.screen-list button{display:flex;gap:8px;align-items:center;min-height:44px;border:1px solid transparent;background:transparent;border-radius:10px;padding:4px 8px;text-align:left;font-size:13.5px;line-height:1.2}
+.screen-list button code{font-family:var(--f-mono);font-size:12px;color:var(--accent);flex:none}
+.screen-list button:hover{background:var(--surface-2)}
+.screen-list button[aria-current="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.note h3{font-size:16px;font-weight:600;margin-bottom:6px}
+.note p{margin:0 0 8px;font-size:14px}
+.note ul{margin:0 0 8px;padding-left:18px;font-size:13.5px}
+.note li{margin-bottom:4px}
+.note .tag{display:inline-block;font-family:var(--f-mono);font-size:11px;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:0 5px;margin-right:4px}
+.note .astra{border-left:3px solid var(--dorado);padding-left:10px}
+.opt{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.opt .lbl{font-size:13px;font-weight:600}
+.seg{display:flex;gap:4px;flex-wrap:wrap}
+.seg button{min-height:40px;border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:4px 10px;font-size:13px}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;font-size:14px;width:100%;background:transparent;border:0;border-bottom:1px solid var(--border);padding:4px 0;text-align:left}
+.toggle .sw{width:44px;height:26px;border-radius:13px;background:var(--border);position:relative;flex:none;transition:background .15s}
+.toggle .sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .15s}
+.toggle[aria-pressed="true"] .sw{background:var(--accent)} .toggle[aria-pressed="true"] .sw::after{left:21px}
+.panel .btn{font-size:14px;min-height:44px;font-family:var(--f-panel)}
+.stages{display:flex;gap:4px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.stages span{background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:2px 6px}
+.stages span.on{background:var(--accent-soft);color:var(--accent);border-color:var(--accent);font-weight:600}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (max-width:900px){
+  .stage{grid-template-columns:minmax(0,1fr)}
+  .device{width:100%;height:min(844px,calc(100dvh - 24px));border-radius:18px;padding:0;background:transparent;box-shadow:none}
+  .phone{border-radius:18px;border:1px solid var(--border)}
+  .panel{position:static;max-height:none}
+}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important} }
+</style>
+
+<header class="header">
+  <h1>Prototipo de escrutinio · CuentaConmigo</h1>
+  <p>Propuesta navegable (no es una decisión). Flujo híbrido E-00…E-13 con las correcciones de la revisión de Astra. Todos los datos son ficticios: Lista A/B/C, mesa 00042, distrito 99.</p>
+</header>
+
+<div class="stage">
+  <div class="device">
+    <div class="phone" id="phone">
+      <div class="statusbar"><span id="clock">20:47</span><span class="net" id="netstate"></span><span>▮▮▮ 38 %</span></div>
+      <div class="app" id="app"></div>
+    </div>
+  </div>
+  <aside class="panel" id="panel" aria-label="Panel de diseño"></aside>
+</div>
+
+<script>
+/* ---------- datos ficticios ---------- */
+const TEMPLATE = {
+  id:'demo-2027', version:1, fictitious:true, title:'Plantilla DEMO ficticia (no es el formulario oficial)',
+  documentTypes:['certificado','telegrama','acta'],
+  mesaFields:[{id:'distrito',label:'Distrito'},{id:'seccion',label:'Sección'},{id:'circuito',label:'Circuito'},{id:'mesa',label:'Mesa'}],
+  headerFields:[{id:'electores',label:'Electores habilitados',required:false},{id:'votantes',label:'Total de votantes',required:true}],
+  categories:[{id:'presidente',label:'Presidente y Vicepresidente'},{id:'diputados',label:'Diputados Nacionales'}],
+  rows:[{id:'lista-a',label:'Lista A (ficticia)'},{id:'lista-b',label:'Lista B (ficticia)'},{id:'lista-c',label:'Lista C (ficticia)'},{id:'blanco',label:'Votos en blanco'},{id:'nulos',label:'Votos nulos'},{id:'recurridos',label:'Votos recurridos'},{id:'impugnados',label:'Identidad impugnada'}]
+};
+const DOCTYPE_LABEL = {certificado:'Certificado de escrutinio', telegrama:'Telegrama', acta:'Acta de escrutinio'};
+const DOCTYPE_SHORT = {certificado:'Certificado', telegrama:'Telegrama', acta:'Acta'};
+/* lo que dice el papel ficticio */
+const DOC = { electores:350, votantes:225,
+  presidente:{'lista-a':123,'lista-b':98,'lista-c':0,'blanco':4,'nulos':0,'recurridos':0,'impugnados':0},
+  diputados:{'lista-a':110,'lista-b':95,'lista-c':12,'blanco':6,'nulos':2,'recurridos':0,'impugnados':0} };
+/* lo que "lee" el OCR simulado (con un ruido deliberado: el 8 suelto) */
+const OCR = { presidente:['350','225','123','98','0','4','8'], diputados:['350','225','110','95','12','6','2','0'] };
+const MESA_DEMO = {distrito:'99', seccion:'03', circuito:'0012A', mesa:'00042'};
+
+/* diccionario único de mensajes de validación */
+const MSG = {
+  missing_mesa:(l)=>`Falta el dato de mesa: ${l}.`,
+  no_pages:()=>`Agregá al menos una imagen del documento.`,
+  missing_value:(l)=>`Falta el valor de ${l}.`,
+  negative_value:(l)=>`${l}: el valor no puede ser negativo.`,
+  votantes_exceed_electores:(v,e)=>`Hay más votantes (${v}) que electores habilitados (${e}).`,
+  category_total_mismatch:(c,s,v)=>`${c}: la suma de las filas (${s}) no coincide con el total de votantes (${v}). Si el documento dice eso, podés confirmar igual con una justificación.`,
+  empty_as_zero:(n)=>`${n} ${n===1?'campo vacío se tomó':'campos vacíos se tomaron'} como 0. Confirmá que en el documento dicen 0.`
+};
+
+/* ---------- estado ---------- */
+let S;
+function hhmm(d){ return d.toTimeString().slice(0,5); }
+function fakeHash(seed){ let x=seed*2654435761%4294967296, out=''; for(let i=0;i<64;i++){ x=(x*1103515245+12345)%2147483648; out+='0123456789abcdef'[x%16]; } return out; }
+function newCapture(pre){
+  const c = { id:'c'+Date.now(), documentType: pre?.documentType ?? (S?.alt.preselect ? 'certificado' : null),
+    mesa:{distrito:'',seccion:'',circuito:'',mesa:'', ...(pre?.mesa||{})}, pages:[], header:{}, cells:{},
+    status:'draft', lockedAt:null, exportedAt:null, exportVia:null, warningJustification:null, bupAckAt:null, step:'e-02', createdAt:Date.now() };
+  TEMPLATE.headerFields.forEach(h=>c.header[h.id]={value:'',origin:'manual'});
+  TEMPLATE.categories.forEach(cat=>TEMPLATE.rows.forEach(r=>c.cells[cat.id+'.'+r.id]={value:'',origin:'manual'}));
+  return c;
+}
+function demoConfirmed(){
+  const c = newCapture({documentType:'certificado', mesa:MESA_DEMO});
+  c.id='c-demo'; c.createdAt=Date.now()-5*60000;
+  c.pages=[{n:1,category:'presidente',hash:fakeHash(11),time:'20:36',source:'scanner'},{n:2,category:'diputados',hash:fakeHash(12),time:'20:37',source:'scanner'}];
+  c.header.electores={value:'350',origin:'ocr-accepted'}; c.header.votantes={value:'225',origin:'manual'};
+  TEMPLATE.categories.forEach(cat=>TEMPLATE.rows.forEach((r,i)=>c.cells[cat.id+'.'+r.id]={value:String(DOC[cat.id][r.id]),origin:i<2?'ocr-accepted':'manual'}));
+  c.status='confirmed'; c.lockedAt='20:41'; c.bupAckAt='20:33'; c.step='e-10';
+  return c;
+}
+function initialState(){
+  return { screen:'e-01', captures:[demoConfirmed()], current:null,
+    alt:{flow:'F-2', zero:'cero', preselect:true, origin:true},
+    sim:{offline:false, cameraDenied:false, scannerUnavailable:false, ocr:true},
+    ui:{page:0, wiz:0, focused:null, imgHidden:false, zoom:1, returnTo:null, focusField:null, viewing:null} };
+}
+function cur(){ return S.captures.find(c=>c.id===S.current) || null; }
+function esc(s){ return String(s).replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch])); }
+function rowLabel(id){ return TEMPLATE.rows.find(r=>r.id===id)?.label || id; }
+function catLabel(id){ return TEMPLATE.categories.find(c=>c.id===id)?.label || id; }
+function fieldLabel(key){
+  if(key.includes('.')){ const [c,r]=key.split('.'); return `${catLabel(c)}: ${rowLabel(r)}`; }
+  const h=TEMPLATE.headerFields.find(h=>h.id===key); if(h) return h.label;
+  const m=TEMPLATE.mesaFields.find(m=>m.id===key); if(m) return m.label; return key;
+}
+function fid(key){ return 'f-'+key.replace(/\./g,'-'); }
+
+/* ---------- documento ficticio en SVG ---------- */
+function docSVG(c, page, opts={}){
+  const type = c.documentType || 'certificado';
+  const title = {certificado:'CERTIFICADO DE ESCRUTINIO', telegrama:'TELEGRAMA DE ESCRUTINIO', acta:'ACTA DE ESCRUTINIO'}[type];
+  const cat = catLabel(page.category); const vals = DOC[page.category];
+  const m = Object.values(c.mesa).some(v=>v) ? c.mesa : MESA_DEMO;
+  const rows = TEMPLATE.rows.map((r,i)=>{ const y=330+i*44; const rot=(i%3-1)*1.2;
+    return `<text x="50" y="${y+28}" font-size="17" fill="var(--ink)" font-family="Arial,sans-serif">${esc(r.label)}</text>
+      <rect x="420" y="${y}" width="130" height="38" fill="none" stroke="var(--ink)" stroke-width="1.2"/>
+      <text x="485" y="${y+29}" text-anchor="middle" font-size="31" class="hand" fill="var(--pen)" transform="rotate(${rot} 485 ${y+20})">${vals[r.id]}</text>`; }).join('');
+  const sum = Object.values(vals).reduce((a,b)=>a+b,0);
+  const idx = c.pages.indexOf(page); const total = c.pages.length;
+  return `<svg viewBox="0 0 600 800" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(`Imagen del ${DOCTYPE_LABEL[type].toLowerCase()} ficticio, página ${idx+1} de ${total}: ${cat}`)}">
+    <rect width="600" height="800" fill="var(--paper)" stroke="#C9C2A8"/>
+    <g transform="rotate(12 520 60)"><rect x="400" y="46" width="240" height="30" fill="var(--dorado)" opacity=".95"/><text x="520" y="67" text-anchor="middle" font-size="15" font-weight="700" font-family="Arial,sans-serif" fill="#14213A" letter-spacing="1">PLANTILLA FICTICIA</text></g>
+    <text x="50" y="60" font-size="22" font-weight="700" font-family="Arial,sans-serif" fill="var(--ink)">${title}</text>
+    <text x="50" y="84" font-size="13" font-family="Arial,sans-serif" fill="#6B6B6B">Elecciones nacionales 2027 · formulario DEMO (no oficial) · Lista A/B/C</text>
+    <g font-family="Arial,sans-serif" font-size="12" fill="#555">
+      <text x="50" y="125">DISTRITO</text><rect x="50" y="132" width="90" height="36" fill="none" stroke="var(--ink)"/><text x="95" y="160" text-anchor="middle" font-size="26" class="hand" fill="var(--pen)">${esc(m.distrito||'')}</text>
+      <text x="160" y="125">SECCIÓN</text><rect x="160" y="132" width="90" height="36" fill="none" stroke="var(--ink)"/><text x="205" y="160" text-anchor="middle" font-size="26" class="hand" fill="var(--pen)">${esc(m.seccion||'')}</text>
+      <text x="270" y="125">CIRCUITO</text><rect x="270" y="132" width="120" height="36" fill="none" stroke="var(--ink)"/><text x="330" y="160" text-anchor="middle" font-size="26" class="hand" fill="var(--pen)">${esc(m.circuito||'')}</text>
+      <text x="410" y="125">MESA</text><rect x="410" y="132" width="140" height="36" fill="none" stroke="var(--ink)"/><text x="480" y="160" text-anchor="middle" font-size="26" class="hand" fill="var(--pen)">${esc(m.mesa||'')}</text>
+    </g>
+    <g font-family="Arial,sans-serif" font-size="15" fill="var(--ink)">
+      <text x="50" y="215">Electores habilitados</text><rect x="420" y="190" width="130" height="36" fill="none" stroke="var(--ink)"/><text x="485" y="218" text-anchor="middle" font-size="30" class="hand" fill="var(--pen)">${DOC.electores}</text>
+      <text x="50" y="259">Total de votantes</text><rect x="420" y="234" width="130" height="36" fill="none" stroke="var(--ink)"/><text x="485" y="262" text-anchor="middle" font-size="30" class="hand" fill="var(--pen)" transform="rotate(-1 485 250)">${DOC.votantes}</text>
+    </g>
+    <rect x="50" y="290" width="500" height="30" fill="#E6E2D3"/><text x="60" y="311" font-size="15" font-weight="700" font-family="Arial,sans-serif" fill="var(--ink)">${esc(cat.toUpperCase())}</text>
+    ${rows}
+    <text x="50" y="668" font-size="15" font-weight="700" font-family="Arial,sans-serif" fill="var(--ink)">Total de la categoría</text>
+    <rect x="420" y="640" width="130" height="38" fill="none" stroke="var(--ink)" stroke-width="1.6"/><text x="485" y="669" text-anchor="middle" font-size="31" class="hand" fill="var(--pen)">${sum}</text>
+    <g stroke="var(--pen)" stroke-width="2" fill="none" stroke-linecap="round">
+      <path d="M60 740 c 12 -30 22 -18 30 -4 s 14 -24 26 -8 s 16 10 40 -6 s 18 14 30 2"/>
+      <path d="M340 742 c 10 -26 24 -20 32 -6 s 12 -20 30 -10 s 20 16 44 -4"/>
+    </g>
+    <g font-family="Arial,sans-serif" font-size="11" fill="#6B6B6B"><text x="60" y="760">Presidente de mesa (firma ficticia)</text><text x="340" y="760">Fiscal (firma ficticia)</text></g>
+    <text x="550" y="790" text-anchor="end" font-size="11" font-family="Arial,sans-serif" fill="#6B6B6B">Página ${idx+1} de ${total} · Mesa ${esc(m.mesa||'')}</text>
+  </svg>`;
+}
+
+/* ---------- validación ---------- */
+function num(v){ if(v===''||v==null) return null; const n=Number(v); return Number.isFinite(n)?n:null; }
+function validate(c){
+  const out=[];
+  TEMPLATE.mesaFields.forEach(f=>{ if(!c.mesa[f.id]) out.push({code:'missing_mesa',sev:'error',text:MSG.missing_mesa(f.label),screen:'e-04',field:f.id}); });
+  if(c.pages.length===0) out.push({code:'no_pages',sev:'error',text:MSG.no_pages(),screen:'e-05'});
+  const vot=num(c.header.votantes.value), ele=num(c.header.electores.value);
+  if(c.header.votantes.value==='') out.push({code:'missing_value',sev:'error',text:MSG.missing_value('Total de votantes'),screen:'e-07',field:'votantes'});
+  [['electores',ele],['votantes',vot]].forEach(([k,v])=>{ if(v!==null&&v<0) out.push({code:'negative_value',sev:'error',text:MSG.negative_value(fieldLabel(k)),screen:'e-07',field:k}); });
+  if(vot!==null&&ele!==null&&vot>ele) out.push({code:'votantes_exceed_electores',sev:'error',text:MSG.votantes_exceed_electores(vot,ele),screen:'e-07',field:'votantes'});
+  let empties=[];
+  TEMPLATE.categories.forEach(cat=>{
+    let sum=0, complete=true;
+    TEMPLATE.rows.forEach(r=>{ const key=cat.id+'.'+r.id; const v=c.cells[key].value;
+      if(v===''){ empties.push(key); if(S.alt.zero==='cero'){ complete=false; out.push({code:'missing_value',sev:'error',text:MSG.missing_value(fieldLabel(key)),screen:'e-07',field:key}); } return; }
+      const n=num(v); if(n===null) return; if(n<0){ out.push({code:'negative_value',sev:'error',text:MSG.negative_value(fieldLabel(key)),screen:'e-07',field:key}); complete=false; return; } sum+=n; });
+    if(complete&&vot!==null&&sum!==vot) out.push({code:'category_total_mismatch',sev:'warning',text:MSG.category_total_mismatch(cat.label,sum,vot),screen:'e-07',field:cat.id+'.lista-a'});
+  });
+  if(S.alt.zero==='vacio'&&empties.length) out.push({code:'empty_as_zero',sev:'warning',text:MSG.empty_as_zero(empties.length),screen:'e-07',field:empties[0]});
+  return out;
+}
+function emptyCount(c){ let n=0; if(c.header.votantes.value==='') n++; Object.values(c.cells).forEach(x=>{ if(x.value==='') n++; }); return n; }
+function catSum(c,cat){ let s=0; TEMPLATE.rows.forEach(r=>{ s+=num(c.cells[cat+'.'+r.id].value)||0; }); return s; }
+
+/* ---------- navegación ---------- */
+const SCREENS = [
+  ['e-00','Aviso de plantilla ficticia'],['e-01','Mis capturas'],['e-02','Aviso de Boleta Única'],['e-03','Tipo de documento'],
+  ['e-04','Datos de mesa'],['e-05','Captura de páginas'],['e-06','Páginas capturadas'],['e-07','Carga de valores'],
+  ['e-08','Validación'],['e-09','Confirmar y bloquear'],['e-10','Captura confirmada'],['e-11','Envíos'],['e-12','Acerca de'],['e-13','Cámara denegada']
+];
+const NEEDS_CAPTURE = ['e-02','e-03','e-04','e-05','e-06','e-07','e-08','e-09','e-10'];
+let dialogState=null, overlay=null, toastTimer=null;
+function go(id, opts={}){
+  if(opts.focus){ S.ui.focusField=opts.focus; }
+  if('returnTo' in opts) S.ui.returnTo=opts.returnTo;
+  if(id==='e-13'){ S.sim.cameraDenied=true; id='e-05'; S.screen='e-13'; } else S.screen=id;
+  const c=cur();
+  if(NEEDS_CAPTURE.includes(id)&&!c){ /* salto directo desde el panel: se abre un borrador de muestra o la confirmada */
+    if(id==='e-10'){ S.current='c-demo'; } else { const d=newCapture(); d.mesa={...MESA_DEMO}; d.step=id; if(['e-05','e-06','e-07','e-08','e-09'].includes(id)) d.pages=[{n:1,category:'presidente',hash:fakeHash(21),time:hhmm(new Date()),source:'scanner'},{n:2,category:'diputados',hash:fakeHash(22),time:hhmm(new Date()),source:'scanner'}]; if(['e-07','e-08','e-09'].includes(id)) fillExample(d,'ok'); S.captures.unshift(d); S.current=d.id; }
+  }
+  if(c&&c.status==='draft'&&['e-03','e-04','e-05','e-06','e-07','e-08','e-09'].includes(id)) c.step=id;
+  if(id!=='e-07') S.ui.focused=null;
+  const h='#'+S.screen; if(location.hash!==h) history.replaceState(null,'',h);
+  dialogState=null; overlay=null; render();
+}
+function fillExample(c, mode){
+  c.header.electores={value:'350',origin:'ocr-accepted'}; c.header.votantes={value:mode==='err'?'360':'225',origin:'manual'};
+  TEMPLATE.categories.forEach(cat=>TEMPLATE.rows.forEach((r,i)=>{ c.cells[cat.id+'.'+r.id]={value:String(DOC[cat.id][r.id]),origin:i<3?'ocr-accepted':'manual'}; }));
+  if(mode==='err'){ c.cells['presidente.lista-b']={value:'89',origin:'manual'}; c.cells['diputados.lista-c']={value:'',origin:'manual'}; }
+}
+
+/* ---------- render ---------- */
+function render(){
+  const app=document.getElementById('app');
+  const sc = S.screen==='e-00'?'e-01':(S.screen==='e-13'?'e-05':S.screen);
+  const r = (RENDER[sc]||RENDER['e-01'])();
+  const nav = r.nav===false ? '' : `<div class="nav">${r.nav.back?`<button class="icon-btn" data-act="${r.nav.back.act}" aria-label="${esc(r.nav.back.label)}">${ICON.back}<span>${esc(r.nav.back.short||'')}</span></button>`:'<span style="min-width:44px"></span>'}<div class="title">${esc(r.nav.title||'')}</div>${r.nav.trailing||'<span style="min-width:44px"></span>'}</div>`;
+  app.innerHTML = `${nav}<div class="content" id="content" tabindex="-1">${r.body}</div>${r.chipbar||''}${r.footer?`<div class="footer">${r.footer}</div>`:''}
+    ${dialogState?renderDialog():''}${overlay||''}<div id="live" class="sr-only" aria-live="polite"></div>`;
+  document.getElementById('netstate').textContent = S.sim.offline ? 'Sin conexión' : '';
+  renderPanel();
+  if(S.ui.focusField){ const el=document.getElementById(fid(S.ui.focusField)); const key=S.ui.focusField; S.ui.focusField=null;
+    if(el){ const wrap=el.closest('.vrow,.field'); wrap&&wrap.classList.add('flash'); el.scrollIntoView({block:'center'}); el.focus({preventScroll:true}); S.ui.focused=key; updateChipLabel(); setTimeout(()=>wrap&&wrap.classList.remove('flash'),2500); } }
+  if(r.announce) announce(r.announce);
+}
+function announce(t){ const l=document.getElementById('live'); if(l){ l.textContent=''; setTimeout(()=>l.textContent=t,50); } }
+function toast(t){ const old=document.querySelector('.toast'); old&&old.remove(); const el=document.createElement('div'); el.className='toast'; el.setAttribute('role','status'); el.textContent=t; document.getElementById('phone').appendChild(el); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.remove(),2800); }
+const ICON = {
+  back:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>',
+  lock:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>',
+  warn:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 3 2 21h20L12 3z"/><path d="M12 10v5M12 18h.01"/></svg>',
+  info:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 8h.01"/></svg>',
+  hand:'<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11m0-6.5a1.5 1.5 0 0 1 3 0V11m0-5a1.5 1.5 0 0 1 3 0v6.5m0-4a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-2a6 6 0 0 1-5-2.7L4.6 15a1.7 1.7 0 0 1 2.7-2L8 14"/></svg>',
+  cam:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+  check:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>'
+};
+function banner(){ return TEMPLATE.fictitious ? `<button class="banner ${S.screen==='e-00'?'hilite':''}" data-act="go" data-to="e-12" role="note" aria-label="Aviso: prototipo con un formulario ficticio. Tocá para ver la plantilla en uso.">${ICON.warn}<span><strong>Plantilla ficticia</strong>Prototipo con un formulario ficticio (Lista A/B/C). No cargues datos reales todavía.</span></button>` : ''; }
+function stageTag(t){ return `<span class="stage-tag">${esc(t)}</span>`; }
+function lockedNote(){ return `<div class="callout" style="display:flex;gap:8px;align-items:center">${ICON.lock}<span>Captura confirmada y bloqueada: no se puede editar ni borrar. Si hay un error, hacé una nueva captura de la misma mesa.</span></div>`; }
+
+const RENDER = {
+  'e-01'(){
+    const list=[...S.captures].sort((a,b)=>b.createdAt-a.createdAt);
+    const rows=list.length?list.map(c=>{ const st=c.status==='confirmed'?(c.exportedAt?`<span class="pill ok">${ICON.check} Exportada ${esc(c.exportedAt)}</span>`:`<span class="pill">${ICON.lock} Confirmada · no enviada</span>`):`<span class="pill warn">Borrador</span>`;
+      const label=`Mesa ${c.mesa.mesa||'sin número'}, ${DOCTYPE_SHORT[c.documentType]||'tipo sin elegir'}, ${c.status==='confirmed'?'confirmada':'borrador'}, ${c.pages.length} páginas`;
+      return `<div style="display:flex;gap:6px;align-items:stretch"><button class="row-item" data-act="open" data-id="${c.id}" aria-label="${esc(label)}"><div class="grow"><div><strong>Mesa ${esc(c.mesa.mesa||'—')}</strong> · ${esc(DOCTYPE_SHORT[c.documentType]||'Sin tipo')}</div><div class="meta">${st} · ${c.pages.length} pág. · ${esc(c.lockedAt||hhmm(new Date(c.createdAt)))}</div></div>${ICON.back.replace('M15 5l-7 7 7 7','M9 5l7 7-7 7')}</button>${c.status==='draft'?`<button class="icon-btn" data-act="ask-delete-draft" data-id="${c.id}" aria-label="Borrar borrador de la mesa ${esc(c.mesa.mesa||'')}" style="min-width:44px">✕</button>`:''}</div>`; }).join('')
+      :`<div class="empty">Todavía no hay capturas. Tocá "Nueva captura" al terminar el escrutinio de tu mesa.</div>`;
+    return { nav:{title:'Escrutinio', trailing:`<button class="icon-btn" data-act="go" data-to="e-11" aria-label="Envíos">Envíos</button><button class="icon-btn" data-act="go" data-to="e-12" aria-label="Acerca de">${ICON.info}</button>`},
+      body:`${banner()}${rows}`, footer:`<button class="btn primary" data-act="new">Nueva captura</button>` };
+  },
+  'e-02'(){
+    return { nav:{title:'', trailing:`<button class="icon-btn" data-act="ask-discard" aria-label="Cerrar y descartar el borrador">✕</button>`},
+      body:`<div style="text-align:center;color:var(--err);margin-top:10px">${ICON.hand}</div>
+        <h2 class="h-screen" style="text-align:center">Nunca fotografíes la Boleta Única</h2>
+        <p style="text-align:center;margin:0 0 16px">Está prohibido durante los comicios (Código Electoral, art. 71 inc. g).</p>
+        <div class="card" style="font-size:16px;line-height:1.4"><strong>Escaneá sólo el documento que te corresponde según tu función. Nunca la Boleta Única.</strong></div>
+        <div class="callout" style="margin-top:12px">La autorización para fotografiar el certificado, el telegrama o el acta está <strong>en revisión legal</strong>. Mientras tanto, este prototipo trabaja sólo con una plantilla ficticia.</div>
+        <button class="btn quiet" data-act="go" data-to="e-12">Más información</button>`,
+      footer:`<button class="btn primary" data-act="ack-bup">Entendido, continuar</button>`, announce:'Nunca fotografíes la Boleta Única' };
+  },
+  'e-03'(){
+    const c=cur();
+    const opts={certificado:'Copia que recibe quien fiscaliza la mesa.', telegrama:'Documento que se remite al centro de cómputos.', acta:'Queda con la documentación de la mesa. Sin manipular el original.'};
+    return { nav:{back:{act:'back',label:'Volver al aviso',short:'Aviso'}, title:'Nueva captura', trailing:stageTag('Preparar 1/3')},
+      body:`<h2 class="h-screen">¿Qué documento vas a escanear?</h2><p class="lead">Según tu función te corresponde uno. Podés cambiarlo hasta confirmar.</p>
+        <div role="radiogroup" aria-label="Tipo de documento">${TEMPLATE.documentTypes.map(t=>`<button class="radio" role="radio" aria-checked="${c.documentType===t}" data-act="set-type" data-type="${t}"><span class="dot"></span><span><span>${esc(DOCTYPE_LABEL[t])}</span><div class="help">${esc(opts[t])}</div></span></button>`).join('')}</div>
+        ${S.alt.preselect?'':'<p class="lead">Sin preselección: la app no sugiere qué documento fotografiar.</p>'}`,
+      footer:`<button class="btn primary" data-act="go" data-to="e-04" ${c.documentType?'':'disabled'}>Continuar</button>` };
+  },
+  'e-04'(){
+    const c=cur(); const ro=c.status==='confirmed'; const issues=validate(c).filter(i=>i.screen==='e-04');
+    const fields=TEMPLATE.mesaFields.map(f=>{ const bad=S.ui.showMesaErrors&&!c.mesa[f.id]; return `<div class="field ${bad?'invalid':''}"><label for="${fid(f.id)}">${esc(f.label)}</label><input id="${fid(f.id)}" data-mesa="${f.id}" value="${esc(c.mesa[f.id])}" inputmode="${f.id==='circuito'?'text':'numeric'}" autocomplete="off" ${ro?'disabled':''} ${bad?`aria-describedby="${fid(f.id)}-e" aria-invalid="true"`:''}>${f.id==='circuito'?'<div class="hint">Puede tener letras (por ejemplo 0012A).</div>':''}${bad?`<div class="err-msg" id="${fid(f.id)}-e">Falta este dato.</div>`:''}</div>`; }).join('');
+    return { nav:{back:{act:'back',label:'Volver al tipo de documento',short:DOCTYPE_SHORT[c.documentType]||'Tipo'}, title:'Datos de la mesa', trailing:stageTag('Preparar 2/3')},
+      body:`${ro?lockedNote():''}${S.ui.returnTo?`<div class="callout">Corregí el dato y volvé a la validación con el botón de abajo.</div>`:''}<p class="lead">Los encontrás en el encabezado del documento. Podés seguir y completarlos después: la validación te los va a pedir.</p>${fields}<p class="counter">Borrador guardado en este teléfono</p>`,
+      footer: ro?`<button class="btn" data-act="go" data-to="e-10">Ver la captura</button>`:(S.ui.returnTo?`<button class="btn primary" data-act="return">Volver a la validación</button>`:`<button class="btn primary" data-act="go" data-to="e-05">Continuar</button>`) };
+  },
+  'e-05'(){
+    const c=cur(); const ro=c.status==='confirmed';
+    const thumbs=c.pages.map((p,i)=>`<button class="thumb" data-act="view-page" data-i="${i}" aria-label="Página ${i+1} de ${c.pages.length}, escaneada ${p.time}">${docSVG(c,p)}<span class="n">${i+1}</span></button>`).join('');
+    const denied=S.sim.cameraDenied?`<div class="state-card" role="alert"><h3>Sin cámara no se puede escanear</h3>Podés habilitarla en Ajustes o importar de Fotos. Lo que ya escaneaste sigue guardado.<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn small" data-act="toast" data-msg="Abriría Ajustes › CuentaConmigo › Cámara (simulado)">Abrir Ajustes</button><button class="btn small" data-act="import">Importar de Fotos</button></div></div>`:'';
+    const noscan=!S.sim.cameraDenied&&S.sim.scannerUnavailable?`<div class="callout">El escáner de documentos no está disponible en este dispositivo (por ejemplo, en el simulador). Importá las imágenes de Fotos.</div>`:'';
+    return { nav:{back:{act:'back',label:'Volver a los datos de mesa',short:`Mesa ${c.mesa.mesa||''}`}, title:'Páginas', trailing:stageTag('Preparar 3/3')},
+      body:`${ro?lockedNote():''}<h2 class="h-screen">Escaneá todas las páginas del ${esc((DOCTYPE_SHORT[c.documentType]||'documento').toLowerCase())}</h2>
+        <div class="thumbs">${thumbs}${ro?'':`<button class="thumb add" data-act="scan" aria-label="Agregar página">+ agregar</button>`}</div>
+        ${denied}${noscan}
+        <div class="callout">Consejos: apoyá el documento sobre la mesa, encuadrá la página entera y acercá la linterna si hay poca luz. Nada de esto necesita conexión.</div>
+        <p class="counter">${c.pages.length?`${c.pages.length} página${c.pages.length>1?'s':''} guardada${c.pages.length>1?'s':''} en este teléfono con su huella digital`:'Todavía no hay páginas'}</p>`,
+      footer: ro?`<button class="btn" data-act="go" data-to="e-10">Ver la captura</button>`:`${S.sim.cameraDenied||S.sim.scannerUnavailable?'':`<button class="btn" data-act="scan">${ICON.cam} Escanear</button>`}<button class="btn" data-act="import">Importar de Fotos</button><button class="btn primary" data-act="go" data-to="e-06" ${c.pages.length?'':'disabled'}>Continuar</button>` };
+  },
+  'e-06'(){
+    const c=cur(); const ro=c.status==='confirmed'; const i=Math.min(S.ui.page,c.pages.length-1); const p=c.pages[i];
+    if(!p) return { nav:{back:{act:'back',label:'Volver',short:'Páginas'},title:'Páginas (0)'}, body:`<div class="empty">No hay páginas. Volvé a escanear.</div>`, footer:`<button class="btn primary" data-act="go" data-to="e-05">Escanear</button>` };
+    return { nav:{back:{act:S.ui.returnTo==='e-07'?'return':'back',label:'Volver',short:S.ui.returnTo==='e-07'?'Carga':'Páginas'}, title:`Páginas (${c.pages.length})`, trailing:ro?`<span class="stage-tag">${ICON.lock}</span>`:stageTag('Preparar')},
+      body:`<div class="viewer" aria-label="Visor de la página"><div style="transform:scale(${S.ui.zoom});transform-origin:top left;width:100%">${docSVG(c,p)}</div></div>
+        <div class="pager"><button class="icon-btn" data-act="page" data-d="-1" aria-label="Página anterior" ${i===0?'disabled':''}>◀</button><span aria-live="polite">${i+1} / ${c.pages.length}</span><button class="icon-btn" data-act="page" data-d="1" aria-label="Página siguiente" ${i===c.pages.length-1?'disabled':''}>▶</button>
+          <span style="width:12px"></span><button class="icon-btn" data-act="zoom" data-d="-1" aria-label="Alejar">−</button><button class="icon-btn" data-act="zoom" data-d="1" aria-label="Acercar">+</button></div>
+        <p class="mono">Escaneada ${esc(p.time)} · origen: ${p.source==='photos'?'Fotos':'escáner'}<br>SHA-256 (simulada) ${p.hash.slice(0,4)}…${p.hash.slice(-4)}</p>
+        <div class="callout">La imagen no se edita ni se "mejora": lo que ves es lo que se guarda con su huella digital.</div>`,
+      footer: ro?`<button class="btn" data-act="go" data-to="e-10">Volver a la captura</button>`:`<button class="btn" data-act="ask-remove-page" data-i="${i}">Quitar esta página</button><button class="btn" data-act="go" data-to="e-05">Agregar otra página</button>${S.ui.returnTo==='e-07'?`<button class="btn primary" data-act="return">Volver a la carga</button>`:`<button class="btn primary" data-act="go" data-to="e-07">Continuar a la carga</button>`}` };
+  },
+  'e-07'(){
+    const c=cur(); const ro=c.status==='confirmed';
+    const groups=[{id:'totales',label:'Totales de la mesa',fields:TEMPLATE.headerFields.map(h=>({key:h.id,label:h.label,obj:c.header[h.id]}))},
+      ...TEMPLATE.categories.map(cat=>({id:cat.id,label:cat.label,cat:cat.id,fields:TEMPLATE.rows.map(r=>({key:cat.id+'.'+r.id,label:r.label,obj:c.cells[cat.id+'.'+r.id]}))}))];
+    const wiz=S.alt.flow==='F-1'; const shown = wiz?[groups[S.ui.wiz]]:groups;
+    if(wiz){ const g=groups[S.ui.wiz]; const pi=c.pages.findIndex(p=>p.category===g.cat); if(pi>=0) S.ui.page=pi; }
+    const pageIdx=Math.min(S.ui.page,c.pages.length-1); const page=c.pages[pageIdx];
+    const img = !page?`<div class="img-collapsed">Sin imagen todavía <button class="btn small" data-act="go" data-to="e-05">Escanear</button></div>`:
+      S.ui.imgHidden?`<div class="img-collapsed"><span>Imagen oculta (modo sólo campos)</span><button class="btn small" data-act="img-toggle">Mostrar imagen</button></div>`:
+      `<div class="img-area">${docSVG(c,page)}<div class="overlay"><button class="btn" data-act="img-toggle">Ocultar</button><span style="color:#fff;font-size:12px;font-weight:600">pág. ${pageIdx+1}/${c.pages.length}</span><button class="btn" data-act="page" data-d="1" aria-label="Siguiente página">▶</button><button class="btn" data-act="view-page" data-i="${pageIdx}" data-return="e-07">⤢ Ampliar</button></div></div>`;
+    const fieldsHtml = shown.map(g=>`<div class="section-h"><span>${esc(g.label)}</span>${g.cat?`<span class="sum">suma ${catSum(c,g.cat)}${c.header.votantes.value!==''?` / ${esc(c.header.votantes.value)}`:''}</span>`:''}</div>
+      ${g.fields.map(f=>`<div class="vrow" id="w-${fid(f.key)}"><label for="${fid(f.key)}">${esc(f.label)}${S.alt.origin&&f.obj.origin==='ocr-accepted'&&f.obj.value!==''?'<span class="org" title="Copiado del OCR">OCR</span>':''}</label><input id="${fid(f.key)}" data-field="${f.key}" value="${esc(f.obj.value)}" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="${esc((g.cat?catLabel(g.cat)+', ':'')+f.label)}" ${ro?'disabled':''}></div>`).join('')}`).join('');
+    const empties=emptyCount(c);
+    const chips = S.sim.ocr&&page&&!ro ? `<div class="chipbar"><div class="lbl"><span>Detectados en pág. ${pageIdx+1} (sugerencia, no se aplican solos)</span><span id="chip-target">${S.ui.focused?'→ '+esc(fieldLabel(S.ui.focused).split(': ').pop()):'tocá un campo'}</span></div>
+        <div class="chips" role="group" aria-label="Números detectados por el OCR">${S.alt.zero==='cero'?`<button class="chip zero" data-act="chip" data-v="0" data-zero="1" aria-label="Poner cero en el campo enfocado">Cero</button>`:''}${OCR[page.category].map(v=>`<button class="chip" data-act="chip" data-v="${v}" aria-label="Copiar ${v} al campo enfocado">${v}</button>`).join('')}<button class="chip next" data-act="next-empty">Siguiente vacío</button></div>
+        <div class="warn-note">Compará siempre con la fila del documento: si intercambiás dos valores entre filas, las sumas siguen cerrando y nadie lo detecta.</div></div>`
+      : (!ro&&page?`<div class="chipbar"><div class="chips">${S.alt.zero==='cero'?`<button class="chip zero" data-act="chip" data-v="0" data-zero="1">Cero</button>`:''}<button class="chip next" data-act="next-empty">Siguiente vacío</button></div></div>`:'');
+    const footer = ro?`<button class="btn" data-act="go" data-to="e-10">Ver la captura</button>`:
+      wiz?`<p class="counter" id="empty-count">${empties} ${empties===1?'campo vacío':'campos vacíos'} en total · sección ${S.ui.wiz+1} de ${groups.length}</p>${S.ui.returnTo?`<button class="btn primary" data-act="return">Volver a la validación</button>`:(S.ui.wiz<groups.length-1?`<button class="btn primary" data-act="wiz" data-d="1">Siguiente sección</button>`:`<button class="btn primary" data-act="go" data-to="e-08">Validar</button>`)}`
+         :`<p class="counter" id="empty-count">${empties} ${empties===1?'campo vacío':'campos vacíos'}${S.alt.zero==='vacio'?' (se tomarán como 0, con aviso)':''}</p>${S.ui.returnTo?`<button class="btn primary" data-act="return">Volver a la validación</button>`:`<button class="btn primary" data-act="go" data-to="e-08">Validar</button>`}`;
+    return { nav:{back:{act:wiz&&S.ui.wiz>0?'wiz-back':'back',label:'Volver',short:wiz&&S.ui.wiz>0?'Sección':'Páginas'}, title:`Mesa ${c.mesa.mesa||'—'}`, trailing:ro?`<span class="stage-tag">${ICON.lock}</span>`:stageTag(wiz?`Cargar ${S.ui.wiz+1}/${groups.length}`:'Cargar')},
+      body:`${ro?lockedNote():''}${img}${banner()}${S.ui.returnTo?`<div class="callout">Corregí el valor marcado y volvé a la validación.</div>`:''}${fieldsHtml}<div style="height:8px"></div>`, chipbar:chips, footer };
+  },
+  'e-08'(){
+    const c=cur(); const issues=validate(c); const errs=issues.filter(i=>i.sev==='error'), warns=issues.filter(i=>i.sev==='warning');
+    const sum = errs.length?`<div class="summary error">${errs.length===1?'Hay 1 error':'Hay '+errs.length+' errores'}${warns.length?` y ${warns.length} aviso${warns.length>1?'s':''}`:''}<small>Los errores bloquean la confirmación. Tocá cada uno para ir al campo.</small></div>`
+      : warns.length?`<div class="summary warning">Todo cierra salvo ${warns.length} aviso${warns.length>1?'s':''}<small>Podés confirmar igual con una justificación: qué dice el documento, no quién sos.</small></div>`
+      : `<div class="summary ok">Todo cierra<small>Las sumas coinciden. Eso no detecta valores intercambiados entre filas: revisá una vez más fila por fila contra la imagen antes de confirmar.</small></div>`;
+    const item=i=>`<button class="issue ${i.sev}" data-act="goto-issue" data-screen="${i.screen}" data-field="${i.field||''}"><span class="ic" aria-hidden="true">${i.sev==='error'?'✗':'!'}</span><span><span class="sr-only">${i.sev==='error'?'Error: ':'Aviso: '}</span>${esc(i.text)}<span class="go">Ir al campo ›</span></span></button>`;
+    return { nav:{back:{act:'back',label:'Volver a la carga',short:'Carga'}, title:'Validación', trailing:stageTag('Revisar')},
+      body:`${sum}${errs.length?`<div class="section-h"><span>Errores</span></div>${errs.map(item).join('')}`:''}${warns.length?`<div class="section-h"><span>Avisos</span></div>${warns.map(item).join('')}`:''}
+        ${!issues.length?`<div class="card"><dl class="kv"><dt>Total de votantes</dt><dd>${esc(c.header.votantes.value)}</dd>${TEMPLATE.categories.map(cat=>`<dt>${esc(cat.label)}</dt><dd>${catSum(c,cat.id)}</dd>`).join('')}<dt>Páginas</dt><dd>${c.pages.length}</dd></dl></div>`:''}
+        <button class="btn quiet" disabled title="Fuera de P0">Verificar con otra persona (después)</button>`,
+      footer:`<button class="btn primary" data-act="go" data-to="e-09" ${errs.length?'disabled':''}>Confirmar captura</button>`,
+      announce:`${errs.length} errores, ${warns.length} avisos` };
+  },
+  'e-09'(){
+    const c=cur(); const warns=validate(c).filter(i=>i.sev==='warning'); const just=c.warningJustification||''; const ok=!warns.length||just.trim().length>=5;
+    return { nav:{back:{act:'back',label:'Volver a la validación',short:'Validación'}, title:'Confirmar captura', trailing:stageTag('Confirmar')},
+      body:`<div class="card"><dl class="kv"><dt>Mesa</dt><dd>${esc(c.mesa.mesa||'—')}</dd><dt>Documento</dt><dd>${esc(DOCTYPE_SHORT[c.documentType]||'—')}</dd><dt>Páginas</dt><dd>${c.pages.length}</dd><dt>Valores</dt><dd>${2+TEMPLATE.categories.length*TEMPLATE.rows.length}</dd><dt>Avisos</dt><dd>${warns.length}</dd></dl></div>
+        ${warns.length?`<div class="field" style="margin-top:14px"><label for="f-just">Justificación de ${warns.length===1?'el aviso':'los avisos'} (obligatoria)</label><textarea id="f-just" data-just="1" placeholder="Qué dice el documento. Por ejemplo: el acta dice 216 en la suma." aria-describedby="just-hint">${esc(just)}</textarea><div class="hint" id="just-hint">Mínimo 5 caracteres. No escribas tu nombre ni el de nadie.</div></div>`:''}
+        <div class="callout" style="margin-top:14px">Al confirmar, la captura queda <strong>bloqueada como evidencia</strong>: no se puede editar ni borrar. Si después encontrás un error, hacé una nueva captura de la misma mesa.</div>`,
+      footer:`<button class="btn primary" data-act="ask-confirm" id="btn-confirm" ${ok?'':'disabled'}>${ICON.lock} Confirmar y bloquear</button><button class="btn" data-act="go" data-to="e-08">Volver a revisar</button>` };
+  },
+  'e-10'(){
+    const c=cur(); const groupsHtml=TEMPLATE.categories.map(cat=>`<tr><th colspan="2">${esc(cat.label)}</th></tr>${TEMPLATE.rows.map(r=>{ const x=c.cells[cat.id+'.'+r.id]; return `<tr><td>${esc(r.label)}</td><td>${esc(x.value===''?'0':x.value)}${S.alt.origin?`<span class="org">${x.origin==='ocr-accepted'?'OCR':'tipeado'}</span>`:''}</td></tr>`; }).join('')}`).join('');
+    const envio = c.exportedAt?`<span class="pill ok">${ICON.check} Exportada ${esc(c.exportedAt)} por ${esc(c.exportVia)}</span><div class="meta" style="font-size:13px;color:var(--muted);margin-top:4px">No enviada a ningún servidor: esta versión no envía.</div>`:`<span class="pill">No enviada · exportá manualmente</span>`;
+    return { nav:{back:{act:'go',label:'Volver a mis capturas',short:'Capturas'}, title:`Mesa ${c.mesa.mesa||'—'}`, trailing:`<span class="stage-tag" aria-label="Bloqueada">${ICON.lock}</span>`},
+      body:`${banner()}<div class="card"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap"><strong>${esc(DOCTYPE_LABEL[c.documentType])}</strong><span class="pill">${ICON.lock} Confirmada ${esc(c.lockedAt)}</span></div>
+        <div class="thumbs" style="margin-bottom:4px">${c.pages.map((p,i)=>`<button class="thumb" data-act="view-page" data-i="${i}" aria-label="Ampliar página ${i+1}">${docSVG(c,p)}<span class="n">${i+1}</span></button>`).join('')}</div>
+        <div class="section-h"><span>Huella digital (SHA-256, simulada)</span></div>${c.pages.map((p,i)=>`<div class="mono" style="display:flex;justify-content:space-between;gap:6px;align-items:center"><span aria-label="Huella digital de la página ${i+1}">pág. ${i+1}: ${p.hash.slice(0,4)}…${p.hash.slice(-4)}</span><button class="btn small" data-act="copy" data-v="${p.hash}" style="min-height:36px;font-size:13px">Copiar</button></div>`).join('')}</div>
+        <div class="section-h"><span>Valores (sólo lectura)</span></div><table class="ro-table" aria-label="Valores confirmados"><tbody><tr><td>Electores habilitados</td><td>${esc(c.header.electores.value||'—')}</td></tr><tr><td>Total de votantes</td><td>${esc(c.header.votantes.value)}</td></tr>${groupsHtml}</tbody></table>
+        ${c.warningJustification?`<div class="callout"><strong>Justificación:</strong> ${esc(c.warningJustification)}</div>`:''}
+        <div class="section-h"><span>Envío</span></div><div class="card">${envio}<p style="font-size:14px;margin:8px 0 0;color:var(--muted)">El envío a un centro de cómputos no está disponible en esta versión. Exportá la evidencia y compartila sólo con quien te indique tu organización.</p></div>`,
+      footer:`<button class="btn primary" data-act="ask-export">Exportar evidencia</button><button class="btn" data-act="new-same">Nueva captura de la misma mesa</button>` };
+  },
+  'e-11'(){
+    const list=S.captures.filter(c=>c.status==='confirmed');
+    return { nav:{back:{act:'go',label:'Volver a mis capturas',short:'Capturas'}, title:'Envíos'},
+      body:`${S.sim.offline?`<div class="callout warn" role="status"><strong>Sin conexión.</strong> No pasa nada: todo lo de esta app funciona sin red. Las capturas están guardadas en este teléfono.</div>`:''}
+        <div class="callout">Esta versión <strong>no envía</strong> capturas a ningún servidor. Lo que exportás sale por el menú de compartir del teléfono, y sólo cuando vos lo completás.</div>
+        ${list.length?list.map(c=>`<button class="row-item" data-act="open" data-id="${c.id}"><div class="grow"><div><strong>Mesa ${esc(c.mesa.mesa)}</strong> · ${esc(DOCTYPE_SHORT[c.documentType])}</div><div class="meta">${c.exportedAt?`<span class="pill ok">${ICON.check} Exportada ${esc(c.exportedAt)} por ${esc(c.exportVia)}</span>`:`<span class="pill">Guardada en este teléfono · no enviada</span>`}</div></div></button>`).join(''):'<div class="empty">No hay capturas confirmadas.</div>'}`,
+      footer:`<button class="btn" disabled>Reintentar envío (no disponible en esta versión)</button>`, announce:S.sim.offline?'Sin conexión. Las capturas están guardadas en el teléfono.':'' };
+  },
+  'e-12'(){
+    return { nav:{back:{act:'go',label:'Volver',short:'Volver'}, title:'Acerca de'},
+      body:`<div class="section-h"><span>Plantilla en uso</span></div><div class="card"><dl class="kv"><dt>Identificador</dt><dd class="mono" style="color:inherit">${TEMPLATE.id}</dd><dt>Versión</dt><dd>${TEMPLATE.version}</dd><dt>Ficticia</dt><dd>${TEMPLATE.fictitious?'Sí':'No'}</dd></dl><p style="font-size:14px;margin:8px 0 0;color:var(--muted)">${esc(TEMPLATE.title)}. Las filas Lista A/B/C no corresponden a ninguna agrupación real.</p></div>
+        <div class="section-h"><span>Qué guarda esta app</span></div><div class="card" style="font-size:15px">Imágenes del documento, sus huellas digitales, los valores que cargás y la hora. <strong>No</strong> pide nombre, DNI, partido, ubicación ni contactos. Las imágenes pueden contener nombres y firmas de terceros: se guardan protegidas en el teléfono y sólo salen cuando vos las exportás.</div>
+        <div class="section-h"><span>Marco legal</span></div><div class="card" style="font-size:15px">Está prohibido fotografiar la Boleta Única (art. 71 inc. g). No se difunden resultados hasta 3 horas después del cierre (art. 71 inc. h). La autorización para fotografiar certificado, telegrama o acta está en revisión legal. Esta no es una herramienta de acción política partidaria: cuida el proceso, no vigila a nadie.</div>
+        <div class="section-h"><span>Versión</span></div><div class="card"><dl class="kv"><dt>Prototipo</dt><dd>0.1 (pantallas)</dd><dt>Modo jornada electoral</dt><dd>después</dd></dl></div>`, footer:'' };
+  }
+};
+
+/* ---------- diálogos y overlays ---------- */
+function renderDialog(){ const d=dialogState; return `<div class="sheet-bg center"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="dlg-t"><h2 id="dlg-t">${esc(d.title)}</h2>${d.body}<div class="actions">${d.actions.map((a,i)=>`<button class="btn ${a.primary?'primary':''}" data-act="dlg" data-i="${i}" ${a.disabled?'disabled':''}>${esc(a.label)}</button>`).join('')}</div></div></div>`; }
+function openDialog(d){ dialogState=d; render(); setTimeout(()=>{ const b=document.querySelector('[role=dialog] .btn'); b&&b.focus(); },30); }
+function cameraOverlay(){ const c=cur(); const nextCat=c.pages.length%2===0?'presidente':'diputados'; const fake={category:nextCat}; const page={...fake}; c.pages.push(page); const svg=docSVG(c,page); c.pages.pop();
+  return `<div class="camera" role="dialog" aria-modal="true" aria-label="Escáner de documentos (simulado)"><div class="view">${svg}<div class="frame"></div><div style="position:absolute;top:10px;left:0;right:0;text-align:center;font-size:13px;opacity:.85">Escáner simulado · ${c.pages.length} página${c.pages.length===1?'':'s'} en esta sesión</div></div><div class="bar"><button class="btn" data-act="cam-flash">Linterna</button><button class="shutter" data-act="cam-shoot" aria-label="Capturar página"></button><button class="btn" data-act="cam-done">Listo</button></div></div>`; }
+function pickerOverlay(){ const c=cur(); const mk=(cat,n)=>{ const p={category:cat}; c.pages.push(p); const s=docSVG(c,p); c.pages.pop(); return `<button class="thumb" data-act="pick" data-cat="${cat}" aria-label="Foto ${n}: ${catLabel(cat)}">${s}</button>`; };
+  return `<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pk-t"><h2 id="pk-t">Fotos (selector simulado)</h2><p>Sólo se accede a la foto que elegís, no a toda la biblioteca.</p><div class="thumbs">${mk('presidente',1)}${mk('diputados',2)}</div><div class="actions"><button class="btn" data-act="close-overlay">Cancelar</button></div></div></div>`; }
+function shareOverlay(){ const c=cur(); return `<div class="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-t"><h2 id="sh-t">Compartir (menú simulado)</h2><p class="mono" style="color:var(--muted)">captura-${esc(c.mesa.mesa)}.json · ${c.pages.length} JPEG</p><div class="share-grid">${[['AirDrop',false],['Archivos',false],['Mensajes',true],['Correo',true]].map(([n,net])=>`<button class="btn" data-act="share" data-via="${n}" data-net="${net}">${n}</button>`).join('')}</div><div class="actions"><button class="btn" data-act="share-cancel">Cancelar</button></div></div></div>`; }
+
+/* ---------- acciones ---------- */
+function addPage(cat, source){ const c=cur(); const n=c.pages.length+1; c.pages.push({n,category:cat,hash:fakeHash(Date.now()%100000+n),time:hhmm(new Date()),source}); }
+function back(){ const sc=S.screen; const c=cur(); const map={'e-03':'e-02','e-04':'e-03','e-05':'e-04','e-06':'e-05','e-07':'e-06','e-08':'e-07','e-09':'e-08'}; if(c&&c.status==='confirmed'&&map[sc]) return go('e-10'); go(map[sc]||'e-01'); }
+function act(a, d, el){
+  const c=cur();
+  switch(a){
+    case 'go': if(d.to==='e-12') S.ui.aboutFrom=S.screen; if(!d.to) return go(S.ui.aboutFrom&&S.screen==='e-12'?S.ui.aboutFrom:'e-01'); return go(d.to,{returnTo:['e-05','e-08','e-09','e-10','e-11','e-12','e-01'].includes(d.to)?null:S.ui.returnTo});
+    case 'back': return back();
+    case 'return': { const r=S.ui.returnTo||'e-08'; return go(r,{returnTo:null}); }
+    case 'new': { const n=newCapture(); S.captures.unshift(n); S.current=n.id; S.ui.page=0; S.ui.wiz=0; return go('e-02'); }
+    case 'new-same': { const n=newCapture({documentType:c.documentType, mesa:{...c.mesa}}); S.captures.unshift(n); S.current=n.id; S.ui.page=0; S.ui.wiz=0; return go('e-02'); }
+    case 'open': { const t=S.captures.find(x=>x.id===d.id); S.current=t.id; S.ui.page=0; S.ui.wiz=0; return go(t.status==='confirmed'?'e-10':t.step); }
+    case 'ask-delete-draft': return openDialog({title:'¿Borrar este borrador?',body:'<p>Se eliminan sus imágenes y sus huellas digitales. Las capturas confirmadas nunca se borran.</p>',actions:[{label:'Borrar borrador',primary:true,fn(){ S.captures=S.captures.filter(x=>x.id!==d.id); if(S.current===d.id) S.current=null; go('e-01'); toast('Borrador borrado'); }},{label:'Cancelar',fn(){ dialogState=null; render(); }}]});
+    case 'ask-discard': return openDialog({title:'¿Salir sin capturar?',body:'<p>Se descarta el borrador. No se guardó nada.</p>',actions:[{label:'Salir',primary:true,fn(){ S.captures=S.captures.filter(x=>x.id!==c.id); S.current=null; go('e-01'); }},{label:'Seguir',fn(){ dialogState=null; render(); }}]});
+    case 'ack-bup': c.bupAckAt=hhmm(new Date()); return go('e-03');
+    case 'set-type': c.documentType=d.type; return render();
+    case 'scan': if(S.sim.cameraDenied){ S.screen='e-13'; return render(); } if(S.sim.scannerUnavailable){ return toast('Escáner no disponible: importá de Fotos.'); } overlay=cameraOverlay(); return render();
+    case 'cam-flash': return toast('Linterna encendida (simulado)');
+    case 'cam-shoot': addPage(c.pages.length%2===0?'presidente':'diputados','scanner'); overlay=cameraOverlay(); render(); return toast(`Página ${c.pages.length} guardada con su huella digital`);
+    case 'cam-done': overlay=null; return render();
+    case 'import': overlay=pickerOverlay(); return render();
+    case 'pick': addPage(d.cat,'photos'); overlay=null; render(); return toast(`Página ${c.pages.length} importada de Fotos`);
+    case 'close-overlay': overlay=null; return render();
+    case 'view-page': S.ui.page=+d.i; S.ui.zoom=1; return go('e-06',{returnTo:d.return||(S.screen==='e-10'?'e-10':null)});
+    case 'page': { const n=c.pages.length; S.ui.page=(Math.min(S.ui.page,n-1)+ +d.d+n)%n; return render(); }
+    case 'zoom': S.ui.zoom=Math.min(3,Math.max(1,S.ui.zoom+ +d.d*0.5)); return render();
+    case 'ask-remove-page': return openDialog({title:'¿Quitar esta página?',body:'<p>Se elimina la imagen y su huella digital. Podés volver a escanearla.</p>',actions:[{label:'Quitar página',primary:true,fn(){ c.pages.splice(+d.i,1); c.pages.forEach((p,i)=>p.n=i+1); S.ui.page=0; go(c.pages.length?'e-06':'e-05'); toast('Página quitada'); }},{label:'Cancelar',fn(){ dialogState=null; render(); }}]});
+    case 'img-toggle': S.ui.imgHidden=!S.ui.imgHidden; return render();
+    case 'wiz': S.ui.wiz=Math.min(2,S.ui.wiz+1); return render();
+    case 'wiz-back': S.ui.wiz=Math.max(0,S.ui.wiz-1); return render();
+    case 'chip': { if(!S.ui.focused) return toast('Tocá primero el campo donde va el número'); setValue(c,S.ui.focused,d.v,d.zero?'manual':'ocr-accepted'); const inp=document.getElementById(fid(S.ui.focused)); if(inp){ inp.value=d.v; inp.focus(); } refreshEditorBits(c); return; }
+    case 'next-empty': { const inputs=[...document.querySelectorAll('input[data-field]')]; const cur0=S.ui.focused?inputs.findIndex(i=>i.dataset.field===S.ui.focused):-1; const ordered=[...inputs.slice(cur0+1),...inputs.slice(0,cur0+1)]; const nx=ordered.find(i=>i.value===''); if(!nx) return toast('No quedan campos vacíos en esta pantalla'); nx.scrollIntoView({block:'center'}); nx.focus({preventScroll:true}); return; }
+    case 'goto-issue': return go(d.screen,{focus:d.field||null, returnTo:'e-08'});
+    case 'ask-confirm': return openDialog({title:'¿Confirmar y bloquear?',body:`<p>Mesa ${esc(c.mesa.mesa)} · ${esc(DOCTYPE_SHORT[c.documentType])} · ${c.pages.length} páginas.</p><p>Después de esto no se puede editar ni borrar. ¿Revisaste los valores contra la imagen?</p>`,actions:[{label:'Sí, confirmar y bloquear',primary:true,fn(){ c.status='confirmed'; c.lockedAt=hhmm(new Date()); c.step='e-10'; go('e-10'); toast('Captura confirmada y bloqueada'); announce('Captura confirmada y bloqueada'); }},{label:'Volver a revisar',fn(){ dialogState=null; render(); }}]});
+    case 'ask-export': return openDialog({title:'Antes de exportar',body:`<ul><li>Las imágenes pueden contener <strong>nombres y firmas</strong> de autoridades de mesa y fiscales.</li><li>Compartilas <strong>sólo con quien corresponde</strong> según tu función.</li><li><strong>No difundas resultados</strong> hasta 3 horas después del cierre de los comicios (Código Electoral, art. 71 inc. h).</li></ul><p style="color:var(--muted);font-size:14px">Se comparte el JSON del contrato y ${c.pages.length} JPEG. Nada se envía a un servidor.</p>`,actions:[{label:'Entendido, elegir destino',primary:true,fn(){ dialogState=null; overlay=shareOverlay(); render(); }},{label:'Cancelar',fn(){ dialogState=null; render(); }}]});
+    case 'share': { if(d.net==='true'&&S.sim.offline){ overlay=null; return openDialog({title:'Sin conexión',body:'<p>Mensajes y Correo necesitan red. AirDrop y Archivos funcionan sin conexión.</p>',actions:[{label:'Elegir otro destino',primary:true,fn(){ dialogState=null; overlay=shareOverlay(); render(); }},{label:'Cancelar',fn(){ dialogState=null; render(); toast('Exportación cancelada: nada salió del teléfono'); }}]}); } c.exportedAt=hhmm(new Date()); c.exportVia=d.via; overlay=null; render(); return toast(`Exportada por ${d.via} (simulado). Sigue sin enviarse a ningún servidor.`); }
+    case 'share-cancel': overlay=null; render(); return toast('Exportación cancelada: nada salió del teléfono');
+    case 'copy': { const v=d.v; const done=()=>toast('Huella digital copiada'); if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(v).then(done).catch(()=>toast(v.slice(0,16)+'… (seleccioná para copiar)')); } else toast(v.slice(0,16)+'…'); return; }
+    case 'toast': return toast(d.msg);
+    case 'dlg': { const f=dialogState.actions[+d.i].fn; dialogState=null; return f(); }
+  }
+}
+function setValue(c,key,v,origin){ if(c.status==='confirmed'){ toast('Captura bloqueada: no se puede editar'); return; } const t=key.includes('.')?c.cells[key]:c.header[key]; t.value=v; t.origin=v===''?'manual':origin; }
+function refreshEditorBits(c){ const ec=document.getElementById('empty-count'); if(ec){ const n=emptyCount(c); ec.textContent=`${n} ${n===1?'campo vacío':'campos vacíos'}${S.alt.flow==='F-1'?' en total · sección '+(S.ui.wiz+1)+' de 3':(S.alt.zero==='vacio'?' (se tomarán como 0, con aviso)':'')}`; }
+  document.querySelectorAll('.vrow label').forEach(l=>{ const inp=l.parentElement.querySelector('input'); const key=inp.dataset.field; const t=key.includes('.')?c.cells[key]:c.header[key]; const org=l.querySelector('.org'); if(S.alt.origin&&t.origin==='ocr-accepted'&&t.value!==''){ if(!org){ const s=document.createElement('span'); s.className='org'; s.textContent='OCR'; l.appendChild(s); } } else if(org) org.remove(); });
+  document.querySelectorAll('.section-h .sum').forEach(s=>{ const txt=s.previousElementSibling.textContent; const cat=TEMPLATE.categories.find(x=>x.label===txt); if(cat) s.textContent=`suma ${catSum(c,cat.id)}${c.header.votantes.value!==''?' / '+c.header.votantes.value:''}`; }); }
+function updateChipLabel(){ const t=document.getElementById('chip-target'); if(t) t.textContent=S.ui.focused?'→ '+fieldLabel(S.ui.focused).split(': ').pop():'tocá un campo'; }
+
+const phone=document.getElementById('phone');
+phone.addEventListener('click',e=>{ const el=e.target.closest('[data-act]'); if(!el||el.disabled) return; act(el.dataset.act, el.dataset, el); });
+phone.addEventListener('input',e=>{ const c=cur(); if(!c) return; const el=e.target;
+  if(el.dataset.field){ const v=el.value.replace(/[^0-9-]/g,''); if(v!==el.value) el.value=v; setValue(c,el.dataset.field,v,'manual'); refreshEditorBits(c); }
+  else if(el.dataset.mesa){ c.mesa[el.dataset.mesa]=el.value.trim(); const w=el.closest('.field'); if(w&&el.value.trim()) { w.classList.remove('invalid'); const m=w.querySelector('.err-msg'); m&&m.remove(); } }
+  else if(el.dataset.just){ c.warningJustification=el.value; const b=document.getElementById('btn-confirm'); if(b) b.disabled=el.value.trim().length<5; } });
+phone.addEventListener('focusin',e=>{ if(e.target.dataset&&e.target.dataset.field){ S.ui.focused=e.target.dataset.field; updateChipLabel(); } });
+phone.addEventListener('keydown',e=>{ if(e.key==='Escape'&&(dialogState||overlay)){ dialogState=null; overlay=null; render(); } });
+
+/* ---------- panel de diseño ---------- */
+const NOTES = {
+  'e-00':{p:'Franja fija mientras la plantilla sea ficticia (template.fictitious). Tocarla lleva a E-12. No se puede descartar. Aparece en E-01, E-07 y E-10.',as:['AS-7: franja amarilla permanente. Es la opción propuesta (marcada como tal); la alternativa "algo menos invasivo" queda abierta.'],astra:['Spec ⛔1: el paquete exportado usa templateId/templateVersion del esquema vigente; "ficticia" se lee de la plantilla, no viaja como campo nuevo.','Neutralidad ✅: Lista A/B/C y "(ficticia)" salen de demo-2027.json.']},
+  'e-01':{p:'Punto de entrada: estado de cada captura y empezar una nueva. Orden por fecha descendente. Las confirmadas no se borran; los borradores sí (con confirmación).',as:['AS-1 (N-C): esta pantalla es la raíz del "modo jornada electoral"; no asume tab bar ni cuenta.'],astra:['UX ⛔2: el estado de una confirmada dice "no enviada" o "Exportada hh:mm"; nunca "pendiente de envío".','UX ⚠6: fila de borrador con la hora de guardado; retoma en el paso donde quedó.']},
+  'e-02':{p:'Primera pantalla de cada captura, siempre. Sin camino a la cámara que no pase por acá. ✕ descarta el borrador.',as:['AS-4: registra bupAckAt sólo en memoria; el cambio de contrato sigue pendiente.'],astra:['Legal ⛔1 / Spec ⚠3: se retiró "Sí podés escanear". Texto neutro: "Escaneá sólo el documento que te corresponde según tu función. Nunca la Boleta Única." y nota de autorización en revisión legal.']},
+  'e-03':{p:'Elegir uno de los tipos admitidos por la plantilla. Ayudas neutras: ya no dice "antes de entregarlo al Correo".',as:['AS-3: certificado preseleccionado sí/no. Probá la alternativa en el selector.'],astra:['Legal ⛔1: las descripciones no afirman autorización; sólo describen el documento.','UX ⚠7: etapas honestas "Preparar 1/3" en lugar de "Paso 1/4".']},
+  'e-04':{p:'Identificar la mesa. Se puede seguir con campos vacíos: la validación los marca como missing_mesa y vuelve acá.',as:[],astra:['UX ⛔1: "Ir al campo" desde E-08 llega al campo exacto de esta pantalla, con foco y resaltado, y ofrece volver a la validación.','Spec ⚠5: circuito acepta letras (0012A); teclado de texto, no sólo numérico.']},
+  'e-05':{p:'Obtener imágenes fieles con el escáner (simulado) o importar de Fotos. Linterna y consejos para poca luz. Cada página se guarda con su huella.',as:[],astra:['UX ⚠6: estado "n páginas guardadas en este teléfono"; el error de permiso no pierde lo escaneado.','E-13 vive acá: activá "Permiso de cámara denegado" en el panel.']},
+  'e-06':{p:'Comprobar legibilidad, pasar páginas, ampliar con botones (+/−). No se edita la imagen. Quitar sólo en borrador.',as:[],astra:['Evidencia ✅: hash por página; sin "Quitar" ni "Agregar" cuando está confirmada.']},
+  'e-07':{p:'Transcribir mirando la imagen. El OCR es una sugerencia: nunca se aplica solo; cada valor viaja con su origen (manual / ocr-accepted). Modo "sólo campos" con "Ocultar".',as:['AS-2: F-1 asistente (una sección por pantalla) vs F-2 imagen + campos. Probá ambos en el selector.','AS-6: botón "Cero" vs vacío = 0 con aviso.','AS-8: etiqueta de origen OCR/tipeado visible o sólo en el JSON.'],astra:['UX ⚠3: las fichas se muestran como sugerencia, con el aviso de que intercambiar valores entre filas no lo detectan las sumas; cada sección muestra su suma parcial contra votantes.','UX ⛔1: desde E-08 el foco llega al campo exacto y se ofrece "Volver a la validación".','UX ⚠7: etapa "Cargar", sin "Paso 4/4".']},
+  'e-08':{p:'Resultado de las reglas del contrato en lenguaje claro. Errores bloquean; avisos se justifican. Cada ítem es un botón que lleva al campo exacto (incluidos los de mesa).',as:['AS-5: "Verificar con otra persona" (F-3) queda visible pero deshabilitado: fuera de P0.'],astra:['UX ⛔1: destino por error (E-04 para mesa, E-05 sin páginas, E-07 para valores).','UX ⚠3: "Todo cierra" aclara que las sumas no detectan valores intercambiados y pide revisar fila por fila.']},
+  'e-09':{p:'Paso explícito e irreversible con doble confirmación. La justificación se pide como "qué dice el documento", no "quién sos".',as:[],astra:['Spec ⛔2 (fuera de este prototipo): el bloqueo real debe encapsularse en el núcleo; acá sólo se simula.','Datos personales: la ayuda pide no escribir nombres.']},
+  'e-10':{p:'Ver la evidencia final y sacarla del teléfono a mano. Hashes por página con "Copiar". Valores sólo lectura.',as:['AS-8: origen por valor visible (selector).'],astra:['UX ⛔2 / Spec ⚠4: estado "No enviada · exportá manualmente"; exportedAt sólo se registra si el compartir se completa; cancelar no lo marca.','Legal ⚠3: aviso previo a exportar: nombres y firmas, compartir sólo con quien corresponde, no difundir resultados hasta 3 h después del cierre (art. 71 inc. h).']},
+  'e-11':{p:'Hacer visible que nada se pierde sin red y que esta versión no envía nada. Reintentar está deshabilitado con explicación.',as:[],astra:['UX ⛔2 / Spec ⚠4: se eliminó "se van a enviar cuando haya red". Activá "Sin conexión" en el panel para ver el estado.']},
+  'e-12':{p:'Transparencia: plantilla en uso (id, versión, ficticia), qué guarda la app y qué no, marco legal, "no es una herramienta de acción política partidaria".',as:['AS-9: incluida en el prototipo (propuesta).'],astra:['Legal ⛔2: dice explícitamente que las imágenes pueden contener datos de terceros y que sólo salen cuando la persona exporta.']},
+  'e-13':{p:'Estado dentro de E-05 cuando el permiso de cámara está denegado: explica, ofrece Ajustes e importar de Fotos, y no pierde lo escaneado.',as:[],astra:['UX ✅8: camino alternativo verificable.']}
+};
+function renderPanel(){
+  const id=S.screen; const n=NOTES[id]||NOTES['e-01']; const name=SCREENS.find(s=>s[0]===id)?.[1]||'';
+  const stage = {'e-02':0,'e-03':0,'e-04':0,'e-05':0,'e-06':0,'e-07':1,'e-08':2,'e-09':3,'e-10':4,'e-13':0}[id];
+  const seg=(key,opts)=>`<div class="seg" role="group">${opts.map(([v,l])=>`<button aria-pressed="${S.alt[key]===v}" data-alt="${key}" data-v="${v}">${l}</button>`).join('')}</div>`;
+  const tog=(key,l)=>`<button class="toggle" aria-pressed="${S.sim[key]}" data-sim="${key}"><span>${l}</span><span class="sw" aria-hidden="true"></span></button>`;
+  document.getElementById('panel').innerHTML=`
+    <section><h2>Pantallas</h2><div class="screen-list">${SCREENS.map(([i,l])=>`<button data-go="${i}" aria-current="${i===id}"><code>${i.toUpperCase()}</code><span>${l}</span></button>`).join('')}</div></section>
+    <section class="note"><h2>Nota de diseño</h2><h3>${id.toUpperCase()} · ${esc(name)}</h3>
+      <div class="stages" style="margin-bottom:8px">${['Preparar','Cargar','Revisar','Confirmar','Exportar'].map((s,i)=>`<span class="${stage===i?'on':''}">${s}</span>`).join('')}</div>
+      <p>${esc(n.p)}</p>
+      ${n.as.length?`<p><strong>Decisiones abiertas</strong></p><ul>${n.as.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'<p><span class="tag">sin AS-x</span> No la afecta ninguna decisión abierta.</p>'}
+      <div class="astra"><p><strong>Cambios por la revisión de Astra</strong></p><ul>${n.astra.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></section>
+    <section><h2>Alternativas</h2>
+      <div class="opt"><span class="lbl">AS-2 · Carga de valores (E-07)</span>${seg('flow',[['F-2','F-2 imagen + campos'],['F-1','F-1 asistente por sección']])}</div>
+      <div class="opt"><span class="lbl">AS-6 · Campos vacíos</span>${seg('zero',[['cero','Botón "Cero"'],['vacio','Vacío = 0 con aviso']])}</div>
+      <div class="opt"><span class="lbl">AS-3 · Certificado preseleccionado (E-03)</span>${seg('preselect',[[true,'Sí'],[false,'No']])}</div>
+      <div class="opt"><span class="lbl">AS-8 · Origen OCR/tipeado visible</span>${seg('origin',[[true,'Sí'],[false,'Sólo en el JSON']])}</div></section>
+    <section><h2>Simular condiciones</h2>${tog('offline','Sin conexión')}${tog('cameraDenied','Permiso de cámara denegado (E-13)')}${tog('scannerUnavailable','Escáner no disponible (simulador)')}${tog('ocr','OCR disponible')}</section>
+    <section><h2>Datos de ejemplo</h2><div style="display:flex;flex-direction:column;gap:6px"><button class="btn" data-demo="ok">Cargar valores que cierran</button><button class="btn" data-demo="err">Cargar con 1 error, 1 aviso y 1 faltante</button><button class="btn" data-demo="reset">Reiniciar el prototipo</button></div>
+      <p style="font-size:12px;color:var(--muted);margin:8px 0 0">Mesa 00042 · distrito 99 · plantilla demo-2027 v1 (ficticia). Las huellas SHA-256 son simuladas. Estado en memoria: al recargar se pierde.</p></section>`;
+}
+document.getElementById('panel').addEventListener('click',e=>{
+  const g=e.target.closest('[data-go]'); if(g){ go(g.dataset.go); return; }
+  const a=e.target.closest('[data-alt]'); if(a){ const v=a.dataset.v; S.alt[a.dataset.alt]=v==='true'?true:v==='false'?false:v; const c=cur(); if(a.dataset.alt==='preselect'&&c&&c.status==='draft'&&S.screen==='e-03') c.documentType=S.alt.preselect?'certificado':null; if(a.dataset.alt==='flow') S.ui.wiz=0; render(); return; }
+  const s=e.target.closest('[data-sim]'); if(s){ S.sim[s.dataset.sim]=!S.sim[s.dataset.sim]; if(s.dataset.sim==='cameraDenied'&&!S.sim.cameraDenied&&S.screen==='e-13') S.screen='e-05'; render(); return; }
+  const d=e.target.closest('[data-demo]'); if(d){ if(d.dataset.demo==='reset'){ S=initialState(); dialogState=null; overlay=null; go('e-01'); toast('Prototipo reiniciado'); return; }
+    let c=cur(); if(!c||c.status==='confirmed'){ c=newCapture({documentType:'certificado',mesa:{...MESA_DEMO}}); c.pages=[{n:1,category:'presidente',hash:fakeHash(31),time:hhmm(new Date()),source:'scanner'},{n:2,category:'diputados',hash:fakeHash(32),time:hhmm(new Date()),source:'scanner'}]; S.captures.unshift(c); S.current=c.id; }
+    if(!c.pages.length) c.pages=[{n:1,category:'presidente',hash:fakeHash(41),time:hhmm(new Date()),source:'scanner'},{n:2,category:'diputados',hash:fakeHash(42),time:hhmm(new Date()),source:'scanner'}];
+    if(!c.documentType) c.documentType='certificado'; fillExample(c,d.dataset.demo); if(d.dataset.demo==='err') c.mesa.seccion=''; else c.mesa={...MESA_DEMO}; S.ui.wiz=0; go('e-07'); toast(d.dataset.demo==='err'?'Ejemplo con 1 error, 1 aviso y 1 faltante':'Valores de ejemplo que cierran'); } });
+
+/* ---------- arranque ---------- */
+function tick(){ const el=document.getElementById('clock'); if(el) el.textContent=hhmm(new Date()); }
+setInterval(tick,30000);
+window.addEventListener('hashchange',()=>{ const h=location.hash.replace('#',''); if(SCREENS.some(s=>s[0]===h)&&h!==S.screen) go(h); });
+(function start(){ S=initialState(); tick(); const h=location.hash.replace('#',''); go(SCREENS.some(s=>s[0]===h)?h:'e-01'); })();
+</script>
