@@ -4,6 +4,14 @@ Respondé sin mirar las respuestas del otro hasta terminar. Formato por pregunta
 `Respuesta:` letra de la opción o texto libre · `Por qué:` una o dos líneas.
 Dejá vacío lo que no quieras responder todavía.
 
+## Funcionalidades iniciales (issue #1)
+
+IDs de `sdd/specs/roadmap/FEATURES.md` que pondrías en P0 (hackatón), en orden:
+
+P0:
+
+Por qué:
+
 ## Visión y alcance
 
 ### V-1 · ¿Qué mostramos en la hackatón?
@@ -281,6 +289,12 @@ Respuesta:
 Por qué:
 
 ### PR-3 · ¿Pedimos una segunda opinión (otro modelo) cuando Astra marca ⛔?
+
+Respuesta:
+
+Por qué:
+
+### HL-1 · ¿Revisión diaria programada de los issues de decisión?
 
 Respuesta:
 

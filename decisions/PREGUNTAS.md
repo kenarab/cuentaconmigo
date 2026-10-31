@@ -2,7 +2,8 @@
 
 Fecha: 31/10/2026. Cada pregunta enlaza a su SPEC. La columna **Propuesta** es la
 recomendación de las SPECs (Claude/Fable); **no es una decisión**. Respondan por
-separado en `decisions/respuestas/<usuario>.md` (ver [README](README.md)).
+separado en `decisions/respuestas/<usuario>.md` (ver [README](README.md)). Cada tema tiene
+su issue de GitHub asignado a los dos (índice en el README).
 
 ## Visión y alcance
 
@@ -109,6 +110,7 @@ SPEC: `sdd/specs/multiagent-system/SPEC.md · sdd/specs/review-pipeline/SPEC.md`
 | D-MA-2 | ¿Qué roles de chequeo activamos ya (además de electoral_counsel)? | platform_accountability, legal, data_protection, neutrality, security, ux, civic_ops… | — |
 | D-MA-3 | ¿Buscamos un abogado o abogada electoral humano que valide el marco legal? | a) sí · b) más adelante | a |
 | PR-1 | ¿Qué lentes de revisión son obligatorias por tipo de cambio? | a) todas para SPECs de producto; code + legal para código con datos o evidencia · b) otra | a |
+| HL-1 | ¿Revisamos los issues con una tarea programada diaria además de al empezar cada sesión? | a) sí, revisión diaria con resumen · b) sólo al empezar cada sesión | a |
 | PR-3 | ¿Pedimos una segunda opinión (otro modelo) cuando Astra marca ⛔? | a) sí · b) no | — |
 
 ## Preguntas de investigación (no requieren respuesta; las investiga un rol)

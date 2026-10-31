@@ -18,3 +18,20 @@ Proceso para resolver las preguntas abiertas entre Alejandro (`kenarab`) y Andy 
    (estado "Decidido por el autor y Andy, <fecha>").
 
 Hasta el consenso, las propuestas de las SPECs **no son decisiones**.
+
+## Issues de decisión (GitHub, asignados a kenarab y andytow)
+
+| Issue | Tema | Preguntas |
+| --- | --- | --- |
+| #1 | Funcionalidades iniciales y alcance de la hackatón (prioridad alta) | FEATURES.md, V-1 |
+| #2 | Pantallas y flujo del escrutinio en iPhone (prioridad alta) | AS-1 a AS-12 |
+| #3 | Simulación del AMBA (prioridad alta) | S-1 a S-3 |
+| #4 | Visión, marca y posicionamiento legal | V-2 a V-4 |
+| #5 | Red ciudadana y deliberación | RC-1 a RC-5, DL-2, DL-4 |
+| #6 | Herramientas frente a las plataformas | P-1 a P-4 |
+| #7 | Protección de participantes | PP-1 a PP-7 |
+| #8 | Plataforma móvil y backend | D-002, D-003 |
+| #9 | Organización del trabajo con agentes | D-MA-1 a D-MA-3, PR-1, PR-3, HL-1 |
+
+El coordinador de diseño (skill `hitl-decisions`) compara las respuestas en cada issue
+y aplica sólo los consensos explícitos.
