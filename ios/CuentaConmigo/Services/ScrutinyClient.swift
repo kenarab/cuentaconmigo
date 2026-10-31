@@ -57,6 +57,21 @@ struct ScrutinyClient {
         /// value == nil && empty: a dash or blank cell (means 0, the person decides);
         /// value == nil && !empty: could not be read (form-layouts SPEC §4).
         var empty: Bool? = nil
+        /// "read" | "empty" | "unreadable" (form-layouts SPEC: cells without a reading).
+        var status: String? = nil
+
+        /// What the app shows: unreadable cells become an empty box for the person to fill
+        /// (the server's value is only a hint), empty cells a dash box.
+        var normalized: Reading {
+            switch status {
+            case "unreadable":
+                Reading(ref: ref, value: nil, confidence: 0, cellBox: cellBox, valueBox: valueBox, empty: false, status: status)
+            case "empty":
+                Reading(ref: ref, value: nil, confidence: 0, cellBox: cellBox, valueBox: valueBox, empty: true, status: status)
+            default:
+                self
+            }
+        }
     }
 
     struct ReadingSet: Decodable {
@@ -70,7 +85,10 @@ struct ScrutinyClient {
 
     /// Reads one page image; nothing is stored on the server. Values are suggestions.
     func readings(jpeg: Data, templateId: String) async throws -> ReadingSet {
-        try await send("POST", "v1/readings?templateId=\(templateId)", body: jpeg, contentType: "image/jpeg")
+        let set: ReadingSet = try await send("POST", "v1/readings?templateId=\(templateId)", body: jpeg,
+                                             contentType: "image/jpeg")
+        return ReadingSet(image: set.image, alignment: set.alignment, fields: set.fields.map(\.normalized),
+                          masks: set.masks)
     }
 
     func ocr(captureID: UUID) async throws -> OCRResult {
