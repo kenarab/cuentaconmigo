@@ -4,6 +4,7 @@
 //! /contracts are the source of truth; tests run their conformance vectors.
 pub mod capture;
 pub mod digits;
+pub mod flow;
 pub mod template;
 pub mod validation;
 
