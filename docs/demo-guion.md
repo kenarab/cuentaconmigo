@@ -12,15 +12,18 @@ participan en igualdad, y nada se hace sin un consenso registrado
 
 ## 2. Cierre del proceso: la app de escrutinio (2 min, iPhone en vivo)
 
-1. "Nueva captura" → aviso de Boleta Única.
-2. "Usar un telegrama de ejemplo": telegrama oficial real (muestras de Andy). La mesa
+1. Engranaje → Ajustes: mostrar los tres diseños (F-1, F-2, F-3) y elegir uno.
+2. "Nueva captura" → aviso de Boleta Única.
+3. "Usar un telegrama de ejemplo": telegrama oficial real (muestras de Andy). La mesa
    se completa sola.
-3. Mostrar las listas desplegables: distrito → sección → establecimiento con búsqueda
+4. Mostrar las listas desplegables: distrito → sección → establecimiento con búsqueda
    → mesa. **La experiencia de usuario es fundamental:** se elige, no se tipea.
-4. Cargar dos o tres valores tocando los números que detectó el OCR. Forzar un aviso
+5. "Leer números con el servidor": la imagen viaja al servidor, que devuelve los números
+   como sugerencias. Cargar dos o tres valores tocándolos. Forzar un aviso
    de suma que no coincide y mostrar la validación.
-5. Confirmar: la captura queda bloqueada con hash SHA-256 y fecha (cadena de custodia).
-   Exportar el paquete.
+6. Confirmar: la captura queda bloqueada con hash SHA-256 y fecha (cadena de custodia).
+   Mostrar que una captura enviada ya no se puede borrar: tiene su comprobante
+   encadenado. Exportar el paquete.
 
 ## 3. Por qué cada carga suma: la simulación del AMBA (1 min, navegador)
 
@@ -50,6 +53,10 @@ Buscamos devs, datos, diseño, derecho, periodismo y comunicación. Repositorio 
 github.com/kenarab/cuentaconmigo.
 
 ## Checklist antes de presentar
+
+- [ ] Servidor público respondiendo: `curl https://<dominio>/v1/health`. Teléfono
+      conectado en Ajustes con un código de `.private/scrutiny-codes.txt`.
+- [ ] Presentación abierta: `design/presentation/cuentaconmigo.pdf`.
 
 - [ ] App reinstalada en la Mac con `git pull && ios/scripts/install-device.sh` (trae
       las listas desplegables y los ejemplos).
