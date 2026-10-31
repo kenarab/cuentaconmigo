@@ -1,9 +1,35 @@
 # SPEC · Pantallas de la app: red ciudadana y flujo de escrutinio
 
-Estado: **propuesta de Fable (rol `ux_designer`) para revisión. Pipeline: revisión
-Astra → decisión del autor.** Nada de lo que sigue es una decisión: donde hay más de
-una alternativa, se recomienda una y se deja la elección al autor.
-Fecha: 31/10/2026.
+Estado: **propuesta de Fable (rol `ux_designer`), revisada por Astra y prototipada;
+esperando la decisión del autor y de Andy en el issue #2.** Nada de lo que sigue es una
+decisión: donde hay más de una alternativa, se recomienda una y se deja la elección.
+Fecha: 31/10/2026 · última actualización: 31/10/2026.
+
+## Estado y cómo revisar las pantallas
+
+| Etapa del pipeline | Estado | Dónde |
+| --- | --- | --- |
+| 1. Propuesta (Fable) | ✅ | Este documento |
+| 2. Validación (Astra: spec, ux, legal, neutralidad) | ✅ 6 ⛔ y 18 ⚠️ | `checks/*.astra.md` |
+| 3. Consolidación | ✅ | [DECISION.md](DECISION.md) |
+| 1b. Prototipo navegable (Fable) con correcciones de Astra | ✅ | `design/prototypes/escrutinio/index.html` · [vista publicada (privada)](https://claude.ai/artifact/KNrbEwf8hhBJv8bNZgY6gz) |
+| 2b. Revisión de Astra sobre el prototipo | ⏳ pendiente | — |
+| 4. Decisión humana (AS-1 a AS-12) | ⏳ pendiente | Issue #2 |
+| 5. Implementación SwiftUI fiel al prototipo aprobado | ⏳ después de la decisión | `ios/CuentaConmigo/` |
+
+**Para revisar:** abrí el prototipo publicado (o el HTML local en un navegador). A la
+izquierda está el iPhone; a la derecha, el panel con:
+
+- la lista de pantallas E-00 a E-13 para saltar a cualquiera;
+- la nota de diseño de cada pantalla, las decisiones AS-x que la afectan y los cambios
+  que pidió Astra;
+- selectores para comparar alternativas: AS-2 (F-1 asistente o F-2 imagen + campos),
+  AS-6 (botón "Cero" o vacío = 0), AS-3 (certificado preseleccionado) y AS-8 (origen OCR visible);
+- simulaciones: sin conexión, cámara denegada, escáner no disponible y OCR apagado;
+- datos de ejemplo: valores que cierran, o con un error, un aviso y un faltante.
+
+Cada pantalla tiene un link directo (`#e-07`, por ejemplo). Todos los datos son ficticios.
+La vista publicada es privada: para que Andy la vea, compartila desde el menú Share.
 
 Relación con otras SPECs:
 
