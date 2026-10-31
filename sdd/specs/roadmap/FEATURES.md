@@ -29,6 +29,10 @@ Estado: ✅ implementado (prototipo) · 🟡 parcial · 🎨 en prototipo de pan
 | F-15 | Sugerir el establecimiento con la ubicación pedida a demanda (nunca en segundo plano, sin guardarla) | telegram-capture, app-screens | dataset de establecimientos (Q1) | P1 | 📝 |
 | F-16 | Identificar la mesa con listas desplegables en cascada y autocompletado (UX fundamental) | telegram-capture, app-screens | nómina de establecimientos (`data/establecimientos/`) | P0 | 🟡 |
 | F-17 | Modo demostración: elegir un telegrama oficial de ejemplo (muestras de Andy, fuera de Git) que completa la mesa | telegram-capture | contrato `sample` | P0 | 🟡 |
+| F-18 | Lectura OCR en el servidor devuelta a quien carga para validar (respaldo: OCR del teléfono) | assisted-review, scrutiny-backend | SB-1, SB-2, RV-1 | P0 (autor) | 📝 |
+| F-19 | Revisión sobre la imagen: números e identificador de agrupación al lado del manuscrito, más negro con más confianza, editables | assisted-review | F-18, RV-3 | P0 (autor) | 📝 |
+| F-28 | Revisiones independientes y confianza del acta (2 valen mucho más que 1; desde 3 suma poco) | assisted-review | F-19, RV-6 | P0 (autor) | 📝 |
+| F-29 | Borrar cualquier captura de la lista, con aviso si la evidencia no se envió | telegram-capture, app-screens | — | P0 (autor) | 📝 |
 
 ## Red ciudadana (producto central)
 
