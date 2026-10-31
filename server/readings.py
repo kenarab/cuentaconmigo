@@ -19,6 +19,8 @@ import tempfile
 import unicodedata
 from pathlib import Path
 
+import digits
+
 try:
     from PIL import Image, ImageFilter, ImageOps
 except ImportError:  # pragma: no cover - reported by engine_status()
@@ -173,6 +175,10 @@ def read_cell(img, box):
         return None, 0.0, None, True
     ox, oy = box_ink[0], box_ink[1]
     bw = bw.crop(box_ink)
+    # Neural digit classifier first (server/digits.py); Tesseract is the fallback.
+    nn = digits.read(bw)
+    if nn is not None and nn[1] >= 0.5:
+        return nn[0], round(nn[1], 2), [x0 + ox, y0 + oy, bw.width, bw.height], False
     scale = 80 / max(1, bw.height)
     big = bw.resize((max(1, round(bw.width * scale)), 80)).filter(ImageFilter.MinFilter(3))
     big = ImageOps.expand(big, border=30, fill=255)

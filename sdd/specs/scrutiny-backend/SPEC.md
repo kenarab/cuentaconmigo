@@ -675,3 +675,31 @@ Contrato: `contracts/api/scrutiny-v1.openapi.json`.
 - **Pendiente:** revisión humana y doble carga en el servidor, espejo oficial,
   conteo rápido, embargo, FastAPI (SB-1) y pruebas de penetración antes del uso real
   (chequeo legal).
+
+## Infraestructura propia y lector de dígitos por casillero · 31/10/2026
+
+**Principio del autor:** no se usan servicios en la nube de terceros para leer
+telegramas. Todo corre en infraestructura propia, por soberanía de los datos y por la
+Ley 25.326, art. 12, ya que las imágenes tienen nombres y firmas. Los motores de
+lectura son intercambiables: otros implementadores pueden enchufar el que quieran bajo
+su responsabilidad.
+
+- **Lector de dígitos (SB-2):** las casillas ya están ubicadas por la alineación de
+  `readings.py`. `server/digits.py` separa los dígitos de cada casillero (también los
+  que vienen pegados), los normaliza como MNIST y los clasifica con una red neuronal
+  chica (MLP 784-256-128-10). Está escrita sólo con numpy, sin instalar nada, y se
+  entrena en unos 30 s en CPU con `server/train_digits.py`, sobre MNIST con
+  aumentación. Precisión en MNIST: 98,3 %. Si la confianza es baja, se usa Tesseract
+  como respaldo.
+- **Medición** con `server/eval_readings.py`, sobre las celdas transcriptas de Andy, que
+  todavía no tienen confirmación humana: pasó de **2/9 a 6/9 lecturas exactas**. Acierta
+  todas las celdas de votos por agrupación. Falla en electores y votantes del
+  encabezado en dos telegramas de 2015.
+- **iPhone:** la app usa el OCR de Apple (Vision) en el teléfono. La misma red se puede
+  exportar a Core ML si conviene.
+- **Próximo paso:** que personas confirmen los valores de las muestras, para ajustar
+  la red con dígitos reales de telegramas y medir con verdad confirmada.
+- **Datos:** MNIST (LeCun, Cortes y Burges) se descarga a `data/private/mnist/`. Los
+  pesos entrenados (`data/models/digits-mlp.npz`) van en el repositorio y se
+  regeneran con el script.
+
