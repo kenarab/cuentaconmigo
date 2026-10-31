@@ -27,6 +27,7 @@ sobre arquitectura, instalaciones, publicación o contacto externo.
 | **legal_analyst** | Respaldo y límites legales: Código Electoral, BUP, acceso a la información, libertad de expresión, delitos electorales. Mantiene `docs/legal/` | Encuadres legales alternativos y preguntas para un abogado electoral |
 | **electoral_analyst** | Proceso real del escrutinio, formatos de telegrama, acta y certificado, roles de mesa y publicación oficial de resultados | Plantillas de formulario y reglas de validación |
 | **data_protection_officer** | Datos personales (Ley 25.326), minimización, retención, consentimiento y derechos ARCO | Esquemas de anonimización y retención |
+| **platform_accountability_analyst** | Qué hacen las plataformas: políticas, bibliotecas de anuncios, compromisos, términos de servicio, métodos externos de medición (eje A de la visión) | Métricas, metodologías reproducibles y acciones de presión pública basadas en evidencia |
 | **trust_safety_analyst** | Desinformación, abuso, brigadas, reportes falsos y riesgo de doxxing | Criterios de verificación, reputación de voluntarios y moderación |
 | **security_analyst** | Modelo de amenazas: capturas falsas, manipulación de evidencia, cuentas comprometidas, infraestructura | Controles y su costo |
 | **neutrality_auditor** | Sesgo partidario en textos, datos, criterios, alianzas y en el orden de las listas | Redacciones y criterios neutrales |
@@ -71,7 +72,8 @@ pedido del owner
 | Cambio | Chequeadores mínimos |
 | --- | --- |
 | Captura y manejo de evidencia | electoral, legal, data_protection, security |
-| Desinformación y moderación | trust_safety, legal, neutrality |
+| Plataformas: métricas, tablero y presión pública | platform_accountability, legal, neutrality, data_protection |
+| Desinformación y respuesta | trust_safety, legal, neutrality |
 | Textos públicos (app, HackDash, prensa) | neutrality, legal, accessibility_ux |
 | Datos de personas | data_protection, legal, security |
 | Infraestructura y backend | security, data_protection |
@@ -109,6 +111,6 @@ pedido del owner
 ## Decisiones pendientes del owner
 
 - D-MA-1: límite de agentes en paralelo.
-- D-MA-2: ¿qué roles se activan ya? Propuesta: legal, electoral, data_protection
-  y neutrality.
+- D-MA-2: ¿qué roles se activan ya? Propuesta: platform_accountability, legal,
+  data_protection y neutrality (el eje A es el central).
 - D-MA-3: ¿se busca un abogado electoral humano que valide `docs/legal/`?
