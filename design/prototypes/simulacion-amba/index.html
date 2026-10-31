@@ -61,7 +61,7 @@ th:first-child, td:first-child { text-align: left; }
 <main>
   <section class="card" id="loader">
     <h1>Cargar datos</h1>
-    <p class="muted">Los datos se generan con <code>scripts/amba-simulation/normalize.py</code> y <code>geography.py</code> y quedan en <code>data/private/amba-simulation/</code> (fuera de Git). Si la página no los encuentra sola, elegí los dos archivos: <code>mesas_2023_amba.json</code> y <code>strata_2023_amba.geojson</code>.</p>
+    <p class="muted">Los datos se generan con <code>scripts/amba-simulation/normalize.py</code> y <code>geography.py</code> y quedan en <code>data/private/amba-simulation/</code> (fuera de Git). Ya vienen incluidos en <code>data/</code> junto a esta página (<code>scripts/amba-simulation/bundle.py</code>). Si faltaran, elegí los dos archivos: <code>mesas_2023_amba.json</code> y <code>strata_2023_amba.geojson</code>.</p>
     <input type="file" id="files" multiple accept=".json,.geojson">
     <p class="muted" id="loadmsg"></p>
   </section>
@@ -97,6 +97,8 @@ th:first-child, td:first-child { text-align: left; }
     <p class="muted">Fuentes: DINE, resultados provisorios por mesa de las generales 2023 (datos.gob.ar). Límites de partidos: Provincia de Buenos Aires, datos abiertos, CC BY 4.0. Comunas: Ciudad de Buenos Aires, datos abiertos. Procedencia en <code>data/amba-simulation/manifest.json</code>.</p>
   </section>
 </main>
+<script src="data/mesas.js"></script>
+<script src="data/strata.js"></script>
 <script>
 "use strict";
 const DATA_BASE = "../../../data/private/amba-simulation/";
@@ -113,6 +115,8 @@ function mulberry32(a) {
 }
 
 async function tryFetch() {
+  // Bundled data (scripts/amba-simulation/bundle.py): works from disk and when published.
+  if (window.AMBA_MESAS && window.AMBA_STRATA) { start(window.AMBA_MESAS, window.AMBA_STRATA); return; }
   try {
     const [m, g] = await Promise.all([fetch(DATA_BASE + "mesas_2023_amba.json"), fetch(DATA_BASE + "strata_2023_amba.geojson")]);
     if (!m.ok || !g.ok) throw new Error("http");
