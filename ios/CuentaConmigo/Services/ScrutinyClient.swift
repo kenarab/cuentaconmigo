@@ -71,14 +71,16 @@ struct ScrutinyClient {
         }
         let status = (response as? HTTPURLResponse)?.statusCode ?? 0
         guard (200..<300).contains(status) else {
-            struct Problem: Decodable { let title: String; let detail: String? }
-            let problem = try? JSONDecoder().decode(Problem.self, from: data)
+            let problem = try? JSONDecoder().decode(ProblemDetails.self, from: data)
             throw Failure(message: problem.map { [$0.title, $0.detail].compactMap { $0 }.joined(separator: ": ") }
                           ?? "El servidor respondió \(status).")
         }
         return try JSONDecoder().decode(T.self, from: data)
     }
 }
+
+/// RFC 9457 problem details returned by the server on errors.
+private struct ProblemDetails: Decodable { let title: String; let detail: String? }
 
 /// Server address in UserDefaults; device token in the Keychain (this device only).
 enum ServerSettings {
