@@ -10,14 +10,23 @@ struct ReadingReviewView: View {
     let template: FormTemplate
     /// Current value of a field in the capture (the person's edits win over the reading).
     let currentValue: (String) -> Int?
-    /// Applies an edit made on the image (origin "manual").
-    let onEdit: (String, Int?) -> Void
+    /// Called when the person confirms the check and saves.
+    let onSave: (Result) -> Void
+
+    /// What the person confirmed: readings accepted as they are, and values corrected by hand.
+    struct Result {
+        var accepted: [String: Int] = [:]
+        var corrected: [String: Int?] = [:]
+    }
 
     @Environment(\.dismiss) private var dismiss
     @State private var editing: ScrutinyClient.Reading?
     @State private var draft = ""
     @State private var highlighted: String?
     @State private var reviewed: Set<String> = []
+    /// Corrections made on the image; applied to the capture only on "Guardar".
+    @State private var corrections: [String: Int?] = [:]
+    @State private var showSummary = false
 
     private var image: UIImage? { UIImage(contentsOfFile: imageURL.path) }
 
@@ -37,8 +46,9 @@ struct ReadingReviewView: View {
             .navigationTitle("Cotejo sobre la imagen")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) { Button("Listo") { dismiss() } }
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .cancellationAction) { Button("Cancelar") { dismiss() } }
+                ToolbarItem(placement: .confirmationAction) { Button("Confirmar") { showSummary = true } }
+                ToolbarItem(placement: .bottomBar) {
                     Button("Siguiente dudoso", systemImage: "arrow.down.circle") { nextDoubtful() }
                         .labelStyle(.titleAndIcon)
                 }
@@ -49,7 +59,7 @@ struct ReadingReviewView: View {
                 Button("Guardar") {
                     if let ref = editing?.ref {
                         let digits = draft.filter(\.isNumber)
-                        onEdit(ref, digits.isEmpty ? nil : Int(digits.prefix(9)))
+                        corrections[ref] = digits.isEmpty ? nil : Int(digits.prefix(9))
                         reviewed.insert(ref)
                     }
                     editing = nil
@@ -57,6 +67,80 @@ struct ReadingReviewView: View {
                 Button("Cancelar", role: .cancel) { editing = nil }
             } message: {
                 Text("Escribí el número tal como figura en el telegrama.")
+            }
+            .sheet(isPresented: $showSummary) { summary.presentationDetents([.medium, .large]) }
+        }
+    }
+
+    /// Value shown for a cell: the correction, else what the person had loaded, else the reading.
+    private func shownValue(_ reading: ScrutinyClient.Reading) -> Int? {
+        if let corrected = corrections[reading.ref] { return corrected }
+        return currentValue(reading.ref) ?? reading.value
+    }
+
+    private func change(ref: String, to value: Int?) -> String {
+        let original: Int? = readings.fields.first { $0.ref == ref }?.value
+        let before: String = original.map { String($0) } ?? "sin leer"
+        let after: String = value.map { String($0) } ?? "vacío"
+        return before + " → " + after
+    }
+
+    private func shown(ref: String) -> Int? {
+        readings.fields.first { $0.ref == ref }.flatMap(shownValue) ?? currentValue(ref)
+    }
+
+    private func isCorrected(_ reading: ScrutinyClient.Reading) -> Bool {
+        corrections[reading.ref] != nil || (currentValue(reading.ref) != nil && currentValue(reading.ref) != reading.value)
+    }
+
+    private var result: Result {
+        var r = Result()
+        for reading in readings.fields {
+            if let corrected = corrections[reading.ref] {
+                r.corrected[reading.ref] = corrected
+            } else if currentValue(reading.ref) == nil, let value = reading.value {
+                r.accepted[reading.ref] = value
+            }
+        }
+        return r
+    }
+
+    private var summary: some View {
+        let r = result
+        let unread = readings.fields.filter { shownValue($0) == nil }
+        return NavigationStack {
+            List {
+                Section("Reconocidos automáticamente (\(r.accepted.count))") {
+                    ForEach(r.accepted.sorted { $0.key < $1.key }, id: \.key) { ref, value in
+                        LabeledContent(title(for: ref), value: "\(value)")
+                    }
+                }
+                Section("Corregidos por vos (\(r.corrected.count))") {
+                    ForEach(r.corrected.sorted { $0.key < $1.key }, id: \.key) { ref, value in
+                        LabeledContent(title(for: ref), value: change(ref: ref, to: value))
+                    }
+                }
+                if !unread.isEmpty {
+                    Section {
+                        ForEach(unread, id: \.ref) { Text(title(for: $0.ref)) }
+                    } header: {
+                        Text("Sin leer (\(unread.count))")
+                    } footer: {
+                        Text("Cargalos a mano en el formulario.")
+                    }
+                }
+            }
+            .navigationTitle("Resumen del cotejo")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Seguir revisando") { showSummary = false } }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Guardar") {
+                        onSave(r)
+                        showSummary = false
+                        dismiss()
+                    }
+                }
             }
         }
     }
@@ -89,8 +173,8 @@ struct ReadingReviewView: View {
 
     private func marker(_ reading: ScrutinyClient.Reading, scale: CGFloat) -> some View {
         let cell = reading.cellBox.map { CGFloat($0) * scale }
-        let edited = currentValue(reading.ref) != reading.value && currentValue(reading.ref) != nil
-        let shown = currentValue(reading.ref) ?? reading.value
+        let edited = isCorrected(reading)
+        let shown = shownValue(reading)
         let level = ConfidenceLevel(reading.confidence)
         let fontSize = max(13, min(28, cell[3] * 0.6))
         let digits = CGFloat(max(2, (shown.map(String.init) ?? "¿?").count + (edited ? 3 : 0)))
@@ -162,9 +246,9 @@ struct ReadingReviewView: View {
     }
 
     private var footer: some View {
-        let votantes = currentValue("header.votantes")
+        let votantes = shown(ref: "header.votantes")
         let lines = template.categories.map { category -> String in
-            let values = template.rows.map { currentValue("cells.\(category.id).\($0.id)") }
+            let values = template.rows.map { shown(ref: "cells.\(category.id).\($0.id)") }
             let sum = values.compactMap { $0 }.reduce(0, +)
             let missing = values.filter { $0 == nil }.count
             let check = votantes.map { $0 == sum && missing == 0 ? "✓ coincide con votantes" : "votantes: \($0)" } ?? "falta el total de votantes"

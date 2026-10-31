@@ -25,6 +25,7 @@ struct CaptureEditorView: View {
     @State private var serverStatus: String?
     @State private var readingSet: ScrutinyClient.ReadingSet?
     @State private var showReview = false
+    @State private var sendStatus: String?
     @FocusState private var focus: FieldKey?
 
     private var template: FormTemplate { store.template }
@@ -53,9 +54,7 @@ struct CaptureEditorView: View {
                 ReadingReviewView(imageURL: store.pageURL(page, of: capture.id), readings: readingSet,
                                   template: template,
                                   currentValue: { ref in key(for: ref).flatMap { value(for: $0) } },
-                                  onEdit: { ref, newValue in
-                                      if let key = key(for: ref) { set(newValue, for: key, origin: .manual) }
-                                  })
+                                  onSave: applyReview)
             }
         }
         .sheet(isPresented: $showServer) {
@@ -286,6 +285,11 @@ struct CaptureEditorView: View {
     private func actionsSection(_ capture: Capture, issues: [ValidationIssue]) -> some View {
         Section {
             if capture.isLocked {
+                Button { Task { await sendToServer() } } label: {
+                    Label(store.wasSent(capture) ? "Enviar de nuevo al servidor" : "Enviar al servidor",
+                          systemImage: "paperplane")
+                }
+                if let sendStatus { Text(sendStatus).font(.footnote).foregroundStyle(.secondary) }
                 ShareLink(items: store.exportURLs(for: capture)) {
                     Label("Exportar evidencia", systemImage: "square.and.arrow.up")
                 }
@@ -310,7 +314,7 @@ struct CaptureEditorView: View {
             if !capture.isLocked {
                 Text(capture.pages.isEmpty
                      ? "Agregá al menos una imagen del documento."
-                     : "Al confirmar, la captura queda bloqueada como evidencia.")
+                     : "Al confirmar, la captura queda bloqueada como evidencia. Después la podés enviar al servidor.")
             }
         }
     }
@@ -373,57 +377,59 @@ struct CaptureEditorView: View {
         detectedNumbers += found.filter { seen.insert($0).inserted }
     }
 
-    /// Sends the capture to the scrutiny server and adds its OCR numbers as suggestions.
+    /// Reads the first page with the server (nothing is stored there) and opens the visual
+    /// check. Values reach the capture only when the person confirms the check.
     private func readWithServer() async {
         guard let current = capture, let client = ServerSettings.client else {
             showServer = true
             return
         }
-        serverStatus = "Enviando al servidor…"
+        guard let page = current.pages.first,
+              let jpeg = try? Data(contentsOf: store.pageURL(page, of: current.id)) else { return }
+        serverStatus = "Leyendo los números…"
         do {
-            let receipt = try await client.upload(current) { try? Data(contentsOf: store.pageURL($0, of: current.id)) }
-            store.appendReceipt(receipt, for: current.id)
-            serverStatus = "Leyendo los números…"
-            let filled = await fillFromReadings(current, client: client)
-            for _ in 0..<30 {
-                let result = try await client.ocr(captureID: current.id)
-                if result.finished {
-                    var seen = Set(detectedNumbers)
-                    detectedNumbers += result.numbers.filter { seen.insert($0).inserted }
-                    serverStatus = filled > 0
-                        ? "Listo: el servidor completó \(filled) campos. Cotejalos sobre la imagen."
-                        : result.numbers.isEmpty
-                        ? "El servidor no encontró números. Cargalos mirando la imagen."
-                        : "Listo: el servidor sugirió \(result.numbers.count) números. Revisalos contra la imagen."
-                    return
-                }
-                try await Task.sleep(for: .seconds(2))
-            }
-            serverStatus = "El servidor sigue procesando. Probá de nuevo en un rato."
+            var readings = try await client.readings(jpeg: jpeg, templateId: current.templateId)
+            // Only cells of this form can be checked on the image.
+            readings = ScrutinyClient.ReadingSet(image: readings.image, alignment: readings.alignment,
+                                                 fields: readings.fields.filter { key(for: $0.ref) != nil },
+                                                 masks: readings.masks)
+            readingSet = readings.fields.isEmpty ? nil : readings
+            serverStatus = readingSet == nil
+                ? "El servidor no pudo ubicar los números en esta imagen. Cargalos mirando la imagen."
+                : "Lectura lista: cotejala sobre la imagen y confirmá."
+            if readingSet != nil { showReview = true }
         } catch {
             serverStatus = error.localizedDescription
         }
     }
 
-    /// Fills empty fields with the server's per-cell readings of the first page (origin
-    /// "ocr-accepted": the person still reviews and can edit every value). Returns how many.
-    private func fillFromReadings(_ current: Capture, client: ScrutinyClient) async -> Int {
-        guard let page = current.pages.first,
-              let jpeg = try? Data(contentsOf: store.pageURL(page, of: current.id)),
-              var readings = try? await client.readings(jpeg: jpeg, templateId: current.templateId) else { return 0 }
-        // Only cells of this form can be checked on the image.
-        readings = ScrutinyClient.ReadingSet(image: readings.image, alignment: readings.alignment,
-                                             fields: readings.fields.filter { key(for: $0.ref) != nil },
-                                             masks: readings.masks)
-        var filled = 0
-        for reading in readings.fields {
-            guard let value = reading.value, let key = key(for: reading.ref), self.value(for: key) == nil else { continue }
-            set(value, for: key, origin: .ocrAccepted)
-            filled += 1
+    /// Applies a confirmed visual check: corrected values as typed by the person, the rest
+    /// as accepted readings, never overwriting what the person had already loaded.
+    private func applyReview(_ result: ReadingReviewView.Result) {
+        for (ref, value) in result.corrected {
+            if let key = key(for: ref) { set(value, for: key, origin: .manual) }
         }
-        readingSet = readings.fields.isEmpty ? nil : readings
-        if readingSet != nil { showReview = true }
-        return filled
+        for (ref, value) in result.accepted {
+            if let key = key(for: ref), self.value(for: key) == nil { set(value, for: key, origin: .ocrAccepted) }
+        }
+        serverStatus = "Guardado: \(result.accepted.count) reconocidos y \(result.corrected.count) corregidos."
+    }
+
+    /// Sends the confirmed capture and its images; the server's chained receipt is kept.
+    private func sendToServer() async {
+        await ServerSettings.connectIfNeeded(appVersion: CaptureStore.appInfo.version)
+        guard let current = capture, let client = ServerSettings.client else {
+            showServer = true
+            return
+        }
+        sendStatus = "Enviando…"
+        do {
+            let receipt = try await client.upload(current) { try? Data(contentsOf: store.pageURL($0, of: current.id)) }
+            store.appendReceipt(receipt, for: current.id)
+            sendStatus = "Enviada. El comprobante quedó guardado con la captura."
+        } catch {
+            sendStatus = error.localizedDescription
+        }
     }
 
     /// Field of this form for a contract reference such as "cells.presidente.blanco".
