@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/kenarab/cuentaconmigo/contracts/schemas/capture.schema.json",
+  "title": "CuentaConmigo capture package",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "templateId",
+    "templateVersion",
+    "documentType",
+    "mesa",
+    "pages",
+    "header",
+    "cells",
+    "status",
+    "createdAt",
+    "app"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "templateId": {
+      "type": "string"
+    },
+    "templateVersion": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "documentType": {
+      "enum": [
+        "telegrama",
+        "acta",
+        "certificado"
+      ]
+    },
+    "mesa": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "distrito",
+        "seccion",
+        "circuito",
+        "mesa"
+      ],
+      "properties": {
+        "distrito": {
+          "type": "string"
+        },
+        "seccion": {
+          "type": "string"
+        },
+        "circuito": {
+          "type": "string"
+        },
+        "mesa": {
+          "type": "string"
+        }
+      }
+    },
+    "pages": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "file",
+          "sha256",
+          "capturedAt",
+          "source"
+        ],
+        "properties": {
+          "file": {
+            "type": "string",
+            "pattern": "^page-[0-9]+\\.jpg$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "capturedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "source": {
+            "enum": [
+              "scanner",
+              "photos"
+            ]
+          }
+        }
+      }
+    },
+    "header": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/value"
+      }
+    },
+    "cells": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "$ref": "#/$defs/value"
+        }
+      }
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "confirmed"
+      ]
+    },
+    "warningJustification": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "confirmedAt": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "app": {
+      "type": "object",
+      "required": [
+        "platform",
+        "version"
+      ],
+      "properties": {
+        "platform": {
+          "enum": [
+            "ios",
+            "android"
+          ]
+        },
+        "version": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "value": {
+      "type": "object",
+      "required": [
+        "value",
+        "origin"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "origin": {
+          "enum": [
+            "manual",
+            "ocr-accepted"
+          ]
+        }
+      }
+    }
+  }
+}

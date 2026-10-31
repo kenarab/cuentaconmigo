@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "id": "6F1C2B9E-4A1D-4C55-9E2B-1A2B3C4D5E6F",
+  "templateId": "demo-2027",
+  "templateVersion": 1,
+  "documentType": "telegrama",
+  "mesa": {
+    "distrito": "99",
+    "seccion": "001",
+    "circuito": "0001A",
+    "mesa": "00042"
+  },
+  "pages": [
+    {
+      "file": "page-1.jpg",
+      "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+      "capturedAt": "2027-10-24T21:15:03Z",
+      "source": "scanner"
+    }
+  ],
+  "header": {
+    "electores": {
+      "value": 350,
+      "origin": "manual"
+    },
+    "votantes": {
+      "value": 300,
+      "origin": "ocr-accepted"
+    }
+  },
+  "cells": {
+    "presidente": {
+      "lista-a": {
+        "value": 120,
+        "origin": "manual"
+      },
+      "lista-b": {
+        "value": 100,
+        "origin": "manual"
+      },
+      "lista-c": {
+        "value": 60,
+        "origin": "manual"
+      },
+      "blanco": {
+        "value": 10,
+        "origin": "manual"
+      },
+      "nulos": {
+        "value": 7,
+        "origin": "manual"
+      },
+      "recurridos": {
+        "value": 2,
+        "origin": "manual"
+      },
+      "impugnados": {
+        "value": 1,
+        "origin": "manual"
+      }
+    },
+    "diputados": {
+      "lista-a": {
+        "value": 110,
+        "origin": "manual"
+      },
+      "lista-b": {
+        "value": 95,
+        "origin": "manual"
+      },
+      "lista-c": {
+        "value": 70,
+        "origin": "manual"
+      },
+      "blanco": {
+        "value": 15,
+        "origin": "manual"
+      },
+      "nulos": {
+        "value": 8,
+        "origin": "manual"
+      },
+      "recurridos": {
+        "value": 1,
+        "origin": "manual"
+      },
+      "impugnados": {
+        "value": 1,
+        "origin": "manual"
+      }
+    }
+  },
+  "status": "confirmed",
+  "warningJustification": null,
+  "createdAt": "2027-10-24T21:14:40Z",
+  "confirmedAt": "2027-10-24T21:20:11Z",
+  "app": {
+    "platform": "ios",
+    "version": "0.1.0"
+  }
+}

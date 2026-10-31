@@ -1,0 +1,330 @@
+{
+  "template": "demo-2027",
+  "comparison": "unordered set of {code, severity, path}",
+  "cases": [
+    {
+      "name": "valid capture",
+      "input": {
+        "mesa": {
+          "distrito": "99",
+          "seccion": "001",
+          "circuito": "0001A",
+          "mesa": "00042"
+        },
+        "header": {
+          "electores": 350,
+          "votantes": 300
+        },
+        "cells": {
+          "presidente": {
+            "lista-a": 120,
+            "lista-b": 100,
+            "lista-c": 60,
+            "blanco": 10,
+            "nulos": 7,
+            "recurridos": 2,
+            "impugnados": 1
+          },
+          "diputados": {
+            "lista-a": 110,
+            "lista-b": 95,
+            "lista-c": 70,
+            "blanco": 15,
+            "nulos": 8,
+            "recurridos": 1,
+            "impugnados": 1
+          }
+        }
+      },
+      "expected": []
+    },
+    {
+      "name": "missing circuito",
+      "input": {
+        "mesa": {
+          "distrito": "99",
+          "seccion": "001",
+          "circuito": "  ",
+          "mesa": "00042"
+        },
+        "header": {
+          "electores": 350,
+          "votantes": 300
+        },
+        "cells": {
+          "presidente": {
+            "lista-a": 120,
+            "lista-b": 100,
+            "lista-c": 60,
+            "blanco": 10,
+            "nulos": 7,
+            "recurridos": 2,
+            "impugnados": 1
+          },
+          "diputados": {
+            "lista-a": 110,
+            "lista-b": 95,
+            "lista-c": 70,
+            "blanco": 15,
+            "nulos": 8,
+            "recurridos": 1,
+            "impugnados": 1
+          }
+        }
+      },
+      "expected": [
+        {
+          "code": "missing_mesa",
+          "severity": "error",
+          "path": "mesa.circuito"
+        }
+      ]
+    },
+    {
+      "name": "missing cell skips category total",
+      "input": {
+        "mesa": {
+          "distrito": "99",
+          "seccion": "001",
+          "circuito": "0001A",
+          "mesa": "00042"
+        },
+        "header": {
+          "electores": 350,
+          "votantes": 300
+        },
+        "cells": {
+          "presidente": {
+            "lista-a": 120,
+            "lista-b": 100,
+            "lista-c": 60,
+            "blanco": 10,
+            "nulos": 7,
+            "recurridos": 2,
+            "impugnados": 1
+          },
+          "diputados": {
+            "lista-a": 110,
+            "lista-b": 95,
+            "lista-c": null,
+            "blanco": 15,
+            "nulos": 8,
+            "recurridos": 1,
+            "impugnados": 1
+          }
+        }
+      },
+      "expected": [
+        {
+          "code": "missing_value",
+          "severity": "error",
+          "path": "cells.diputados.lista-c"
+        }
+      ]
+    },
+    {
+      "name": "negative value skips category total",
+      "input": {
+        "mesa": {
+          "distrito": "99",
+          "seccion": "001",
+          "circuito": "0001A",
+          "mesa": "00042"
+        },
+        "header": {
+          "electores": 350,
+          "votantes": 300
+        },
+        "cells": {
+          "presidente": {
+            "lista-a": 120,
+            "lista-b": 100,
+            "lista-c": 60,
+            "blanco": 10,
+            "nulos": -7,
+            "recurridos": 2,
+            "impugnados": 1
+          },
+          "diputados": {
+            "lista-a": 110,
+            "lista-b": 95,
+            "lista-c": 70,
+            "blanco": 15,
+            "nulos": 8,
+            "recurridos": 1,
+            "impugnados": 1
+          }
+        }
+      },
+      "expected": [
+        {
+          "code": "negative_value",
+          "severity": "error",
+          "path": "cells.presidente.nulos"
+        }
+      ]
+    },
+    {
+      "name": "votantes exceed electores",
+      "input": {
+        "mesa": {
+          "distrito": "99",
+          "seccion": "001",
+          "circuito": "0001A",
+          "mesa": "00042"
+        },
+        "header": {
+          "electores": 250,
+          "votantes": 300
+        },
+        "cells": {
+          "presidente": {
+            "lista-a": 120,
+            "lista-b": 100,
+            "lista-c": 60,
+            "blanco": 10,
+            "nulos": 7,
+            "recurridos": 2,
+            "impugnados": 1
+          },
+          "diputados": {
+            "lista-a": 110,
+            "lista-b": 95,
+            "lista-c": 70,
+            "blanco": 15,
+            "nulos": 8,
+            "recurridos": 1,
+            "impugnados": 1
+          }
+        }
+      },
+      "expected": [
+        {
+          "code": "votantes_exceed_electores",
+          "severity": "error",
+          "path": "header.votantes"
+        }
+      ]
+    },
+    {
+      "name": "electores optional",
+      "input": {
+        "mesa": {
+          "distrito": "99",
+          "seccion": "001",
+          "circuito": "0001A",
+          "mesa": "00042"
+        },
+        "header": {
+          "electores": null,
+          "votantes": 300
+        },
+        "cells": {
+          "presidente": {
+            "lista-a": 120,
+            "lista-b": 100,
+            "lista-c": 60,
+            "blanco": 10,
+            "nulos": 7,
+            "recurridos": 2,
+            "impugnados": 1
+          },
+          "diputados": {
+            "lista-a": 110,
+            "lista-b": 95,
+            "lista-c": 70,
+            "blanco": 15,
+            "nulos": 8,
+            "recurridos": 1,
+            "impugnados": 1
+          }
+        }
+      },
+      "expected": []
+    },
+    {
+      "name": "missing votantes skips totals",
+      "input": {
+        "mesa": {
+          "distrito": "99",
+          "seccion": "001",
+          "circuito": "0001A",
+          "mesa": "00042"
+        },
+        "header": {
+          "electores": 350,
+          "votantes": null
+        },
+        "cells": {
+          "presidente": {
+            "lista-a": 120,
+            "lista-b": 100,
+            "lista-c": 60,
+            "blanco": 10,
+            "nulos": 7,
+            "recurridos": 2,
+            "impugnados": 1
+          },
+          "diputados": {
+            "lista-a": 110,
+            "lista-b": 95,
+            "lista-c": 70,
+            "blanco": 15,
+            "nulos": 8,
+            "recurridos": 1,
+            "impugnados": 1
+          }
+        }
+      },
+      "expected": [
+        {
+          "code": "missing_value",
+          "severity": "error",
+          "path": "header.votantes"
+        }
+      ]
+    },
+    {
+      "name": "category total mismatch",
+      "input": {
+        "mesa": {
+          "distrito": "99",
+          "seccion": "001",
+          "circuito": "0001A",
+          "mesa": "00042"
+        },
+        "header": {
+          "electores": 350,
+          "votantes": 300
+        },
+        "cells": {
+          "presidente": {
+            "lista-a": 121,
+            "lista-b": 100,
+            "lista-c": 60,
+            "blanco": 10,
+            "nulos": 7,
+            "recurridos": 2,
+            "impugnados": 1
+          },
+          "diputados": {
+            "lista-a": 110,
+            "lista-b": 95,
+            "lista-c": 70,
+            "blanco": 15,
+            "nulos": 8,
+            "recurridos": 1,
+            "impugnados": 1
+          }
+        }
+      },
+      "expected": [
+        {
+          "code": "category_total_mismatch",
+          "severity": "warning",
+          "path": "cells.presidente"
+        }
+      ]
+    }
+  ]
+}

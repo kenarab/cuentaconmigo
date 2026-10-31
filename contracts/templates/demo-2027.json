@@ -1,0 +1,96 @@
+{
+  "id": "demo-2027",
+  "version": 1,
+  "fictitious": true,
+  "title": "Plantilla DEMO ficticia (no es el formulario oficial)",
+  "documentTypes": [
+    "telegrama",
+    "acta",
+    "certificado"
+  ],
+  "mesaFields": [
+    {
+      "id": "distrito",
+      "label": "Distrito"
+    },
+    {
+      "id": "seccion",
+      "label": "Sección"
+    },
+    {
+      "id": "circuito",
+      "label": "Circuito"
+    },
+    {
+      "id": "mesa",
+      "label": "Mesa"
+    }
+  ],
+  "headerFields": [
+    {
+      "id": "electores",
+      "label": "Electores habilitados",
+      "required": false
+    },
+    {
+      "id": "votantes",
+      "label": "Total de votantes",
+      "required": true
+    }
+  ],
+  "categories": [
+    {
+      "id": "presidente",
+      "label": "Presidente y Vicepresidente"
+    },
+    {
+      "id": "diputados",
+      "label": "Diputados Nacionales"
+    }
+  ],
+  "rows": [
+    {
+      "id": "lista-a",
+      "label": "Lista A (ficticia)",
+      "kind": "agrupacion"
+    },
+    {
+      "id": "lista-b",
+      "label": "Lista B (ficticia)",
+      "kind": "agrupacion"
+    },
+    {
+      "id": "lista-c",
+      "label": "Lista C (ficticia)",
+      "kind": "agrupacion"
+    },
+    {
+      "id": "blanco",
+      "label": "Votos en blanco",
+      "kind": "especial"
+    },
+    {
+      "id": "nulos",
+      "label": "Votos nulos",
+      "kind": "especial"
+    },
+    {
+      "id": "recurridos",
+      "label": "Votos recurridos",
+      "kind": "especial"
+    },
+    {
+      "id": "impugnados",
+      "label": "Identidad impugnada",
+      "kind": "especial"
+    }
+  ],
+  "rules": {
+    "votantesMaxElectores": {
+      "severity": "error"
+    },
+    "categoryTotalEqualsVotantes": {
+      "severity": "warning"
+    }
+  }
+}

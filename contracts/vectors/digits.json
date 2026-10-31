@@ -1,0 +1,73 @@
+{
+  "function": "normalizeDigits",
+  "cases": [
+    {
+      "input": " 12 ",
+      "expected": 12
+    },
+    {
+      "input": "0",
+      "expected": 0
+    },
+    {
+      "input": "1.234",
+      "expected": 1234
+    },
+    {
+      "input": "1,234",
+      "expected": 1234
+    },
+    {
+      "input": "1 234",
+      "expected": 1234
+    },
+    {
+      "input": "1O",
+      "expected": 10
+    },
+    {
+      "input": "l5",
+      "expected": 15
+    },
+    {
+      "input": "|7",
+      "expected": 17
+    },
+    {
+      "input": "3B",
+      "expected": 38
+    },
+    {
+      "input": "S0",
+      "expected": 50
+    },
+    {
+      "input": "O",
+      "expected": null
+    },
+    {
+      "input": "B",
+      "expected": null
+    },
+    {
+      "input": "",
+      "expected": null
+    },
+    {
+      "input": "-3",
+      "expected": null
+    },
+    {
+      "input": "12a",
+      "expected": null
+    },
+    {
+      "input": "1/2",
+      "expected": null
+    },
+    {
+      "input": "٣",
+      "expected": null
+    }
+  ]
+}
