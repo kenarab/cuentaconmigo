@@ -118,6 +118,10 @@ struct CaptureEditorView: View {
                 }
             }
             if !capture.isLocked {
+                Label("Nunca fotografíes la Boleta Única: está prohibido. Sólo telegrama, acta o certificado de escrutinio.",
+                      systemImage: "hand.raised.fill")
+                    .font(.callout)
+                    .foregroundStyle(.red)
                 if DocumentScanner.isAvailable {
                     Button { showScanner = true } label: {
                         Label("Escanear documento", systemImage: "doc.viewfinder")
