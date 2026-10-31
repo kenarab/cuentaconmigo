@@ -1,0 +1,112 @@
+{
+  "id": "capture",
+  "version": 1,
+  "description": "Capture flow shared by every presentation (F-1 wizard, F-2 split view, F-3 double entry). See contracts/flows/README.md for semantics.",
+  "context": {
+    "presentation": "f2",
+    "documentType": null,
+    "mesa": {},
+    "pages": [],
+    "header": {},
+    "cells": {},
+    "justification": null,
+    "second": null,
+    "mismatches": [],
+    "doubleEntry": "none",
+    "locked": false
+  },
+  "initial": "bupWarning",
+  "on": {
+    "setPresentation": { "actions": ["setPresentation"], "effects": ["persistSettings"] }
+  },
+  "states": {
+    "bupWarning": {
+      "screen": "E-02",
+      "on": { "acceptBup": { "target": "editing" } }
+    },
+    "editing": {
+      "initial": "documentType",
+      "on": {
+        "chooseDocumentType": { "actions": ["setDocumentType"], "effects": ["persist"] },
+        "setMesa": { "actions": ["setMesa"], "effects": ["persist"] },
+        "requestScan": { "effects": ["scan"] },
+        "requestPhotos": { "effects": ["importPhotos"] },
+        "pagesAdded": { "guard": ["payloadHasPages"], "actions": ["appendPages"], "effects": ["persist", "ocr"] },
+        "setValues": { "actions": ["setValues", "invalidateDoubleEntry"], "effects": ["persist"] },
+        "review": { "target": "validation" }
+      },
+      "states": {
+        "documentType": {
+          "screen": "E-03",
+          "on": { "next": { "target": "editing.mesa", "guard": ["documentTypeChosen"] } }
+        },
+        "mesa": {
+          "screen": "E-04",
+          "on": {
+            "next": { "target": "editing.pages", "guard": ["mesaComplete"] },
+            "back": { "target": "editing.documentType" }
+          }
+        },
+        "pages": {
+          "screen": "E-05",
+          "on": {
+            "next": { "target": "editing.values", "guard": ["hasPages"] },
+            "back": { "target": "editing.mesa" }
+          }
+        },
+        "values": {
+          "screen": "E-07",
+          "on": {
+            "next": { "target": "validation" },
+            "back": { "target": "editing.pages" }
+          }
+        }
+      }
+    },
+    "validation": {
+      "screen": "E-08",
+      "on": {
+        "edit": { "target": "editing.values" },
+        "setJustification": { "actions": ["setJustification"], "effects": ["persist"] },
+        "confirm": [
+          { "target": "confirmed", "guard": ["hasPages", "noErrors", "noWarnings", "!doubleEntryPending"], "actions": ["lock"], "effects": ["hashEvidence", "persist"] },
+          { "target": "confirmed", "guard": ["hasPages", "noErrors", "justificationGiven", "!doubleEntryPending"], "actions": ["lock"], "effects": ["hashEvidence", "persist"] }
+        ],
+        "requestDoubleEntry": { "target": "handoff", "guard": ["presentationSupportsDoubleEntry", "noErrors"], "actions": ["clearSecond"] },
+        "compareAgain": { "target": "compare", "guard": ["doubleEntryPending"], "actions": ["computeMismatches"] },
+        "cancelDoubleEntry": { "guard": ["doubleEntryPending"], "actions": ["clearSecond"], "effects": ["persist"] }
+      }
+    },
+    "handoff": {
+      "screen": "E-08b",
+      "on": {
+        "secondReady": { "target": "values2" },
+        "cancelDoubleEntry": { "target": "validation", "actions": ["clearSecond"] }
+      }
+    },
+    "values2": {
+      "screen": "E-08c",
+      "on": {
+        "setSecondValues": { "actions": ["setSecondValues"] },
+        "submitSecond": { "target": "compare", "guard": ["secondComplete"], "actions": ["computeMismatches"] },
+        "cancelDoubleEntry": { "target": "validation", "actions": ["clearSecond"] }
+      }
+    },
+    "compare": {
+      "screen": "E-08d",
+      "on": {
+        "acceptMatch": { "target": "validation", "guard": ["entriesMatch"], "actions": ["markDoubleEntryMatched"], "effects": ["persist"] },
+        "fixFirstEntry": { "target": "editing.values", "guard": ["!entriesMatch"], "actions": ["markDoubleEntryPending"] },
+        "retypeSecond": { "target": "handoff", "actions": ["clearSecond"] }
+      }
+    },
+    "confirmed": {
+      "screen": "E-09",
+      "on": { "export": { "target": "exported", "effects": ["export"] } }
+    },
+    "exported": {
+      "screen": "E-10",
+      "on": { "export": { "effects": ["export"] } }
+    }
+  }
+}
