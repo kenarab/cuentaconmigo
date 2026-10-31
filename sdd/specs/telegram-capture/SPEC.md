@@ -28,7 +28,7 @@ Incluido:
 8. Exportar el paquete de evidencia (JSON del contrato + imágenes) con el menú
    de compartir del sistema.
 
-Fuera de P0: envío a un servidor central (D-003), cuentas y roles de usuario,
+Fuera de P0: cuentas y roles de usuario (el envío al servidor ya existe: ver Conexión con el servidor),
 cotejo con resultados oficiales, extracción automática por regiones del formulario,
 geolocalización, Android.
 
@@ -124,6 +124,41 @@ Para probar la app sin tener papeles a mano:
   - Uno de los 15 PDF (`2017/020600450_00222.pdf`) no está disponible en Internet
     Archive.
 
+## Conexión con el servidor de lectura (OCR) · 31/10/2026
+
+Hasta hoy la app era una maqueta sin conexión. Ahora se conecta al backend de
+[scrutiny-backend](../scrutiny-backend/SPEC.md), según el contrato
+`contracts/api/scrutiny-v1.openapi.json`:
+
+1. **Alta del teléfono:** en la captura, "Leer números con el servidor" pide la
+   dirección del servidor y un **código de alta** que entrega quien coordina. No se
+   piden datos personales. El token del dispositivo queda en el Keychain (sólo en
+   ese teléfono) y la dirección, en los ajustes de la app.
+2. **Envío en dos pasos:** primero el paquete (`POST /v1/captures`) y después sólo
+   las imágenes que le faltan al servidor (`PUT /v1/blobs/{sha256}`). El servidor
+   verifica el hash de cada imagen.
+3. **Lectura:** la app consulta `GET /v1/captures/{id}/ocr` hasta que termina y suma
+   los números como **fichas sugeridas**, igual que el OCR del teléfono. Nunca se
+   cargan solos: la persona los confirma mirando la imagen.
+4. **Red:** en la red local se admite HTTP (`NSAllowsLocalNetworking`). Un servidor
+   público tiene que usar **HTTPS**.
+
+## Borrado y comprobantes (pedido del autor, 31/10/2026)
+
+- **Las capturas que no se enviaron se pueden borrar** (borradores).
+- **Las que ya se enviaron no se pueden borrar de la app:** son prueba de lo que se
+  mandó. Lo mismo vale para las confirmadas.
+- **Comprobante criptográfico:** cada envío devuelve un comprobante con el SHA-256 del
+  paquete, la hora de recepción, su posición en el registro y el hash encadenado
+  `chainHash = sha256(prevHash|captureId|bodySha256|receivedAt)`. La app lo agrega a
+  `receipts.jsonl`, junto a la captura, y lo incluye en la exportación.
+- **Auditoría:** con el comprobante, la imagen y el paquete, cualquiera puede verificar
+  que el servidor recibió exactamente eso. Si se publica la cabeza del registro
+  (`GET /v1/log/head`, SB-9), también se puede verificar que no se borró ni se
+  alteró ningún comprobante anterior.
+- Un mismo envío puede repetirse con cambios (por ejemplo, primero para leer los
+  números y después confirmado). Cada versión queda en el registro con su comprobante.
+
 ## Sugerencia de establecimiento por ubicación, a pedido (pedido del autor, 31/10/2026)
 
 Surge de la primera prueba del autor en su iPhone: identificar el establecimiento y la
@@ -148,21 +183,17 @@ mesa lleva tiempo. Propuesta:
 - Chequeo pendiente: `electoral_counsel` (legal y seguridad). Riesgo a evaluar: un
   teléfono incautado no debe revelar recorridos; por eso no se guarda historial.
 
-## Borrar capturas de la lista (instrucción del autor, 31/10/2026)
+## Borrar capturas de la lista (decisión del autor, 31/10/2026, reemplaza la anterior)
 
-Cualquier captura, borrador o confirmada, se puede **borrar de la lista** deslizando y
-confirmando. Reemplaza la regla anterior de "sólo borradores".
-
-- **Borrador:** "Se borran la captura y sus imágenes de este teléfono."
-- **Confirmada y ya enviada** (o exportada): "Se borra de este teléfono. La copia enviada
-  queda en el servidor como evidencia." El borrado local no toca la copia del servidor ni
-  su cadena de custodia.
-- **Confirmada y no enviada ni exportada:** aviso más fuerte: "Esta evidencia no se envió
-  ni se exportó. Si la borrás, se pierde." Botón destructivo "Borrar igual".
-- Borrar elimina del teléfono el JSON y las imágenes (no las oculta). Es coherente con la
-  minimización de datos (Ley 25.326): las imágenes pueden tener nombres y firmas.
-- Pendiente (TG-DEL): si conviene además un "deshacer" de unos segundos o una papelera de
-  7 días. ★ Deshacer de 5 segundos, sin papelera.
+- **Borradores y capturas no enviadas:** se pueden borrar deslizando y confirmando.
+  - Borrador: "Se borran la captura y sus imágenes de este teléfono."
+  - Confirmada y no enviada: aviso más fuerte ("Esta evidencia no se envió. Si la
+    borrás, se pierde.") con el botón "Borrar igual".
+- **Capturas ya enviadas al servidor: no se pueden borrar.** Son prueba de lo que se
+  mandó y conservan sus comprobantes criptográficos (ver "Borrado y comprobantes").
+- Borrar elimina del teléfono el JSON y las imágenes, sin ocultarlos, por
+  minimización de datos (Ley 25.326).
+- Pendiente (TG-DEL): un "deshacer" de 5 segundos ★, sin papelera.
 
 ## Privacidad y seguridad
 

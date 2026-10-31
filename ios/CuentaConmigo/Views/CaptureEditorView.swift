@@ -18,6 +18,8 @@ struct CaptureEditorView: View {
     @State private var showJustification = false
     @State private var justification = ""
     @State private var message: String?
+    @State private var showServer = false
+    @State private var serverStatus: String?
     @FocusState private var focus: FieldKey?
 
     private var template: FormTemplate { store.template }
@@ -38,6 +40,9 @@ struct CaptureEditorView: View {
             .ignoresSafeArea()
         }
         .sheet(item: $viewing) { PageViewer(url: $0) }
+        .sheet(isPresented: $showServer) {
+            ServerSettingsView(appVersion: CaptureStore.appInfo.version) { Task { await readWithServer() } }
+        }
         .onChange(of: photoItems) { _, items in
             guard !items.isEmpty else { return }
             Task {
@@ -130,6 +135,16 @@ struct CaptureEditorView: View {
                 }
                 PhotosPicker(selection: $photoItems, matching: .images) {
                     Label("Importar desde Fotos", systemImage: "photo.on.rectangle")
+                }
+                if !capture.pages.isEmpty {
+                    Button {
+                        if ServerSettings.token == nil { showServer = true } else { Task { await readWithServer() } }
+                    } label: {
+                        Label("Leer números con el servidor", systemImage: "text.viewfinder")
+                    }
+                    if let serverStatus {
+                        Text(serverStatus).font(.footnote).foregroundStyle(.secondary)
+                    }
                 }
                 if !SampleTelegram.all.isEmpty {
                     Menu {
@@ -281,6 +296,35 @@ struct CaptureEditorView: View {
         for jpeg in jpegs { found += await TextRecognizer.numbers(in: jpeg) }
         var seen = Set(detectedNumbers)
         detectedNumbers += found.filter { seen.insert($0).inserted }
+    }
+
+    /// Sends the capture to the scrutiny server and adds its OCR numbers as suggestions.
+    private func readWithServer() async {
+        guard let current = capture, let client = ServerSettings.client else {
+            showServer = true
+            return
+        }
+        serverStatus = "Enviando al servidor…"
+        do {
+            let receipt = try await client.upload(current) { try? Data(contentsOf: store.pageURL($0, of: current.id)) }
+            store.appendReceipt(receipt, for: current.id)
+            serverStatus = "Leyendo los números…"
+            for _ in 0..<30 {
+                let result = try await client.ocr(captureID: current.id)
+                if result.finished {
+                    var seen = Set(detectedNumbers)
+                    detectedNumbers += result.numbers.filter { seen.insert($0).inserted }
+                    serverStatus = result.numbers.isEmpty
+                        ? "El servidor no encontró números. Cargalos mirando la imagen."
+                        : "Listo: el servidor sugirió \(result.numbers.count) números. Revisalos contra la imagen."
+                    return
+                }
+                try await Task.sleep(for: .seconds(2))
+            }
+            serverStatus = "El servidor sigue procesando. Probá de nuevo en un rato."
+        } catch {
+            serverStatus = error.localizedDescription
+        }
     }
 
     /// Loads a bundled demo telegram and fills the table identification (F-17).

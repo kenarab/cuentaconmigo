@@ -33,7 +33,7 @@
 			CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 2; DEVELOPMENT_TEAM = MH86268VUR;
 			ENABLE_PREVIEWS = YES; GENERATE_INFOPLIST_FILE = YES;
 			INFOPLIST_KEY_CFBundleDisplayName = "Cuenta Conmigo";
-			INFOPLIST_KEY_NSCameraUsageDescription = "La cámara se usa para escanear el telegrama o acta de tu mesa.";
+			INFOPLIST_KEY_NSCameraUsageDescription = "La cámara se usa para escanear el telegrama o acta de tu mesa."; INFOPLIST_FILE = Config/Info.plist; INFOPLIST_KEY_NSLocalNetworkUsageDescription = "La red local se usa para enviar capturas al servidor de lectura de tu equipo.";
 			INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES; INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 			INFOPLIST_KEY_UILaunchScreen_Generation = YES; INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 			LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks"; MARKETING_VERSION = 0.2.0;
@@ -45,7 +45,7 @@
 			CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 2; DEVELOPMENT_TEAM = MH86268VUR;
 			ENABLE_PREVIEWS = YES; GENERATE_INFOPLIST_FILE = YES;
 			INFOPLIST_KEY_CFBundleDisplayName = "Cuenta Conmigo";
-			INFOPLIST_KEY_NSCameraUsageDescription = "La cámara se usa para escanear el telegrama o acta de tu mesa.";
+			INFOPLIST_KEY_NSCameraUsageDescription = "La cámara se usa para escanear el telegrama o acta de tu mesa."; INFOPLIST_FILE = Config/Info.plist; INFOPLIST_KEY_NSLocalNetworkUsageDescription = "La red local se usa para enviar capturas al servidor de lectura de tu equipo.";
 			INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES; INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 			INFOPLIST_KEY_UILaunchScreen_Generation = YES; INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 			LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks"; MARKETING_VERSION = 0.2.0;

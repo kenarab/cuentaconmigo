@@ -83,14 +83,34 @@ final class CaptureStore {
         }
     }
 
-    /// Only drafts can be deleted; confirmed evidence stays.
-    func deleteDraft(_ capture: Capture) {
-        guard !capture.isLocked else { return }
+    /// Receipts of every submission to the server, appended and never removed.
+    func receiptsURL(for id: UUID) -> URL { folder(for: id).appendingPathComponent("receipts.jsonl") }
+
+    /// A capture sent to the server is proof of what was submitted: it can no longer be deleted.
+    func wasSent(_ capture: Capture) -> Bool { fm.fileExists(atPath: receiptsURL(for: capture.id).path) }
+
+    func appendReceipt(_ receipt: Data, for id: UUID) {
+        let url = receiptsURL(for: id)
+        let line = receipt + Data("\n".utf8)
+        if let handle = try? FileHandle(forWritingTo: url) {
+            handle.seekToEndOfFile()
+            handle.write(line)
+            try? handle.close()
+        } else {
+            try? line.write(to: url, options: [.completeFileProtection])
+        }
+        captures = captures  // refresh views that depend on wasSent
+    }
+
+    /// Unsent captures (drafts or confirmed) can be deleted; sent ones are kept as proof.
+    func delete(_ capture: Capture) {
+        guard !wasSent(capture) else { return }
         try? fm.removeItem(at: folder(for: capture.id))
         captures.removeAll { $0.id == capture.id }
     }
 
     func exportURLs(for capture: Capture) -> [URL] {
         [jsonURL(for: capture.id)] + capture.pages.map { pageURL($0, of: capture.id) }
+            + (wasSent(capture) ? [receiptsURL(for: capture.id)] : [])
     }
 }

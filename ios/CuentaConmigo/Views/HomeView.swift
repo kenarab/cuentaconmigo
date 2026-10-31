@@ -4,6 +4,7 @@ import TelegramaCore
 struct HomeView: View {
     @Environment(CaptureStore.self) private var store
     @State private var path: [UUID] = []
+    @State private var pendingDelete: Capture?
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -22,11 +23,9 @@ struct HomeView: View {
                     }
                     ForEach(store.captures) { capture in
                         NavigationLink(value: capture.id) { CaptureRow(capture: capture) }
-                            .deleteDisabled(capture.isLocked)
+                            .deleteDisabled(store.wasSent(capture))
                     }
-                    .onDelete { offsets in
-                        offsets.map { store.captures[$0] }.forEach(store.deleteDraft)
-                    }
+                    .onDelete { offsets in pendingDelete = offsets.first.map { store.captures[$0] } }
                 }
                 Section {
                 } footer: {
@@ -37,6 +36,15 @@ struct HomeView: View {
                 }
             }
             .navigationTitle("Cuenta Conmigo")
+            .confirmationDialog(pendingDelete?.isLocked == true ? "Esta evidencia no se envió. Si la borrás, se pierde."
+                                                                 : "Se borran la captura y sus imágenes de este teléfono.",
+                                isPresented: Binding(get: { pendingDelete != nil }, set: { if !$0 { pendingDelete = nil } }),
+                                titleVisibility: .visible) {
+                Button(pendingDelete?.isLocked == true ? "Borrar igual" : "Borrar", role: .destructive) {
+                    if let capture = pendingDelete { store.delete(capture) }
+                    pendingDelete = nil
+                }
+            }
             .navigationDestination(for: UUID.self) { id in
                 CaptureEditorView(captureID: id)
             }
