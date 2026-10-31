@@ -6,3 +6,4 @@ app/src/main/jniLibs/
 app/src/main/java/uniffi/
 # Official sample telegrams carry personal data (copied at build time)
 app/src/main/assets/samples/
+.kotlin/

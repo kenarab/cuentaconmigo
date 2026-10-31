@@ -1,6 +1,6 @@
 # SPEC · Núcleo compartido en Rust (iOS y Android)
 
-Estado: **en implementación** (decisión del autor AA-7, 31/10/2026). Rama
+Estado: **fases 1 a 5 hechas; la 6 (iOS) queda para la Mac** (decisión del autor AA-7, 31/10/2026). Rama
 `claude/shared-core-claude`, worktree `../cuentaconmigo-shared-core-claude`. El autor
 suspendió los otros desarrollos para esta tarea. Relacionada con
 [app-architecture](../app-architecture/SPEC.md), [mobile-platform](../mobile-platform/SPEC.md),
@@ -55,3 +55,28 @@ depender del sistema.
 - **Revisión:** autocontrol. No hay revisión independiente todavía.
 - **Parada:** si un vector del contrato no se puede reproducir, se consulta al autor
   antes de cambiar el contrato.
+
+## 5. Estado y verificación (31/10/2026)
+
+| Fase | Estado | Evidencia |
+| --- | --- | --- |
+| 1 | Hecha | `cargo test`: `validation.json` y `digits.json` al 100 %, ida y vuelta del ejemplo, confirmación y bloqueo |
+| 2 | Hecha | `capture-flow.json` 54/54 en el intérprete Rust |
+| 3 | Hecha | Guardado, regla de borrado y nómina probados. Ida y vuelta real contra el servidor público: alta, envío, comprobante, lecturas y OCR |
+| 4 | Hecha | Bindings Kotlin y Swift generados por UniFFI (`scripts/core/build-android.sh`; `build-ios.sh` corre en la Mac). `.so` para arm64-v8a y x86_64 |
+| 5 | Hecha, sin prueba en dispositivo | APK debug (`android/app/build/outputs/apk/debug/app-debug.apk`). 3 pruebas JVM recorren los mismos bindings Kotlin de punta a punta contra el servidor público. No hay emulador: el equipo no tiene KVM |
+| 6 | Pendiente (Mac) | Reemplazar TelegramaCore por el núcleo: `scripts/core/build-ios.sh` genera `ios/CCCore/` (XCFramework + `cc_core.swift`); `CaptureStore`, `ScrutinyClient`, `PollingPlaces` y la validación pasan a llamar a `Core` |
+| 7 | En curso | PR de `claude/shared-core-claude` a `main` |
+
+**Regla que pasó al núcleo:** confirmar exige al menos una imagen. Antes lo controlaba
+sólo la pantalla; ahora vale en todas las plataformas, igual que la guarda `hasPages` del
+flujo.
+
+**Duplicación que queda:**
+- las pantallas de cada plataforma, que es lo buscado;
+- la doble carga mínima de F-3, que todavía se compara en la pantalla. Se puede pasar a
+  `FlowSession`.
+
+**Distribución:** el APK incluye los telegramas oficiales de Andy, que tienen datos
+personales, como en los builds de iOS del equipo. No se publica en GitHub. Para
+distribuirlo afuera del equipo, se compila sin `assets/samples/`.
