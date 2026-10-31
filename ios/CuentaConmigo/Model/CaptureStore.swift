@@ -60,6 +60,21 @@ final class CaptureStore {
     func jsonURL(for id: UUID) -> URL { folder(for: id).appendingPathComponent("capture.json") }
     func pageURL(_ page: Page, of id: UUID) -> URL { folder(for: id).appendingPathComponent(page.file) }
 
+    /// Values corrected by the person during the visual check (including the written TOTAL,
+    /// which is not a form field). Local to the phone, outside the evidence package; they
+    /// always win over automatic readings.
+    func reviewCorrections(for id: UUID) -> [String: Int?] {
+        guard let data = try? Data(contentsOf: folder(for: id).appendingPathComponent("review-corrections.json")),
+              let map = try? JSONDecoder().decode([String: Int?].self, from: data) else { return [:] }
+        return map
+    }
+
+    func saveReviewCorrections(_ map: [String: Int?], for id: UUID) {
+        guard let data = try? JSONEncoder().encode(map) else { return }
+        try? data.write(to: folder(for: id).appendingPathComponent("review-corrections.json"),
+                        options: [.atomic, .completeFileProtection])
+    }
+
     func template(for capture: Capture) -> FormTemplate { templates[capture.templateId] ?? template }
 
     func create(documentType: DocumentType = .telegrama) -> Capture {

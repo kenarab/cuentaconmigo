@@ -8,6 +8,8 @@ struct ReadingReviewView: View {
     let imageURL: URL
     let readings: ScrutinyClient.ReadingSet
     let template: FormTemplate
+    /// Corrections confirmed earlier by the person; they take priority over every reading.
+    var savedCorrections: [String: Int?] = [:]
     /// Current value of a field in the capture (the person's edits win over the reading).
     let currentValue: (String) -> Int?
     /// Called when the person confirms the check and saves.
@@ -17,6 +19,8 @@ struct ReadingReviewView: View {
     struct Result {
         var accepted: [String: Int] = [:]
         var corrected: [String: Int?] = [:]
+        /// Every correction made on the image so far, to be kept with the capture.
+        var allCorrections: [String: Int?] = [:]
     }
 
     @Environment(\.dismiss) private var dismiss
@@ -27,6 +31,7 @@ struct ReadingReviewView: View {
     /// Corrections made on the image; applied to the capture only on "Guardar".
     @State private var corrections: [String: Int?] = [:]
     @State private var showSummary = false
+    @State private var loaded = false
 
     private var image: UIImage? { UIImage(contentsOfFile: imageURL.path) }
 
@@ -69,6 +74,11 @@ struct ReadingReviewView: View {
                 Text("Escribí el número tal como figura en el telegrama.")
             }
             .sheet(isPresented: $showSummary) { summary.presentationDetents([.medium, .large]) }
+            .onAppear {
+                guard !loaded else { return }
+                corrections = savedCorrections.merging(corrections) { _, new in new }
+                loaded = true
+            }
         }
     }
 
@@ -87,10 +97,11 @@ struct ReadingReviewView: View {
         guard let total = shown(ref: "total.\(category)") else {
             return (false, "Control escrito: no se leyó el TOTAL; corregilo sobre la imagen")
         }
+        let byHand = corrections["total.\(category)"] != nil ? " (total corregido por vos)" : ""
         if missing == 0 && sum == total {
-            return (true, "Control escrito: suma \(sum) = total \(total) · documento OK")
+            return (true, "Control escrito: suma \(sum) = total \(total)\(byHand) · documento OK")
         }
-        return (false, "Control escrito: suma \(sum)\(missing > 0 ? " (faltan \(missing))" : "") ≠ total \(total) · no cierra")
+        return (false, "Control escrito: suma \(sum)\(missing > 0 ? " (faltan \(missing))" : "") ≠ total \(total)\(byHand) · no cierra")
     }
 
     private func change(ref: String, to value: Int?) -> String {
@@ -111,6 +122,7 @@ struct ReadingReviewView: View {
 
     private var result: Result {
         var r = Result()
+        r.allCorrections = corrections
         for ref in missingRefs { if let corrected = corrections[ref] { r.corrected[ref] = corrected } }
         for reading in readings.fields {
             if let corrected = corrections[reading.ref] {

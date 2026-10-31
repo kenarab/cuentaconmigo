@@ -53,6 +53,7 @@ struct CaptureEditorView: View {
             if let capture, let readingSet, let page = capture.pages.first {
                 ReadingReviewView(imageURL: store.pageURL(page, of: capture.id), readings: readingSet,
                                   template: template,
+                                  savedCorrections: store.reviewCorrections(for: capture.id),
                                   currentValue: { ref in key(for: ref).flatMap { value(for: $0) } },
                                   onSave: applyReview)
             }
@@ -408,6 +409,7 @@ struct CaptureEditorView: View {
     /// Applies a confirmed visual check: corrected values as typed by the person, the rest
     /// as accepted readings, never overwriting what the person had already loaded.
     private func applyReview(_ result: ReadingReviewView.Result) {
+        if let id = capture?.id { store.saveReviewCorrections(result.allCorrections, for: id) }
         for (ref, value) in result.corrected {
             if let key = key(for: ref) { set(value, for: key, origin: .manual) }
         }
