@@ -1,7 +1,8 @@
 # SPEC · Deliberación ciudadana de propuestas de regulación
 
 Estado: **propuesta; decisiones DL-1 a DL-4 pendientes del autor.** Fecha: 31/10/2026.
-Eje: **E. Propuestas y regulación** de la [visión](../vision/SPEC.md).
+Eje: **E. Propuestas y regulación** de la [visión](../vision/SPEC.md). Es el motor de
+consensos de la [red ciudadana](../civic-network/SPEC.md).
 Chequeo de `electoral_counsel`: **pendiente**.
 
 ## Problema

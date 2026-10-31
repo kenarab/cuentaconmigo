@@ -13,6 +13,9 @@ afuera lo que hacen y convertir esa medición en presión pública.**
 
 ## Lo que no hacemos
 
+- No actuamos directamente frente a las plataformas. Las herramientas miden y
+  documentan; qué se hace con esa evidencia (cartas, pedidos, propuestas) lo decide
+  la comunidad por consenso en la [red ciudadana](../civic-network/SPEC.md).
 - No usamos los botones de denuncia de las plataformas como estrategia.
 - No pedimos que se borren publicaciones de personas. Exigimos transparencia y que
   las plataformas cumplan la ley y sus propios compromisos.
@@ -27,7 +30,7 @@ afuera lo que hacen y convertir esa medición en presión pública.**
 | A2 | **Auditoría colectiva de publicidad electoral indebida** | Campañas de desinformación que se vuelven virales gracias a dinero destinado a las elecciones: anuncios pagos y amplificación paga de contenido falso, anuncios no declarados y anuncios durante la veda | Bibliotecas de anuncios públicas de cada plataforma, contrastadas con anuncios observados por voluntarios (A3) y con las rendiciones de gastos de campaña |
 | A3 | **Panel ciudadano de exposición** (donación de datos) | Qué le muestran los algoritmos a distintas personas: recomendaciones, anuncios y contenido electoral | Personas voluntarias donan, con consentimiento informado, capturas o sus propios datos. Explorar el **derecho de acceso** de la Ley 25.326 para pedirle a cada plataforma los datos que tiene de uno |
 | A4 | **Tablero público de plataformas** | Cumplimiento comparado: transparencia publicitaria, veda, tiempos de respuesta, compromisos asumidos ante la justicia electoral, acceso a datos para investigación | Resultados de A1–A3 con metodología pública y reproducible |
-| A5 | **Caja de herramientas de presión** | — | Informes con evidencia, cartas abiertas, pedidos de acceso a la información pública (Ley 27.275) sobre acuerdos del Estado con plataformas, presentaciones ante organismos, kit de prensa. **Todo contacto externo lo decide el autor** |
+| A5 | **Caja de herramientas de presión** (sólo se activa por consenso de la red) | — | Informes con evidencia, cartas abiertas, pedidos de acceso a la información pública (Ley 27.275) sobre acuerdos del Estado con plataformas, presentaciones ante organismos, kit de prensa. **Todo contacto externo lo decide el autor** |
 
 A1 reutiliza el núcleo de evidencia de la app (hash, fecha, cadena de custodia);
 ver D-EV-1 en la visión.

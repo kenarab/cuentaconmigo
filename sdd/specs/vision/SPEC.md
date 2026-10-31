@@ -1,31 +1,39 @@
-# SPEC · Visión: auditoría ciudadana integral del proceso electoral 2027
+# SPEC · Visión: una red ciudadana para cuidar el proceso democrático 2027
 
-Estado: **visión definida por el autor el 31/10/2026; prioridades y decisiones V-1 a V-3 pendientes.**
+Estado: **visión redefinida por el autor el 31/10/2026; decisiones V-1 a V-4 pendientes.**
 Esta SPEC está por encima de todas las demás: cada módulo se justifica por su aporte a esta visión.
 
 ## La idea en una frase
 
-Las elecciones en las que se elige presidente y se renueva el Congreso son la
-actividad más importante de la democracia, y **no pueden ser un negocio más para
-las plataformas**. CuentaConmigo construye herramientas ciudadanas **externas e
-independientes de las plataformas** para auditar todo el proceso electoral y
-generar presión pública que ponga a las plataformas al servicio de la democracia.
+La acción política que millones de personas hacemos en redes de grandes empresas se
+puede potenciar en una **red social ad hoc para cuidar la democracia**: un espacio
+ciudadano y no partidario donde debatir, **llegar a consensos y decidir modalidades
+de acción** para proteger el proceso electoral de 2027, en el que se elige presidente
+y se renueva el Congreso.
+
+**No es una herramienta de acción política partidaria, sino de cuidado del proceso
+democrático.** Producto central: [civic-network](../civic-network/SPEC.md).
 
 ## Principios
 
-1. **Herramientas externas, no denuncias internas.** No buscamos usar los botones de
-   "denunciar" que diseñan las plataformas. Construimos medición, evidencia y
-   escrutinio público propios, que las plataformas no controlan.
-2. **Presión pública basada en evidencia.** Cada afirmación sobre una plataforma se
-   apoya en evidencia verificable (capturas con hash y fecha, datos abiertos,
-   metodología pública y reproducible).
-3. **No partidario.** Auditamos el proceso y a las plataformas, no a los votantes ni a
-   un partido en particular. Las mismas reglas valen para todos los actores.
-4. **Integral.** Cubrimos todo el ciclo electoral, no sólo la noche del escrutinio.
-5. **Comunitario y abierto.** Código abierto, datos agregados abiertos, voluntariado
-   organizado y alianzas con la sociedad civil, el periodismo y la academia.
-6. **Privacidad primero.** La ciudadanía que aporta datos lo hace con consentimiento
-   informado, con minimización de datos y sin exponer a nadie (Ley 25.326).
+1. **Cuidar el proceso, no competir en él.** No hacemos campaña ni promovemos
+   candidaturas. Cuidamos las reglas de juego que comparten todas las fuerzas.
+2. **Todos los partidos, en igualdad.** Interactuamos con los partidos políticos y
+   admitimos a todos con las mismas herramientas, reglas y visibilidad.
+3. **Consenso antes que acción.** Frente a las plataformas (o a cualquier actor) no
+   actuamos directamente: toda acción es el resultado de discusiones y consensos
+   registrados en la red. Las modalidades iniciales son ejemplos; pueden surgir otras.
+4. **Herramientas propias, no las de las plataformas.** No dependemos de los botones
+   de denuncia de las plataformas. Medimos y documentamos con herramientas propias,
+   y la red decide qué hacer con esa evidencia.
+5. **Evidencia verificable.** Capturas con hash y fecha, datos abiertos y metodología
+   pública y reproducible.
+6. **Sin amplificación paga.** En nuestra red no se compra alcance y el orden de los
+   contenidos es transparente.
+7. **Comunitario y abierto.** Código abierto, datos agregados abiertos y alianzas con
+   la sociedad civil, el periodismo y la academia.
+8. **Privacidad primero.** Mínimos datos. La afinidad política es un dato sensible
+   (Ley 25.326) y no se le pide a nadie.
 
 ## Qué se elige en 2027 (a confirmar en `docs/legal/`)
 
@@ -33,15 +41,18 @@ Presidente y vicepresidente (con posible segunda vuelta), renovación parcial de
 Cámara de Diputados y del Senado. Quedan **abiertas**: si habrá PASO, la elección
 directa de parlamentarios del Mercosur y el calendario oficial.
 
-## Ejes y módulos
+## Ejes: herramientas que la red puede activar por consenso
 
-| Eje | Qué audita | Módulos (cada uno con su SPEC) |
+La red (deliberación y consensos) es el centro. Los ejes son herramientas y
+modalidades de acción que la comunidad decide usar:
+
+| Eje | Qué cuida | Módulos (cada uno con su SPEC) |
 | --- | --- | --- |
-| **A. Plataformas** (eje central) | Qué hacen las plataformas con la conversación electoral: uso indebido de publicidad electoral (desinformación viralizada con dinero de campaña), algoritmos, desinformación, cumplimiento de la veda y de sus propios compromisos | `platform-accountability` |
+| **A. Plataformas** | Qué hacen las plataformas con la conversación electoral: uso indebido de publicidad electoral (desinformación viralizada con dinero de campaña), algoritmos, desinformación, cumplimiento de la veda y de sus propios compromisos | `platform-accountability` |
 | **B. Desinformación** | Contenidos falsos virales sobre el proceso: detección, verificación y respuesta comunitaria; la evidencia alimenta al eje A | `misinformation-response` |
 | **C. Campaña** | Gasto y publicidad declarada vs. observada, plazos legales de campaña, debates presidenciales obligatorios | `campaign-watch` |
 | **D. Jornada y escrutinio** (cierre del proceso de auditoría ciudadana) | Telegramas y actas de cada mesa, cotejo con el escrutinio provisorio y el definitivo, proyección | `telegram-capture`, `amba-simulation` |
-| **E. Propuestas y regulación** | Convierte la evidencia en propuestas: la comunidad propone, discute y consolida iniciativas de regulación y de incidencia (por ejemplo, la cuenta de garantía electoral) | `civic-deliberation`, `reg-electoral-escrow` y las que surjan |
+| **E. Propuestas y regulación** | La comunidad propone, discute y consolida iniciativas de regulación y de incidencia (por ejemplo, la cuenta de garantía electoral) | `civic-deliberation`, `reg-electoral-escrow` y las que surjan |
 
 El escrutinio (D) cierra el proceso de auditoría ciudadana: es el final visible de un
 trabajo que empieza meses antes, cuando la campaña ya está corriendo en las plataformas.
@@ -63,9 +74,10 @@ pre-campaña ── campaña ── debates ── veda ── jornada ── es
 
 ## Decisiones pendientes del autor
 
-- V-1. Prioridad de construcción para la hackatón: propuesta, mostrar el **eje A**
-  (observatorio de plataformas) con un caso concreto y cerrar con el **eje D**
-  (prototipo de telegramas y simulación del AMBA) como cierre del proceso de auditoría ciudadana.
+- V-1. Prioridad para la hackatón: propuesta, mostrar la **red** con una deliberación
+  real en curso (por ejemplo, la cuenta de garantía electoral), una herramienta de
+  evidencia del eje A y, para cerrar el proceso de auditoría ciudadana, el eje D
+  (telegramas y simulación del AMBA).
 - V-2. ¿Nombre y marca? "CuentaConmigo" funciona para todo el proceso
   ("contá conmigo para cuidar la elección"); confirmar.
 - V-3. Alianzas a buscar: organizaciones de chequeo, sociedad civil, universidades
@@ -88,5 +100,6 @@ no encaja en ese rol tal como está planteado. Opciones:
 ## Criterios de aceptación de la visión
 
 1. Cada SPEC de módulo enlaza a esta visión e indica su eje.
-2. Ningún módulo depende de las herramientas de denuncia de las propias plataformas.
+2. Ningún módulo depende de las herramientas de denuncia de las propias plataformas,
+   y ninguna acción externa ocurre sin un consenso registrado en la red.
 3. Toda métrica sobre plataformas publica su metodología y sus datos agregados.
