@@ -21,7 +21,15 @@
       "execution": "ai",
       "access": "coordinate",
       "git_integration": true,
-      "delivery": "Scope, SDD, ownership, integration and handoff"
+      "delivery": "Scope, SDD, ownership, integration and handoff",
+      "skills": [
+        "sync",
+        "sdd-change",
+        "hitl-decisions",
+        "review-pr",
+        "contract-change",
+        "translate-docs"
+      ]
     },
     "electoral_counsel": {
       "instructions": ".agents/roles/electoral_counsel.md",
@@ -29,7 +37,11 @@
       "execution": "ai",
       "access": "read-only",
       "git_integration": false,
-      "delivery": "Continuous legal risk analysis and recommended lines of action"
+      "delivery": "Continuous legal and cybersecurity risk analysis and recommended lines of action",
+      "skills": [
+        "role-check",
+        "review-pipeline"
+      ]
     },
     "implementer": {
       "instructions": ".agents/roles/implementer.md",
@@ -37,7 +49,13 @@
       "execution": "ai",
       "access": "scoped-write",
       "git_integration": false,
-      "delivery": "Bounded agreed implementation and directed verification"
+      "delivery": "Bounded agreed implementation and directed verification",
+      "skills": [
+        "sdd-change",
+        "contract-change",
+        "ios-verify",
+        "translate-docs"
+      ]
     },
     "capture_engineer": {
       "instructions": ".agents/roles/capture_engineer.md",
@@ -45,7 +63,12 @@
       "execution": "ai",
       "access": "scoped-write",
       "git_integration": false,
-      "delivery": "Telegram capture, upload, integrity and processing pipeline"
+      "delivery": "Telegram capture, upload, integrity and processing pipeline",
+      "skills": [
+        "contract-change",
+        "ios-verify",
+        "sdd-change"
+      ]
     },
     "electoral_analyst": {
       "instructions": ".agents/roles/electoral_analyst.md",
@@ -53,7 +76,11 @@
       "execution": "ai",
       "access": "read-only",
       "git_integration": false,
-      "delivery": "Electoral law, telegram formats and scrutiny evidence"
+      "delivery": "Electoral law, telegram formats and scrutiny evidence",
+      "skills": [
+        "role-check",
+        "sdd-change"
+      ]
     },
     "trust_safety_analyst": {
       "instructions": ".agents/roles/trust_safety_analyst.md",
@@ -61,7 +88,11 @@
       "execution": "ai",
       "access": "read-only",
       "git_integration": false,
-      "delivery": "Misinformation response, abuse, privacy and threat model"
+      "delivery": "Misinformation response, abuse, privacy and threat model",
+      "skills": [
+        "role-check",
+        "review-pipeline"
+      ]
     },
     "ux_designer": {
       "instructions": ".agents/roles/ux_designer.md",
@@ -69,7 +100,12 @@
       "execution": "ai",
       "access": "scoped-write",
       "git_integration": false,
-      "delivery": "Mobile flows, accessibility and design acceptance criteria"
+      "delivery": "Mobile flows, accessibility and design acceptance criteria",
+      "skills": [
+        "review-pipeline",
+        "sdd-change",
+        "translate-docs"
+      ]
     },
     "reviewer": {
       "instructions": ".agents/roles/reviewer.md",
@@ -77,7 +113,13 @@
       "execution": "ai",
       "access": "read-only",
       "git_integration": false,
-      "delivery": "Independent findings against SPEC and evidence"
+      "delivery": "Independent findings against SPEC and evidence",
+      "skills": [
+        "review-pr",
+        "role-check",
+        "review-pipeline",
+        "ios-verify"
+      ]
     },
     "executor": {
       "instructions": ".agents/roles/executor.md",
@@ -85,7 +127,11 @@
       "execution": "commands",
       "access": "script-only",
       "git_integration": false,
-      "delivery": "Established commands, exit codes and artifacts; no model"
+      "delivery": "Established commands, exit codes and artifacts; no model",
+      "skills": [
+        "ios-verify",
+        "sync"
+      ]
     },
     "design_coordinator": {
       "instructions": ".agents/roles/design_coordinator.md",
@@ -93,7 +139,13 @@
       "execution": "ai",
       "access": "coordinate",
       "git_integration": true,
-      "delivery": "Human-in-the-loop decision pipeline: issues, comparisons, applied consensus"
+      "delivery": "Human-in-the-loop decision pipeline: issues, comparisons, applied consensus",
+      "skills": [
+        "hitl-decisions",
+        "review-pipeline",
+        "sdd-change",
+        "translate-docs"
+      ]
     },
     "consistency_reviewer": {
       "instructions": ".agents/roles/consistency_reviewer.md",
@@ -101,7 +153,12 @@
       "execution": "ai",
       "access": "scoped-write",
       "git_integration": false,
-      "delivery": "Detects and fixes inconsistencies across SPECs, decisions, registries and code; asks the owner when in doubt"
+      "delivery": "Detects and fixes inconsistencies across SPECs, decisions, registries and code; asks the owner when in doubt",
+      "skills": [
+        "sdd-change",
+        "translate-docs",
+        "role-check"
+      ]
     }
   }
 }

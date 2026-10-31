@@ -7,7 +7,7 @@ or infrastructure permissions are inherited.
 | Role | Responsibility | Access guidance |
 | --- | --- | --- |
 | planner | Scope, SPEC, task ownership, acceptance, handoff and Git integration | coordinate |
-| electoral_counsel | Continuous legal risk analysis of every decision; recommends lines of action; can block (⛔) until the owner decides | read-only (writes docs/legal, checks) |
+| electoral_counsel | Continuous legal and cybersecurity risk analysis of every decision; recommends lines of action; can block (⛔) until the owner decides | read-only (writes docs/legal, checks) |
 | design_coordinator | Human-in-the-loop decisions: opens issues for kenarab and andytow, compares answers, applies consensus | coordinate |
 | implementer | Bounded implementation of an agreed task | scoped-write |
 | capture_engineer | Telegram photo capture, upload, queueing and processing pipeline | scoped-write |
