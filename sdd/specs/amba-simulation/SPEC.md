@@ -77,6 +77,12 @@ alcanzada porque esa elección terminó, pero no debe presentarse como proyecci�
 una elección en curso. Cualquier uso con datos reales el día de la elección debe
 respetar esa ventana. Pendiente: chequeo de `electoral_counsel` de este cambio.
 
+## Propuesta de cierre de #3 (31/10/2026) · pendiente de aceptación del autor
+
+Confirmar S-1, S-2 y S-3 tal como están implementados (sección siguiente): web estática
+con mapa SVG propio (variante de S-1 sin MapLibre, para funcionar sin conexión),
+polígonos oficiales y modelo estratificado por razón de electores con IC 95 %.
+
 ## Implementación provisoria · 31/10/2026
 
 Con las recomendaciones ★ como provisorias hasta que se responda #3:

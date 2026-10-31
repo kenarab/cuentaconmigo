@@ -68,6 +68,14 @@ Estado: ✅ implementado (prototipo) · 🟡 parcial · 🎨 en prototipo de pan
 | F-50 | Evidencia preservada vs. copia publicable (datos tapados, sin EXIF) | participant-protection | PP-6 | P1 | 📝 |
 | F-51 | Inventario de datos y retención mínima | participant-protection | PP-7 | P1 | 📝 |
 
+## Propuesta de cierre de #1 (31/10/2026) · pendiente de aceptación del autor
+
+- **F-P0 = b:** se muestran funcionando el escrutinio guiado (F-01..F-05, F-16, F-17) y
+  la simulación del AMBA (F-10). La red, la identidad, la gobernanza y el backend se
+  presentan como visión, con sus SPECs (`docs/demo-guion.md`).
+- **F-ORD = e:** en paralelo. Andy con OCR y muestras (#19), Claude con app y backend
+  (#17, #18, #26) y el autor con la prueba en el iPhone y el guion (#21).
+
 ## Propuesta de alcance para la hackatón (P0)
 
 App de escrutinio con flujo guiado (F-01 a F-05), simulación del AMBA (F-10), una

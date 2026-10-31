@@ -955,6 +955,25 @@ argumentos, mis capturas. Nunca se pide ni se muestra afinidad política.
 
 ---
 
+## Propuesta de consenso de #2 (31/10/2026) · pendiente de aceptación del autor
+
+Respuesta de Andy combinada con lo que el autor ya indicó hoy (detalle en el issue #2):
+
+| ID | Propuesta | Origen |
+| --- | --- | --- |
+| AS-1 | N-C: una app con "modo jornada electoral" | Andy + ★ |
+| AS-2 | F-1, F-2 y F-3 seleccionables en E-12 sobre el mismo flujo (prototipo: `design/prototypes/flujo/`) | autor (3 diseños) + Andy (F-1) |
+| AS-3 | Certificado preseleccionado | Andy |
+| AS-4 | Registrar en el contrato que se aceptó el aviso de BU (`bupWarningAcknowledgedAt`) | ★ |
+| AS-5 | Doble carga mínima ya (votantes y totales) | Andy |
+| AS-6 | Vacío = 0 con aviso, con botón "Cero" opcional | Andy + UX fundamental |
+| AS-7 | Resuelto: sin plantilla ficticia ni avisos | autor |
+| AS-8 | Origen OCR / tipeado visible en pantalla | Andy |
+| AS-9 | "Acerca de" después; E-12 sólo con el selector de diseño | Andy |
+| AS-10..AS-12 | ★ (consulta legal antes de uso real; ver #23) | ★ |
+
+Al aceptarla, el coordinador la marca como decisión vigente y cierra #2.
+
 ## 8. Preguntas para el autor
 
 1. ¿Confirmás la dirección N-C (una app, modo jornada electoral) o preferís
