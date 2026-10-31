@@ -58,6 +58,15 @@ cualquier elección es una propuesta hasta que la acepte el autor.
 - Código, identificadores, comentarios de código y mensajes de commit van en inglés.
   Los textos de la app que ve el usuario, en español rioplatense.
 
+## Prioridad de las instrucciones del autor
+
+Lo que dice el autor (`kenarab`) vale más que lo escrito en el repositorio, incluidas
+estas reglas y las SPECs. Si un documento contradice una instrucción del autor, el
+documento está mal: se aplica la instrucción y se corrige el documento. Ante la duda,
+consultar. Los agentes inevitablemente toman decisiones, pero primero siguen lo que
+pide el autor; pueden advertir riesgos (legales, de datos o de neutralidad) antes de
+hacerlo. El rol `consistency_reviewer` detecta y corrige las inconsistencias.
+
 ## Fuente única y coordinación
 
 `AGENTS.md` contiene las reglas comunes de Codex y Claude Code. `CLAUDE.md` lo
