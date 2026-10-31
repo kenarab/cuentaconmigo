@@ -23,6 +23,8 @@ struct CaptureEditorView: View {
     @State private var step = 0
     @AppStorage("presentation") private var presentation = Presentation.split
     @State private var serverStatus: String?
+    @State private var readingSet: ScrutinyClient.ReadingSet?
+    @State private var showReview = false
     @FocusState private var focus: FieldKey?
 
     private var template: FormTemplate { store.template }
@@ -45,6 +47,16 @@ struct CaptureEditorView: View {
         .sheet(item: $viewing) { PageViewer(url: $0) }
         .sheet(isPresented: $showDoubleEntry) {
             if let capture { DoubleEntryView(template: template, capture: capture) }
+        }
+        .fullScreenCover(isPresented: $showReview) {
+            if let capture, let readingSet, let page = capture.pages.first {
+                ReadingReviewView(imageURL: store.pageURL(page, of: capture.id), readings: readingSet,
+                                  template: template,
+                                  currentValue: { ref in key(for: ref).flatMap { value(for: $0) } },
+                                  onEdit: { ref, newValue in
+                                      if let key = key(for: ref) { set(newValue, for: key, origin: .manual) }
+                                  })
+            }
         }
         .sheet(isPresented: $showServer) {
             ServerSettingsView(appVersion: CaptureStore.appInfo.version) { Task { await readWithServer() } }
@@ -197,6 +209,11 @@ struct CaptureEditorView: View {
                     }
                     if let serverStatus {
                         Text(serverStatus).font(.footnote).foregroundStyle(.secondary)
+                    }
+                    if readingSet != nil {
+                        Button { showReview = true } label: {
+                            Label("Cotejar sobre la imagen", systemImage: "rectangle.and.text.magnifyingglass")
+                        }
                     }
                 }
                 if !SampleTelegram.all.isEmpty {
@@ -374,7 +391,7 @@ struct CaptureEditorView: View {
                     var seen = Set(detectedNumbers)
                     detectedNumbers += result.numbers.filter { seen.insert($0).inserted }
                     serverStatus = filled > 0
-                        ? "Listo: el servidor completó \(filled) campos. Revisalos contra la imagen y corregí lo que haga falta."
+                        ? "Listo: el servidor completó \(filled) campos. Cotejalos sobre la imagen."
                         : result.numbers.isEmpty
                         ? "El servidor no encontró números. Cargalos mirando la imagen."
                         : "Listo: el servidor sugirió \(result.numbers.count) números. Revisalos contra la imagen."
@@ -393,24 +410,33 @@ struct CaptureEditorView: View {
     private func fillFromReadings(_ current: Capture, client: ScrutinyClient) async -> Int {
         guard let page = current.pages.first,
               let jpeg = try? Data(contentsOf: store.pageURL(page, of: current.id)),
-              let readings = try? await client.readings(jpeg: jpeg, templateId: current.templateId) else { return 0 }
+              var readings = try? await client.readings(jpeg: jpeg, templateId: current.templateId) else { return 0 }
+        // Only cells of this form can be checked on the image.
+        readings = ScrutinyClient.ReadingSet(image: readings.image, alignment: readings.alignment,
+                                             fields: readings.fields.filter { key(for: $0.ref) != nil },
+                                             masks: readings.masks)
         var filled = 0
-        for reading in readings {
-            guard let value = reading.value else { continue }
-            let parts = reading.ref.split(separator: ".").map(String.init)
-            let key: FieldKey
-            if parts.count == 2, parts[0] == "header", template.headerFields.contains(where: { $0.id == parts[1] }) {
-                key = .header(parts[1])
-            } else if parts.count == 3, parts[0] == "cells",
-                      template.categories.contains(where: { $0.id == parts[1] }),
-                      template.rows.contains(where: { $0.id == parts[2] }) {
-                key = .cell(parts[1], parts[2])
-            } else { continue }
-            guard self.value(for: key) == nil else { continue }
+        for reading in readings.fields {
+            guard let value = reading.value, let key = key(for: reading.ref), self.value(for: key) == nil else { continue }
             set(value, for: key, origin: .ocrAccepted)
             filled += 1
         }
+        readingSet = readings.fields.isEmpty ? nil : readings
+        if readingSet != nil { showReview = true }
         return filled
+    }
+
+    /// Field of this form for a contract reference such as "cells.presidente.blanco".
+    private func key(for ref: String) -> FieldKey? {
+        let parts = ref.split(separator: ".").map(String.init)
+        if parts.count == 2, parts[0] == "header", template.headerFields.contains(where: { $0.id == parts[1] }) {
+            return .header(parts[1])
+        }
+        if parts.count == 3, parts[0] == "cells", template.categories.contains(where: { $0.id == parts[1] }),
+           template.rows.contains(where: { $0.id == parts[2] }) {
+            return .cell(parts[1], parts[2])
+        }
+        return nil
     }
 
     /// Loads a bundled demo telegram and fills the table identification (F-17).

@@ -47,18 +47,27 @@ struct ScrutinyClient {
     }
 
     /// One per-cell reading aligned to the printed form (POST /v1/readings, form-layouts SPEC).
+    /// Boxes are [x, y, width, height] in pixels of the image that was sent.
     struct Reading: Decodable {
         let ref: String
         let value: Int?
         let confidence: Double
+        let cellBox: [Int]
+        let valueBox: [Int]?
+    }
+
+    struct ReadingSet: Decodable {
+        struct Size: Decodable { let width: Int; let height: Int }
+        struct Alignment: Decodable { let ok: Bool; let anchorsUsed: Int }
+        let image: Size
+        let alignment: Alignment
+        let fields: [Reading]
+        let masks: [[Int]]?
     }
 
     /// Reads one page image; nothing is stored on the server. Values are suggestions.
-    func readings(jpeg: Data, templateId: String) async throws -> [Reading] {
-        struct Reply: Decodable { let fields: [Reading] }
-        let reply: Reply = try await send("POST", "v1/readings?templateId=\(templateId)", body: jpeg,
-                                          contentType: "image/jpeg")
-        return reply.fields
+    func readings(jpeg: Data, templateId: String) async throws -> ReadingSet {
+        try await send("POST", "v1/readings?templateId=\(templateId)", body: jpeg, contentType: "image/jpeg")
     }
 
     func ocr(captureID: UUID) async throws -> OCRResult {
