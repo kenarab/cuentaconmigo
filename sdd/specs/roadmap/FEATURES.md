@@ -28,7 +28,7 @@ Estado: ✅ implementado (prototipo) · 🟡 parcial · 🎨 en prototipo de pan
 | F-14 | Modo planificación para fiscales que cubren varias mesas, con avisos de capturas de terceros | fiscal-planning | FP-1…FP-6 | P1 | 📝 |
 | F-15 | Sugerir el establecimiento con la ubicación pedida a demanda (nunca en segundo plano, sin guardarla) | telegram-capture, app-screens | dataset de establecimientos (Q1) | P1 | 📝 |
 | F-16 | Identificar la mesa con listas desplegables en cascada y autocompletado (UX fundamental) | telegram-capture, app-screens | nómina de establecimientos (Q1) | P0 | 📝 |
-| F-17 | Modo demostración: elegir entre 10 telegramas de ejemplo generados con cifras reales 2023, que completan la mesa | telegram-capture | contrato `sample` | P0 | 📝 |
+| F-17 | Modo demostración: elegir un telegrama oficial de ejemplo (muestras de Andy, fuera de Git) que completa la mesa | telegram-capture | contrato `sample` | P0 | 🟡 |
 
 ## Red ciudadana (producto central)
 

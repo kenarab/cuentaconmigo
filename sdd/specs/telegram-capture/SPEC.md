@@ -98,25 +98,29 @@ Identificar la mesa no debe requerir tipear códigos:
 - La geolocalización a pedido (ver abajo) es un atajo más. Las listas siguen siendo el
   camino principal.
 
-## Modo demostración con 10 telegramas de ejemplo (pedido del autor, 31/10/2026)
+## Modo demostración con telegramas reales de ejemplo (pedido del autor, 31/10/2026)
 
-Para probar la app sin papeles reales:
+Para probar la app sin tener papeles a mano:
 
-- En el escaneo, una opción **"Usar un telegrama de ejemplo"** abre una galería de 10
-  telegramas. Al elegir uno, la app **completa sola** la identificación de la mesa
-  (distrito, sección, circuito, establecimiento y mesa) y deja las cifras para cargar
-  o para probar el OCR.
-- **Contenido de los ejemplos:** telegramas **generados** con el formato de 2023 y
-  las cifras **reales por mesa** de las generales 2023 de mesas del AMBA, con nombres
-  y firmas **inventados** o en blanco. No se usan imágenes reales con datos de
-  personas: los ejemplos van dentro de la app y del repo (AGENTS.md: sólo datos
-  ficticios o anonimizados).
-- Cada ejemplo tiene su archivo de respuesta esperada, para medir el OCR, y queda
-  rotulado "Ejemplo 2023" en la captura y en el paquete exportado (`sample: true`).
-  Ese campo nuevo del contrato pasa por `contract-change`.
-- Selección de mesas: estratificada entre CABA, primer cordón y segundo cordón. Se
-  incluyen casos con avisos de validación (suma que no coincide, campo vacío) para
-  probar los mensajes.
+- En la sección Documento, un menú **"Usar un ejemplo"** lista los telegramas
+  oficiales que transcribió Andy (`data/ocr-samples/`: balotaje 2015 y PASO 2017).
+  Al elegir uno, la app agrega la imagen y **completa sola** la identificación de la
+  mesa (distrito, sección, circuito y mesa). Las cifras quedan para cargar o para
+  probar el OCR. **No se usan datos sintéticos** (instrucción del autor).
+- **Fuera de Git:** las imágenes tienen nombres, firmas y DNI de personas reales y el
+  repositorio es público. `scripts/samples/fetch_ocr_samples.py` las descarga de las
+  URLs oficiales o de Internet Archive, verifica el SHA-256 del manifiesto de Andy,
+  convierte la página 1 a JPEG y las deja en `ios/CuentaConmigo/Resources/Samples/`,
+  carpeta ignorada por Git. `ios/scripts/install-device.sh` lo corre antes de compilar.
+- La página se registra con `source: "sample"` (contrato), para que nunca se confunda
+  con evidencia real.
+- **Límites actuales:**
+  - La app usa la plantilla `generales-2023`, mientras que los ejemplos son de 2015
+    y 2017: las filas de agrupaciones no coinciden. Elegir la plantilla según la
+    elección del ejemplo queda como mejora.
+  - No hay todavía telegramas de 2023 en la muestra.
+  - Uno de los 15 PDF (`2017/020600450_00222.pdf`) no está disponible en Internet
+    Archive.
 
 ## Sugerencia de establecimiento por ubicación, a pedido (pedido del autor, 31/10/2026)
 

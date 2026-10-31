@@ -131,6 +131,15 @@ struct CaptureEditorView: View {
                 PhotosPicker(selection: $photoItems, matching: .images) {
                     Label("Importar desde Fotos", systemImage: "photo.on.rectangle")
                 }
+                if !SampleTelegram.all.isEmpty {
+                    Menu {
+                        ForEach(SampleTelegram.all) { sample in
+                            Button(sample.label) { Task { await use(sample) } }
+                        }
+                    } label: {
+                        Label("Usar un ejemplo 2023", systemImage: "doc.text.image")
+                    }
+                }
             }
         }
     }
@@ -263,6 +272,17 @@ struct CaptureEditorView: View {
         for jpeg in jpegs { found += await TextRecognizer.numbers(in: jpeg) }
         var seen = Set(detectedNumbers)
         detectedNumbers += found.filter { seen.insert($0).inserted }
+    }
+
+    /// Loads a bundled demo telegram and fills the table identification (F-17).
+    private func use(_ sample: SampleTelegram) async {
+        guard let jpeg = sample.imageData else {
+            message = "No se encontró el ejemplo."
+            return
+        }
+        try? capture?.setDocumentType(sample.documentType)
+        try? capture?.setMesa(sample.mesa)
+        await add([jpeg], source: .sample)
     }
 
     private func confirm(justification: String?) {

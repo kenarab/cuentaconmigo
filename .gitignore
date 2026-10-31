@@ -15,3 +15,6 @@ build/
 .private/
 .runtime/
 data/private/
+
+# Real sample telegrams with personal data (fetched by scripts/samples/fetch_ocr_samples.py)
+ios/CuentaConmigo/Resources/Samples/
