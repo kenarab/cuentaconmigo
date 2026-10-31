@@ -630,3 +630,16 @@ requisitos las mitigaciones no bloqueantes. Los ⛔ quedan para el autor.
   aceptan participar.
 - **Encuadre** (L5): se presenta como herramienta cívica de verificación, no como
   acompañamiento cívico oficial. Las preguntas quedan para un abogado o abogada.
+
+## Medición de base del OCR · 31/10/2026
+
+`scripts/ocr/baseline_tesseract.py` corre Tesseract 5 (español, ya instalado en el
+servidor, sin instalaciones nuevas) sobre las 14 muestras disponibles de
+`data/ocr-samples` a 300 dpi. Mide qué parte de los valores transcriptos aparece entre
+los números detectados en la página, que es la ayuda que la app muestra como fichas.
+
+- **Total: 399/551 = 72,4 %.** Por telegrama: 70–84 % en los PASO 2017 y 30–57 % en
+  los del balotaje 2015.
+- **Provisorio:** las celdas todavía no están confirmadas por personas (`borrador_ia`),
+  y los números chicos (0, 1, 2) pueden coincidir por azar. No mide la posición: falta
+  la extracción por regiones de la plantilla (SB-2) y una métrica por celda (SB-3).
