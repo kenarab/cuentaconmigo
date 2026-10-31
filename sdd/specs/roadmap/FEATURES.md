@@ -36,7 +36,9 @@ Estado: ✅ implementado (prototipo) · 🟡 parcial · 🎨 en prototipo de pan
 | F-22 | Medición de consenso y activación de modalidades de acción | civic-network | RC-2 | P1 | 📝 |
 | F-23 | Proponer funcionalidades de la app y decidirlas por consenso | civic-network | F-21, F-22 | P1 | 📝 |
 | F-24 | Cuentas institucionales de partidos en igualdad | civic-network | RC-3 | P2 | 📝 |
-| F-25 | Identidad seudónima y verificación de que se trata de una persona | civic-network, participant-protection | RC-5, PP-3 | P1 | 📝 |
+| F-25 | Identidad seudónima y verificación de que se trata de una persona | civic-network, participant-protection, trust-chain-identity | RC-5, PP-3, TC-1 | P1 | 📝 |
+| F-26 | Alta por QR en cadenas de confianza, niveles y cupos de invitación, contención de subredes maliciosas | trust-chain-identity | TC-1…TC-5 | P1 | 📝 |
+| F-27 | Registro de partidos con responsables identificados y alta de sus fiscales | trust-chain-identity, civic-network | RC-3, TC-6, TC-7 | P1 | 📝 |
 
 ## A · Plataformas
 
