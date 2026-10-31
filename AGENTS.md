@@ -29,6 +29,18 @@ cualquier elección es una propuesta hasta que la acepte el autor.
 - La aceptación de producto, las pruebas de campo y cualquier contacto con
   autoridades, partidos, medios o plataformas corresponden al autor.
 
+## Idioma
+
+- El proyecto se desarrolla y se discute **en español**. Las SPECs, los documentos,
+  las decisiones y las conversaciones con el autor se escriben en español, que es
+  la versión de referencia.
+- Todo documento tiene una **traducción automática al inglés** en
+  `translations/en/<misma ruta>`. Cada traducción indica en su encabezado el commit
+  del original y que en caso de diferencia vale el original en español.
+  Al cambiar un documento, regenerar su traducción en un commit propio.
+- Código, identificadores, comentarios de código y mensajes de commit van en inglés.
+  Los textos de la app que ve el usuario, en español rioplatense.
+
 ## Fuente única y coordinación
 
 `AGENTS.md` contiene las reglas comunes de Codex y Claude Code. `CLAUDE.md` lo
