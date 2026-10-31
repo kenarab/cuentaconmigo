@@ -19,10 +19,13 @@ Estado: ✅ implementado (prototipo) · 🟡 parcial · 🎨 en prototipo de pan
 | F-05 | Flujo guiado: aviso de Boleta Única → tipo → mesa → escaneo → carga | app-screens | AS-1, AS-2 | P0 | 🎨 |
 | F-06 | Sugerencias de OCR en el contexto de cada fila | app-screens | AS-2 | P1 | 📝 |
 | F-07 | Doble carga a ciegas (verificación cruzada) | app-screens | AS-5 | P1 | 📝 |
-| F-08 | Envío a recepción central | mobile-platform | D-003 | P1 | 📝 |
+| F-08 | Envío a recepción central | mobile-platform, scrutiny-backend | D-003, SB-1 | P1 | 📝 |
 | F-09 | Cotejo con el escrutinio provisorio y el definitivo | telegram-capture | F-08, datos oficiales | P2 | 📝 |
-| F-10 | Simulación geolocalizada del AMBA con proyección | amba-simulation | S-1, S-2, S-3 | P0 | 📝 |
+| F-10 | Simulación geolocalizada del AMBA con proyección | amba-simulation | S-1, S-2, S-3 | P0 | 🟡 |
 | F-11 | App Android nativa equivalente | mobile-platform | D-002 | P1 | 📝 |
+| F-12 | Backend local: ingesta de capturas, OCR en servidor, revisión humana y espejo oficial | scrutiny-backend | SB-1…SB-4 | P0 | 📝 |
+| F-13 | Conteo rápido propio sobre una muestra de mesas, antes que el oficial | scrutiny-backend, amba-simulation | SB-5, SB-6, S-3 | P1 | 📝 |
+| F-14 | Modo planificación para fiscales que cubren varias mesas, con avisos de capturas de terceros | fiscal-planning | FP-1…FP-6 | P1 | 📝 |
 
 ## Red ciudadana (producto central)
 
