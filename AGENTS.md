@@ -126,9 +126,15 @@ No copiar credenciales, conversaciones ni datos personales a este repo.
 - **Equipo:** el autor (`kenarab`) y Andy (`andytow`, colaborador en GitHub).
   Andy integra sus cambios mediante **pull requests** a `main`. Las sesiones de
   agentes del autor commitean y pushean directo a `main`.
-- **Sincronizar todo el tiempo:** `git pull --rebase origin main` antes de empezar
-  cada tarea y antes de cada push. Push inmediatamente después de cada commit
-  atómico. Revisar los PRs abiertos (`gh pr list`) al empezar a trabajar.
+- **Varias computadoras, varias personas y agentes a la vez:** al empezar **cada
+  tarea** ejecutar `scripts/sync.sh` (pull con rebase y autostash, con un resumen);
+  Claude Code lo hace solo con el hook `SessionStart` de `.claude/settings.json`, y
+  Codex y las personas lo corren a mano. Repetirlo antes de cada push. Push
+  inmediatamente después de cada commit atómico. Revisar los PRs abiertos
+  (`gh pr list`) y los issues asignados al empezar.
+- **No pisarse:** tomar la tarea en su issue y anunciar las rutas que se van a tocar;
+  un escritor por archivo; trabajos largos en rama `<persona|herramienta>/<tema>` con PR;
+  los archivos generados se regeneran desde su fuente. Guía para todos: [CONTRIBUTING.md](CONTRIBUTING.md).
 - Los conflictos se resuelven preservando el trabajo de ambos; ante una duda de
   contenido se consulta al autor, nunca se descarta un cambio ajeno.
 - Un PR de Andy se revisa contra su SPEC como cualquier otro cambio. Mergearlo es

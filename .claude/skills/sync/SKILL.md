@@ -10,7 +10,7 @@ del autor directo a `main`. Sincronizar **todo el tiempo**.
 
 1. `git status --short`: si hay cambios propios sin commitear, primero commitearlos
    atómicamente (rutas explícitas, nunca `git add .`).
-2. `git pull --rebase origin main`.
+2. `scripts/sync.sh` (pull con rebase y autostash; el hook SessionStart ya lo corre al iniciar la sesión).
    - Si hay conflicto: resolverlo preservando ambos trabajos. Si la decisión es de
      contenido (SPEC, regla, texto), detenerse y preguntar al autor.
 3. `gh pr list --state open`: informar PRs nuevos o actualizados en una línea cada uno.
