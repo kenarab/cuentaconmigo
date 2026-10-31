@@ -97,8 +97,16 @@ No copiar credenciales, conversaciones ni datos personales a este repo.
 
 ## Git e integración
 
-- Al primer trabajo diario, ejecutar `git fetch origin`, registrar fecha/zona/resultado.
-  Fetch no implica pull, merge, rebase o reset.
+- **Equipo:** el autor (`kenarab`) y Andy (`andytow`, colaborador en GitHub).
+  Andy integra sus cambios mediante **pull requests** a `main`. Las sesiones de
+  agentes del autor commitean y pushean directo a `main`.
+- **Sincronizar todo el tiempo:** `git pull --rebase origin main` antes de empezar
+  cada tarea y antes de cada push. Push inmediatamente después de cada commit
+  atómico. Revisar los PRs abiertos (`gh pr list`) al empezar a trabajar.
+- Los conflictos se resuelven preservando el trabajo de ambos; ante una duda de
+  contenido se consulta al autor, nunca se descarta un cambio ajeno.
+- Un PR de Andy se revisa contra su SPEC como cualquier otro cambio. Mergearlo es
+  decisión del autor, salvo que el autor autorice expresamente lo contrario.
 - Preservar cambios ajenos e índice. Commits atómicos en inglés: un propósito,
   rutas explícitas, diff staged revisado y comprobaciones proporcionadas.
   No usar `git add .`, `git add -A` ni añadir carpetas completas con trabajo ajeno.
