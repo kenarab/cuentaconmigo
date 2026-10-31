@@ -67,6 +67,23 @@ Ejemplos iniciales. Cada una se activa sólo por consenso:
 Cada modalidad define cómo se decide (umbral de consenso), quién ejecuta, qué
 evidencia necesita y qué chequeos legales requiere.
 
+## La app evoluciona por consenso
+
+La propia app es un objeto de deliberación. Dentro de la app se pueden **proponer y
+discutir nuevas funcionalidades e iniciativas**. Las que alcancen consenso entran al
+plan de una **nueva versión**:
+
+1. Propuesta de funcionalidad con la plantilla estructurada (problema, qué cambia, a
+   quién beneficia, riesgos y alternativas).
+2. Deliberación y medición del consenso, con las mismas reglas que cualquier iniciativa.
+3. Las propuestas con consenso pasan a una SPEC (flujo SDD) con el chequeo de
+   electoral_counsel y el pipeline de revisión.
+4. Se publica qué propuestas entraron en cada versión, y por qué otras no
+   (inviabilidad técnica o legal explicada).
+
+Las versiones iniciales (escaneo de telegramas y actas) las define el equipo; a partir
+de que exista la red, el plan de versiones se alimenta de estos consensos.
+
 ## Cómo se decide (borrador, RC-2)
 
 - Una iniciativa pasa a **acción** cuando reúne un consenso amplio: cantidad mínima
@@ -103,5 +120,6 @@ evidencia necesita y qué chequeos legales requiere.
 2. Todos los partidos tienen exactamente las mismas capacidades en la red, y eso
    se puede verificar con la documentación pública de reglas y permisos.
 3. No hay amplificación paga ni un orden opaco de contenidos.
-4. Cualquier participante puede proponer una nueva modalidad de acción.
+4. Cualquier participante puede proponer una nueva modalidad de acción o una nueva
+   funcionalidad de la app, y las que alcancen consenso entran al plan de versiones.
 5. Chequeos de electoral_counsel, neutrality, data_protection y trust_safety registrados.
