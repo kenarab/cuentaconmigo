@@ -10,6 +10,11 @@ y sus vectores, después cada implementación.
   `data/ocr-samples/`; `demo-2027` es **ficticia** y sólo se usa en los vectores.
 - `vectors/validation.json`: reglas de validación; resultados comparados como conjunto.
 - `vectors/digits.json`: normalización de texto OCR a enteros.
+- `flows/capture.flow.json`: flujo de captura como statechart declarativo, compartido por
+  las presentaciones F-1/F-2/F-3 ([app-architecture](../sdd/specs/app-architecture/SPEC.md)).
+  Semántica en `flows/README.md`, intérprete de referencia `flows/flow-machine.js`.
+- `vectors/capture-flow.json`: transiciones esperadas del flujo. Para correr todos los
+  vectores en JS: `node contracts/flows/run-vectors.js`.
 - `examples/`: ejemplos ficticios válidos.
 
 Vectores y ejemplos son ficticios. Las plantillas de 2015 y 2023 reproducen formularios

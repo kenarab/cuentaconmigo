@@ -1,7 +1,21 @@
 {
   "id": "capture",
   "version": 1,
-  "description": "Capture flow shared by every presentation (F-1 wizard, F-2 split view, F-3 double entry). See contracts/flows/README.md for semantics.",
+  "description": "Capture flow shared by every presentation (F-1 wizard, F-2 split view, F-3 double entry). One machine, three presentations: F-1 shows one leaf state per screen, F-2 renders the whole `editing` region in one split view and only uses the parent's events, F-3 is F-2 plus the optional branch handoff -> values2 -> compare. Semantics: contracts/flows/README.md.",
+  "presentations": {
+    "f1": { "label": "F-1 · Asistente paso a paso", "supportsDoubleEntry": false },
+    "f2": { "label": "F-2 · Imagen + campos", "supportsDoubleEntry": false },
+    "f3": { "label": "F-3 · Doble carga a ciegas", "supportsDoubleEntry": true }
+  },
+  "effects": {
+    "persistSettings": "Store the presentation choice outside the capture.",
+    "persist": "Write the draft (context) to local storage.",
+    "scan": "Open the native document scanner; the adapter answers with pagesAdded.",
+    "importPhotos": "Open the photo picker; the adapter answers with pagesAdded.",
+    "ocr": "Run on-device text recognition on the new pages; suggestions only.",
+    "hashEvidence": "Compute the SHA-256 of every page and of the package before locking.",
+    "export": "Open the system share sheet with the JSON package and the JPEG pages."
+  },
   "context": {
     "presentation": "f2",
     "documentType": null,
@@ -13,11 +27,12 @@
     "second": null,
     "mismatches": [],
     "doubleEntry": "none",
+    "sample": null,
     "locked": false
   },
   "initial": "bupWarning",
   "on": {
-    "setPresentation": { "actions": ["setPresentation"], "effects": ["persistSettings"] }
+    "setPresentation": { "guard": ["payloadHasPresentation"], "actions": ["setPresentation"], "effects": ["persistSettings"] }
   },
   "states": {
     "bupWarning": {
@@ -27,18 +42,23 @@
     "editing": {
       "initial": "documentType",
       "on": {
-        "chooseDocumentType": { "actions": ["setDocumentType"], "effects": ["persist"] },
-        "setMesa": { "actions": ["setMesa"], "effects": ["persist"] },
+        "chooseDocumentType": { "guard": ["payloadDocumentTypeAllowed"], "actions": ["setDocumentType"], "effects": ["persist"] },
+        "setMesa": { "guard": ["payloadHasMesa"], "actions": ["setMesa"], "effects": ["persist"] },
         "requestScan": { "effects": ["scan"] },
         "requestPhotos": { "effects": ["importPhotos"] },
         "pagesAdded": { "guard": ["payloadHasPages"], "actions": ["appendPages"], "effects": ["persist", "ocr"] },
-        "setValues": { "actions": ["setValues", "invalidateDoubleEntry"], "effects": ["persist"] },
+        "useSample": { "guard": ["payloadHasSample"], "actions": ["useSample"], "effects": ["persist", "ocr"] },
+        "removePage": { "guard": ["payloadHasPageId"], "actions": ["removePage"], "effects": ["persist"] },
+        "setValues": { "guard": ["payloadHasValues"], "actions": ["setValues", "invalidateDoubleEntry"], "effects": ["persist"] },
         "review": { "target": "validation" }
       },
       "states": {
         "documentType": {
           "screen": "E-03",
-          "on": { "next": { "target": "editing.mesa", "guard": ["documentTypeChosen"] } }
+          "on": {
+            "next": { "target": "editing.mesa", "guard": ["documentTypeChosen"] },
+            "back": { "target": "bupWarning" }
+          }
         },
         "mesa": {
           "screen": "E-04",
@@ -67,14 +87,23 @@
       "screen": "E-08",
       "on": {
         "edit": { "target": "editing.values" },
-        "setJustification": { "actions": ["setJustification"], "effects": ["persist"] },
+        "editMesa": { "target": "editing.mesa" },
+        "editPages": { "target": "editing.pages" },
+        "proceed": { "target": "confirming", "guard": ["hasPages", "noErrors", "!doubleEntryPending"] },
+        "requestDoubleEntry": { "target": "handoff", "guard": ["presentationSupportsDoubleEntry", "noErrors"], "actions": ["clearSecond"] },
+        "compareAgain": { "target": "compare", "guard": ["doubleEntryPending"], "actions": ["computeMismatches"] },
+        "cancelDoubleEntry": { "guard": ["doubleEntryPending"], "actions": ["clearSecond"], "effects": ["persist"] }
+      }
+    },
+    "confirming": {
+      "screen": "E-09",
+      "on": {
+        "setJustification": { "guard": ["payloadHasJustification"], "actions": ["setJustification"], "effects": ["persist"] },
         "confirm": [
           { "target": "confirmed", "guard": ["hasPages", "noErrors", "noWarnings", "!doubleEntryPending"], "actions": ["lock"], "effects": ["hashEvidence", "persist"] },
           { "target": "confirmed", "guard": ["hasPages", "noErrors", "justificationGiven", "!doubleEntryPending"], "actions": ["lock"], "effects": ["hashEvidence", "persist"] }
         ],
-        "requestDoubleEntry": { "target": "handoff", "guard": ["presentationSupportsDoubleEntry", "noErrors"], "actions": ["clearSecond"] },
-        "compareAgain": { "target": "compare", "guard": ["doubleEntryPending"], "actions": ["computeMismatches"] },
-        "cancelDoubleEntry": { "guard": ["doubleEntryPending"], "actions": ["clearSecond"], "effects": ["persist"] }
+        "back": { "target": "validation" }
       }
     },
     "handoff": {
@@ -87,7 +116,7 @@
     "values2": {
       "screen": "E-08c",
       "on": {
-        "setSecondValues": { "actions": ["setSecondValues"] },
+        "setSecondValues": { "guard": ["payloadHasSecondValues"], "actions": ["setSecondValues"] },
         "submitSecond": { "target": "compare", "guard": ["secondComplete"], "actions": ["computeMismatches"] },
         "cancelDoubleEntry": { "target": "validation", "actions": ["clearSecond"] }
       }
@@ -97,11 +126,12 @@
       "on": {
         "acceptMatch": { "target": "validation", "guard": ["entriesMatch"], "actions": ["markDoubleEntryMatched"], "effects": ["persist"] },
         "fixFirstEntry": { "target": "editing.values", "guard": ["!entriesMatch"], "actions": ["markDoubleEntryPending"] },
-        "retypeSecond": { "target": "handoff", "actions": ["clearSecond"] }
+        "retypeSecond": { "target": "handoff", "actions": ["clearSecond"] },
+        "cancelDoubleEntry": { "target": "validation", "actions": ["clearSecond"] }
       }
     },
     "confirmed": {
-      "screen": "E-09",
+      "screen": "E-10",
       "on": { "export": { "target": "exported", "effects": ["export"] } }
     },
     "exported": {

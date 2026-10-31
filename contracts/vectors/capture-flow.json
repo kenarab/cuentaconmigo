@@ -1,0 +1,589 @@
+{
+  "flow": "capture",
+  "template": "demo-2027",
+  "comparison": "Run `events` (after the optional `prelude`) from the initial state. `expectState` is the leaf path afterwards; `expectEffects` and `expectIgnored` describe the last event only; `expectContext` is matched as a partial deep structure (every listed key must match, arrays exactly). All data is fictitious.",
+  "preludes": {
+    "toEditing": ["acceptBup"],
+    "toValuesComplete": [
+      "acceptBup",
+      { "type": "chooseDocumentType", "payload": { "documentType": "certificado" } },
+      { "type": "setMesa", "payload": { "mesa": { "distrito": "99", "seccion": "001", "circuito": "0001A", "mesa": "00042" } } },
+      { "type": "pagesAdded", "payload": { "pages": [{ "id": "p1", "source": "scanner" }] } },
+      { "type": "setValues", "payload": {
+        "header": { "electores": 350, "votantes": 300 },
+        "cells": {
+          "presidente": { "lista-a": 120, "lista-b": 100, "lista-c": 60, "blanco": 10, "nulos": 7, "recurridos": 2, "impugnados": 1 },
+          "diputados": { "lista-a": 110, "lista-b": 95, "lista-c": 70, "blanco": 15, "nulos": 8, "recurridos": 1, "impugnados": 1 }
+        } } }
+    ],
+    "toValidationClean": [{ "prelude": "toValuesComplete" }, "review"],
+    "toValidationWarning": [
+      { "prelude": "toValuesComplete" },
+      { "type": "setValues", "payload": { "cells": { "presidente": { "lista-a": 121 } } } },
+      "review"
+    ],
+    "toValidationError": [
+      { "prelude": "toValuesComplete" },
+      { "type": "setValues", "payload": { "cells": { "diputados": { "lista-c": null } } } },
+      "review"
+    ],
+    "toCompareMatch": [
+      { "prelude": "toValidationClean" },
+      "requestDoubleEntry",
+      "secondReady",
+      { "type": "setSecondValues", "payload": { "votantes": 300, "totals": { "presidente": 300, "diputados": 300 } } },
+      "submitSecond"
+    ],
+    "toCompareMismatch": [
+      { "prelude": "toValidationClean" },
+      "requestDoubleEntry",
+      "secondReady",
+      { "type": "setSecondValues", "payload": { "votantes": 300, "totals": { "presidente": 310, "diputados": 300 } } },
+      "submitSecond"
+    ]
+  },
+  "cases": [
+    {
+      "name": "initial state is the BUP warning",
+      "events": [],
+      "expectState": "bupWarning",
+      "expectEffects": [],
+      "expectContext": { "presentation": "f2", "locked": false, "doubleEntry": "none" }
+    },
+    {
+      "name": "acceptBup enters editing through its initial child",
+      "events": ["acceptBup"],
+      "expectState": "editing.documentType",
+      "expectEffects": []
+    },
+    {
+      "name": "F-1 wizard: full happy path to confirmed",
+      "events": [
+        "acceptBup",
+        { "type": "chooseDocumentType", "payload": { "documentType": "telegrama" } },
+        "next",
+        { "type": "setMesa", "payload": { "mesa": { "distrito": "99", "seccion": "001", "circuito": "0001A", "mesa": "00042" } } },
+        "next",
+        { "type": "pagesAdded", "payload": { "pages": [{ "id": "p1", "source": "scanner" }] } },
+        "next",
+        { "type": "setValues", "payload": {
+          "header": { "electores": { "value": 350, "origin": "ocr-accepted" }, "votantes": 300 },
+          "cells": {
+            "presidente": { "lista-a": 120, "lista-b": 100, "lista-c": 60, "blanco": 10, "nulos": 7, "recurridos": 2, "impugnados": 1 },
+            "diputados": { "lista-a": 110, "lista-b": 95, "lista-c": 70, "blanco": 15, "nulos": 8, "recurridos": 1, "impugnados": 1 }
+          } } },
+        "next",
+        "proceed",
+        "confirm"
+      ],
+      "expectState": "confirmed",
+      "expectEffects": ["hashEvidence", "persist"],
+      "expectContext": {
+        "documentType": "telegrama",
+        "locked": true,
+        "header": { "electores": { "value": 350, "origin": "ocr-accepted" }, "votantes": { "value": 300, "origin": "manual" } }
+      }
+    },
+    {
+      "name": "F-1: requestScan is an internal transition with the scan effect",
+      "prelude": "toEditing",
+      "events": [
+        { "type": "chooseDocumentType", "payload": { "documentType": "acta" } },
+        "next",
+        { "type": "setMesa", "payload": { "mesa": { "distrito": "99", "seccion": "001", "circuito": "0001A", "mesa": "00042" } } },
+        "next",
+        "requestScan"
+      ],
+      "expectState": "editing.pages",
+      "expectEffects": ["scan"]
+    },
+    {
+      "name": "pagesAdded persists and asks for OCR",
+      "prelude": "toEditing",
+      "events": [{ "type": "pagesAdded", "payload": { "pages": [{ "id": "p1", "source": "photos" }, { "id": "p2", "source": "photos" }] } }],
+      "expectState": "editing.documentType",
+      "expectEffects": ["persist", "ocr"],
+      "expectContext": { "pages": [{ "id": "p1", "source": "photos" }, { "id": "p2", "source": "photos" }] }
+    },
+    {
+      "name": "pagesAdded ignores duplicate page ids",
+      "prelude": "toEditing",
+      "events": [
+        { "type": "pagesAdded", "payload": { "pages": [{ "id": "p1", "source": "scanner" }] } },
+        { "type": "pagesAdded", "payload": { "pages": [{ "id": "p1", "source": "scanner" }, { "id": "p2", "source": "scanner" }] } }
+      ],
+      "expectState": "editing.documentType",
+      "expectEffects": ["persist", "ocr"],
+      "expectContext": { "pages": [{ "id": "p1", "source": "scanner" }, { "id": "p2", "source": "scanner" }] }
+    },
+    {
+      "name": "removePage drops the page",
+      "prelude": "toEditing",
+      "events": [
+        { "type": "pagesAdded", "payload": { "pages": [{ "id": "p1", "source": "scanner" }, { "id": "p2", "source": "scanner" }] } },
+        { "type": "removePage", "payload": { "id": "p1" } }
+      ],
+      "expectState": "editing.documentType",
+      "expectEffects": ["persist"],
+      "expectContext": { "pages": [{ "id": "p2", "source": "scanner" }] }
+    },
+    {
+      "name": "useSample fills the mesa, adds sample pages and marks the capture",
+      "prelude": "toEditing",
+      "events": [{ "type": "useSample", "payload": { "sample": { "id": "ejemplo-01", "label": "Ejemplo 1", "mesa": { "distrito": "99", "seccion": "002", "circuito": "0002B", "establecimiento": "Escuela ficticia 1", "mesa": "00101" }, "pages": [{ "id": "s1-p1" }] } } }],
+      "expectState": "editing.documentType",
+      "expectEffects": ["persist", "ocr"],
+      "expectContext": {
+        "mesa": { "distrito": "99", "seccion": "002", "circuito": "0002B", "establecimiento": "Escuela ficticia 1", "mesa": "00101" },
+        "pages": [{ "id": "s1-p1", "source": "sample" }],
+        "sample": { "id": "ejemplo-01", "label": "Ejemplo 1" }
+      }
+    },
+    {
+      "name": "F-2: data in any order, then review from the editing region",
+      "prelude": "toEditing",
+      "events": [
+        { "type": "setValues", "payload": { "header": { "votantes": 300, "electores": 350 } } },
+        { "type": "pagesAdded", "payload": { "pages": [{ "id": "p1", "source": "scanner" }] } },
+        { "type": "setMesa", "payload": { "mesa": { "mesa": "00042", "distrito": "99", "seccion": "001", "circuito": "0001A" } } },
+        { "type": "chooseDocumentType", "payload": { "documentType": "certificado" } },
+        { "type": "setValues", "payload": { "cells": {
+          "presidente": { "lista-a": 120, "lista-b": 100, "lista-c": 60, "blanco": 10, "nulos": 7, "recurridos": 2, "impugnados": 1 },
+          "diputados": { "lista-a": 110, "lista-b": 95, "lista-c": 70, "blanco": 15, "nulos": 8, "recurridos": 1, "impugnados": 1 } } } },
+        "review",
+        "proceed"
+      ],
+      "expectState": "confirming",
+      "expectEffects": []
+    },
+    {
+      "name": "setValues with null clears a value",
+      "prelude": "toValuesComplete",
+      "events": [{ "type": "setValues", "payload": { "header": { "electores": null } } }],
+      "expectState": "editing.documentType",
+      "expectEffects": ["persist"],
+      "expectContext": { "header": { "votantes": { "value": 300, "origin": "manual" } } }
+    },
+    {
+      "name": "warning without justification: confirm ignored, then justified confirm succeeds",
+      "prelude": "toValidationWarning",
+      "events": [
+        "proceed",
+        "confirm",
+        { "type": "setJustification", "payload": { "justification": "El acta dice 301 votantes." } },
+        "confirm"
+      ],
+      "expectState": "confirmed",
+      "expectEffects": ["hashEvidence", "persist"],
+      "expectContext": { "locked": true, "justification": "El acta dice 301 votantes." }
+    },
+    {
+      "name": "confirming: back returns to validation",
+      "prelude": "toValidationClean",
+      "events": ["proceed", "back"],
+      "expectState": "validation",
+      "expectEffects": []
+    },
+    {
+      "name": "validation: edit goes back to the values editor",
+      "prelude": "toValidationError",
+      "events": [{ "type": "edit", "payload": { "path": "cells.diputados.lista-c" } }],
+      "expectState": "editing.values",
+      "expectEffects": []
+    },
+    {
+      "name": "validation: editMesa and editPages target their screens",
+      "prelude": "toValidationClean",
+      "events": ["editMesa", "review", "editPages"],
+      "expectState": "editing.pages",
+      "expectEffects": []
+    },
+    {
+      "name": "export after confirm, and export again from exported",
+      "prelude": "toValidationClean",
+      "events": ["proceed", "confirm", "export", "export"],
+      "expectState": "exported",
+      "expectEffects": ["export"]
+    },
+    {
+      "name": "setPresentation is handled at the root from any state",
+      "prelude": "toValidationClean",
+      "events": [{ "type": "setPresentation", "payload": { "presentation": "f3" } }],
+      "expectState": "validation",
+      "expectEffects": ["persistSettings"],
+      "expectContext": { "presentation": "f3" }
+    },
+    {
+      "name": "F-3: blind double entry that matches, then confirm",
+      "presentation": "f3",
+      "prelude": "toCompareMatch",
+      "events": ["acceptMatch", "proceed", "confirm"],
+      "expectState": "confirmed",
+      "expectEffects": ["hashEvidence", "persist"],
+      "expectContext": { "doubleEntry": "matched", "mismatches": [], "second": { "votantes": 300, "totals": { "presidente": 300, "diputados": 300 } }, "locked": true }
+    },
+    {
+      "name": "F-3: second entry can be typed in several steps",
+      "presentation": "f3",
+      "prelude": "toValidationClean",
+      "events": [
+        "requestDoubleEntry",
+        "secondReady",
+        { "type": "setSecondValues", "payload": { "votantes": 300 } },
+        { "type": "setSecondValues", "payload": { "totals": { "presidente": 300 } } },
+        { "type": "setSecondValues", "payload": { "totals": { "diputados": 300 } } },
+        "submitSecond"
+      ],
+      "expectState": "compare",
+      "expectEffects": [],
+      "expectContext": { "mismatches": [] }
+    },
+    {
+      "name": "F-3: mismatch is reported per path with both values",
+      "presentation": "f3",
+      "prelude": "toCompareMismatch",
+      "events": [],
+      "expectState": "compare",
+      "expectEffects": [],
+      "expectContext": { "mismatches": [{ "path": "cells.presidente", "first": 300, "second": 310 }], "doubleEntry": "none" }
+    },
+    {
+      "name": "F-3: retype the second entry after a mismatch",
+      "presentation": "f3",
+      "prelude": "toCompareMismatch",
+      "events": [
+        "retypeSecond",
+        "secondReady",
+        { "type": "setSecondValues", "payload": { "votantes": 300, "totals": { "presidente": 300, "diputados": 300 } } },
+        "submitSecond",
+        "acceptMatch"
+      ],
+      "expectState": "validation",
+      "expectEffects": ["persist"],
+      "expectContext": { "doubleEntry": "matched", "mismatches": [] }
+    },
+    {
+      "name": "F-3: fix the first entry, compare again, accept",
+      "presentation": "f3",
+      "prelude": "toCompareMismatch",
+      "events": [
+        "fixFirstEntry",
+        { "type": "setValues", "payload": { "header": { "votantes": 310 }, "cells": { "presidente": { "lista-a": 130 }, "diputados": { "lista-a": 120 } } } },
+        "next",
+        "compareAgain"
+      ],
+      "expectState": "compare",
+      "expectEffects": [],
+      "expectContext": { "doubleEntry": "pending", "mismatches": [{ "path": "header.votantes", "first": 310, "second": 300 }, { "path": "cells.diputados", "first": 310, "second": 300 }] }
+    },
+    {
+      "name": "F-3: while pending, proceed is ignored until the comparison is cancelled",
+      "presentation": "f3",
+      "prelude": "toCompareMismatch",
+      "events": ["fixFirstEntry", "next", "proceed", "cancelDoubleEntry", "proceed"],
+      "expectState": "confirming",
+      "expectEffects": [],
+      "expectContext": { "doubleEntry": "none", "second": null }
+    },
+    {
+      "name": "F-3: editing the first entry after a match voids the match",
+      "presentation": "f3",
+      "prelude": "toCompareMatch",
+      "events": ["acceptMatch", "edit", { "type": "setValues", "payload": { "cells": { "presidente": { "blanco": 11 } } } }],
+      "expectState": "editing.values",
+      "expectEffects": ["persist"],
+      "expectContext": { "doubleEntry": "none", "second": null, "mismatches": [] }
+    },
+    {
+      "name": "F-3: cancel from handoff goes back to validation",
+      "presentation": "f3",
+      "prelude": "toValidationClean",
+      "events": ["requestDoubleEntry", "cancelDoubleEntry"],
+      "expectState": "validation",
+      "expectEffects": [],
+      "expectContext": { "doubleEntry": "none", "second": null }
+    },
+
+    {
+      "name": "negative: next cannot skip the BUP warning",
+      "events": ["next"],
+      "expectState": "bupWarning",
+      "expectEffects": [],
+      "expectIgnored": true
+    },
+    {
+      "name": "negative: requestScan before accepting the BUP warning is ignored",
+      "events": ["requestScan"],
+      "expectState": "bupWarning",
+      "expectEffects": [],
+      "expectIgnored": true
+    },
+    {
+      "name": "negative: setValues before accepting the BUP warning is ignored",
+      "events": [{ "type": "setValues", "payload": { "header": { "votantes": 300 } } }],
+      "expectState": "bupWarning",
+      "expectEffects": [],
+      "expectIgnored": true,
+      "expectContext": { "header": {} }
+    },
+    {
+      "name": "negative: review before accepting the BUP warning is ignored",
+      "events": ["review"],
+      "expectState": "bupWarning",
+      "expectEffects": [],
+      "expectIgnored": true
+    },
+    {
+      "name": "negative: going back to the warning requires accepting it again",
+      "prelude": "toEditing",
+      "events": ["back", "next"],
+      "expectState": "bupWarning",
+      "expectEffects": [],
+      "expectIgnored": true
+    },
+    {
+      "name": "negative: next without a document type is ignored",
+      "prelude": "toEditing",
+      "events": ["next"],
+      "expectState": "editing.documentType",
+      "expectEffects": [],
+      "expectIgnored": true
+    },
+    {
+      "name": "negative: document type outside the template is ignored",
+      "prelude": "toEditing",
+      "events": [{ "type": "chooseDocumentType", "payload": { "documentType": "boleta" } }],
+      "expectState": "editing.documentType",
+      "expectEffects": [],
+      "expectIgnored": true,
+      "expectContext": { "documentType": null }
+    },
+    {
+      "name": "negative: next with an incomplete mesa is ignored",
+      "prelude": "toEditing",
+      "events": [
+        { "type": "chooseDocumentType", "payload": { "documentType": "certificado" } },
+        "next",
+        { "type": "setMesa", "payload": { "mesa": { "distrito": "99", "seccion": "001", "circuito": "  ", "mesa": "00042" } } },
+        "next"
+      ],
+      "expectState": "editing.mesa",
+      "expectEffects": [],
+      "expectIgnored": true
+    },
+    {
+      "name": "negative: next without pages is ignored",
+      "prelude": "toEditing",
+      "events": [
+        { "type": "chooseDocumentType", "payload": { "documentType": "certificado" } },
+        "next",
+        { "type": "setMesa", "payload": { "mesa": { "distrito": "99", "seccion": "001", "circuito": "0001A", "mesa": "00042" } } },
+        "next",
+        "next"
+      ],
+      "expectState": "editing.pages",
+      "expectEffects": [],
+      "expectIgnored": true
+    },
+    {
+      "name": "negative: pagesAdded with an empty list is ignored",
+      "prelude": "toEditing",
+      "events": [{ "type": "pagesAdded", "payload": { "pages": [] } }],
+      "expectState": "editing.documentType",
+      "expectEffects": [],
+      "expectIgnored": true
+    },
+    {
+      "name": "negative: setValues with an unknown row is ignored",
+      "prelude": "toEditing",
+      "events": [{ "type": "setValues", "payload": { "cells": { "presidente": { "lista-z": 5 } } } }],
+      "expectState": "editing.documentType",
+      "expectEffects": [],
+      "expectIgnored": true,
+      "expectContext": { "cells": {} }
+    },
+    {
+      "name": "negative: setValues with a non-integer is ignored",
+      "prelude": "toEditing",
+      "events": [{ "type": "setValues", "payload": { "header": { "votantes": "300" } } }],
+      "expectState": "editing.documentType",
+      "expectEffects": [],
+      "expectIgnored": true
+    },
+    {
+      "name": "negative: proceed with errors is ignored",
+      "prelude": "toValidationError",
+      "events": ["proceed"],
+      "expectState": "validation",
+      "expectEffects": [],
+      "expectIgnored": true
+    },
+    {
+      "name": "negative: confirm from validation is ignored (confirming is a separate step)",
+      "prelude": "toValidationClean",
+      "events": ["confirm"],
+      "expectState": "validation",
+      "expectEffects": [],
+      "expectIgnored": true,
+      "expectContext": { "locked": false }
+    },
+    {
+      "name": "negative: proceed without pages is ignored",
+      "prelude": "toEditing",
+      "events": [
+        { "type": "chooseDocumentType", "payload": { "documentType": "certificado" } },
+        { "type": "setMesa", "payload": { "mesa": { "distrito": "99", "seccion": "001", "circuito": "0001A", "mesa": "00042" } } },
+        { "type": "setValues", "payload": {
+          "header": { "electores": 350, "votantes": 300 },
+          "cells": {
+            "presidente": { "lista-a": 120, "lista-b": 100, "lista-c": 60, "blanco": 10, "nulos": 7, "recurridos": 2, "impugnados": 1 },
+            "diputados": { "lista-a": 110, "lista-b": 95, "lista-c": 70, "blanco": 15, "nulos": 8, "recurridos": 1, "impugnados": 1 }
+          } } },
+        "review",
+        "proceed"
+      ],
+      "expectState": "validation",
+      "expectEffects": [],
+      "expectIgnored": true
+    },
+    {
+      "name": "negative: confirm with a warning and a short justification is ignored",
+      "prelude": "toValidationWarning",
+      "events": ["proceed", { "type": "setJustification", "payload": { "justification": "ok" } }, "confirm"],
+      "expectState": "confirming",
+      "expectEffects": [],
+      "expectIgnored": true,
+      "expectContext": { "locked": false }
+    },
+    {
+      "name": "negative: errors cannot be justified",
+      "prelude": "toValidationError",
+      "events": ["proceed"],
+      "expectState": "validation",
+      "expectEffects": [],
+      "expectIgnored": true
+    },
+    {
+      "name": "negative: nothing is editable after confirmed (setValues)",
+      "prelude": "toValidationClean",
+      "events": ["proceed", "confirm", { "type": "setValues", "payload": { "header": { "votantes": 1 } } }],
+      "expectState": "confirmed",
+      "expectEffects": [],
+      "expectIgnored": true,
+      "expectContext": { "locked": true, "header": { "votantes": { "value": 300, "origin": "manual" } } }
+    },
+    {
+      "name": "negative: nothing is editable after confirmed (setMesa)",
+      "prelude": "toValidationClean",
+      "events": ["proceed", "confirm", { "type": "setMesa", "payload": { "mesa": { "mesa": "00001" } } }],
+      "expectState": "confirmed",
+      "expectEffects": [],
+      "expectIgnored": true,
+      "expectContext": { "mesa": { "mesa": "00042" } }
+    },
+    {
+      "name": "negative: nothing is editable after confirmed (pagesAdded, chooseDocumentType, edit, back)",
+      "prelude": "toValidationClean",
+      "events": [
+        "proceed", "confirm",
+        { "type": "pagesAdded", "payload": { "pages": [{ "id": "p9" }] } },
+        { "type": "chooseDocumentType", "payload": { "documentType": "acta" } },
+        "edit",
+        "back"
+      ],
+      "expectState": "confirmed",
+      "expectEffects": [],
+      "expectIgnored": true,
+      "expectContext": { "documentType": "certificado", "pages": [{ "id": "p1", "source": "scanner" }] }
+    },
+    {
+      "name": "negative: nothing is editable after exported",
+      "prelude": "toValidationClean",
+      "events": ["proceed", "confirm", "export", { "type": "setJustification", "payload": { "justification": "tarde" } }],
+      "expectState": "exported",
+      "expectEffects": [],
+      "expectIgnored": true,
+      "expectContext": { "justification": null }
+    },
+    {
+      "name": "negative: requestDoubleEntry is ignored when the presentation does not support it",
+      "presentation": "f2",
+      "prelude": "toValidationClean",
+      "events": ["requestDoubleEntry"],
+      "expectState": "validation",
+      "expectEffects": [],
+      "expectIgnored": true
+    },
+    {
+      "name": "negative: requestDoubleEntry with errors is ignored even in F-3",
+      "presentation": "f3",
+      "prelude": "toValidationError",
+      "events": ["requestDoubleEntry"],
+      "expectState": "validation",
+      "expectEffects": [],
+      "expectIgnored": true
+    },
+    {
+      "name": "negative: submitSecond with an incomplete second entry is ignored",
+      "presentation": "f3",
+      "prelude": "toValidationClean",
+      "events": ["requestDoubleEntry", "secondReady", { "type": "setSecondValues", "payload": { "votantes": 300 } }, "submitSecond"],
+      "expectState": "values2",
+      "expectEffects": [],
+      "expectIgnored": true
+    },
+    {
+      "name": "negative: the second entry cannot touch the first (setValues ignored in values2)",
+      "presentation": "f3",
+      "prelude": "toValidationClean",
+      "events": ["requestDoubleEntry", "secondReady", { "type": "setValues", "payload": { "header": { "votantes": 1 } } }],
+      "expectState": "values2",
+      "expectEffects": [],
+      "expectIgnored": true,
+      "expectContext": { "header": { "votantes": { "value": 300, "origin": "manual" } } }
+    },
+    {
+      "name": "negative: acceptMatch with mismatches is ignored",
+      "presentation": "f3",
+      "prelude": "toCompareMismatch",
+      "events": ["acceptMatch"],
+      "expectState": "compare",
+      "expectEffects": [],
+      "expectIgnored": true
+    },
+    {
+      "name": "negative: fixFirstEntry when entries match is ignored",
+      "presentation": "f3",
+      "prelude": "toCompareMatch",
+      "events": ["fixFirstEntry"],
+      "expectState": "compare",
+      "expectEffects": [],
+      "expectIgnored": true
+    },
+    {
+      "name": "negative: compareAgain without a pending comparison is ignored",
+      "presentation": "f3",
+      "prelude": "toValidationClean",
+      "events": ["compareAgain"],
+      "expectState": "validation",
+      "expectEffects": [],
+      "expectIgnored": true
+    },
+    {
+      "name": "negative: unknown presentation is ignored",
+      "events": [{ "type": "setPresentation", "payload": { "presentation": "f9" } }],
+      "expectState": "bupWarning",
+      "expectEffects": [],
+      "expectIgnored": true,
+      "expectContext": { "presentation": "f2" }
+    },
+    {
+      "name": "negative: unknown event is ignored",
+      "prelude": "toEditing",
+      "events": ["teleport"],
+      "expectState": "editing.documentType",
+      "expectEffects": [],
+      "expectIgnored": true
+    }
+  ]
+}
