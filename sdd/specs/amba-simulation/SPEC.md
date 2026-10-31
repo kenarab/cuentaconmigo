@@ -110,8 +110,11 @@ Con las recomendaciones ★ como provisorias hasta que se responda #3:
   | 1 | 5 % | 3,93 | 0,18 | 30/30 |
   | 1 | 2 % | 4,00 | 0,35 | 30/30 |
 
-  Los criterios 1 y 2 se cumplen en la simulación. Falta medir la cobertura real del
-  intervalo; en una corrida el error de una lista superó levemente su semiancho.
+  Los criterios 1 y 2 se cumplen en la simulación.
+- **Cobertura del intervalo del 95 %** (40 semillas × 5 listas por escenario): 92,5 % sin
+  sesgo y 5 % de mesas; 96,0 % con sesgo 0,7 y 5 %; 93,5 % sin sesgo y 2 %; 95,5 % con
+  sesgo 0,7 y 10 %. Queda cerca del nominal, levemente por debajo con muestras sin
+  sesgo, porque las mesas de un mismo circuito se parecen entre sí.
   El criterio 4 está pendiente: falta cotejar los totales contra los publicados.
 - Las descargas y los derivados quedan en `data/private/`, fuera de Git. En Git van
   los scripts, el prototipo y esta procedencia.
