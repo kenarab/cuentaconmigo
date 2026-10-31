@@ -98,6 +98,87 @@ contenido de las opiniones. Los valores son propuestas para calibrar (TC-2).
 - Riesgo de **exclusión**: quien no conoce a nadie adentro no puede entrar. Se mitiga
   con eventos de alta masiva de referentes y de organizaciones aliadas (PP-3).
 
+## Privacidad del grafo: marco y propuesta (investigación del 31/10/2026)
+
+**Marco legal (a verificar con `electoral_counsel` y un abogado o abogada):**
+
+- La Ley 25.326 define las opiniones políticas como dato sensible (art. 2). Nadie
+  está obligado a darlas, y está **prohibido formar archivos que las revelen directa
+  o indirectamente** (art. 7 inc. 3).
+- Los partidos políticos sí pueden llevar un registro de sus miembros (art. 7). La
+  doctrina trata la afiliación como dato sensible, y la jurisprudencia sobre su
+  publicidad no es uniforme.
+- Un seudónimo no alcanza para que un dato deje de ser personal si se lo puede
+  reidentificar (por ejemplo, cruzando el grafo con el dispositivo).
+
+**Consecuencia de diseño:** el grafo de una red ciudadana y no partidaria no debería
+revelar afinidades. El riesgo aparece al **mezclarlo con nodos de partidos** o con
+las posiciones expresadas en la deliberación. Buenas prácticas aplicables:
+minimización, separación de funciones, cifrado con acceso por quórum, retención
+limitada, estadísticas sólo agregadas y credenciales que prueban un atributo sin
+revelar quién es la persona.
+
+**Propuesta:**
+
+1. **Dos grafos separados.**
+   - **Ciudadano:** sin rótulos partidarios.
+   - **Por partido:** sus responsables y fiscales identificados como tales. Cada
+     partido es responsable de sus datos (excepción del art. 7) y la red los procesa
+     por cuenta del partido. **No hay aristas entre los dos grafos.** Una invitación
+     de partido nunca otorga nivel ciudadano.
+2. **Aristas cifradas con apertura por quórum.** El servidor guarda cada arista
+   `invitó → invitada` cifrada. Para abrirla hace falta un quórum (por ejemplo, 3 de
+   5) de custodios de la moderación elegida (RC-4), cada uno de un origen distinto.
+   Toda apertura queda registrada y se informa en forma agregada. Para los cupos
+   alcanza con contadores: no hace falta leer el grafo.
+3. **Comprobante en el teléfono.** Cada dispositivo guarda el comprobante firmado de
+   su propia invitación, y puede probar su rama si lo investigan.
+4. **Retención:** las aristas se borran pasado un plazo después de la elección
+   (TC-5). Las estadísticas públicas son agregadas, con ruido si los grupos son chicos.
+5. **Más adelante: credenciales anónimas** (TC-8). La persona prueba "tengo nivel ≥ 2"
+   o "soy una persona verificada" sin revelar su cuenta. Hay borradores de estándar
+   de la IETF que combinan Privacy Pass con firmas BBS.
+6. **Referencia:** BrightID usa un grafo social con seeds de confianza y una variante
+   de SybilRank, sin datos personales. Su propia revisión académica reconoce límites
+   frente a ataques combinados. Conviene medirlo con simulaciones (criterio 3) antes
+   de confiar en él.
+
+## Varios usuarios por teléfono
+
+En hogares que comparten teléfono, limitar a una persona por dispositivo excluye a
+gente. Permitir muchas cuentas facilita las granjas de cuentas falsas. Propuesta para
+ponderar (TC-9):
+
+- **Por defecto, una cuenta ciudadana por dispositivo.** Con la marca "teléfono
+  compartido" se admiten **hasta 3 perfiles**, cada uno con su clave y su propia
+  invitación en persona de alguien **distinto**. El cupo de invitaciones del
+  dispositivo se comparte.
+- El servidor no guarda el identificador del dispositivo. Guarda un hash con sal
+  **por función**, que permite contar perfiles sin vincular un perfil ciudadano con
+  uno de fiscal de partido.
+- Una persona puede ser ciudadana y fiscal de un partido en el mismo teléfono, pero
+  en **perfiles no vinculables**, para que su perfil ciudadano no revele su afiliación.
+- La atestación del dispositivo (App Attest / Play Integrity) ayuda contra
+  emuladores. No es infalible y no debe usarse como identificador.
+
+## Reputación y foros internos
+
+- **Nombre:** se propone **no** llamarlo "créditos sociales", por la asociación con
+  sistemas de puntaje ciudadano de control estatal. Se propone "reputación de
+  participación" o "cupos" (TC-10).
+- Además de invitar, la reputación habilita **foros internos de trabajo**. Las
+  personas de nivel 2 o más pueden abrir grupos donde se gestan propuestas antes de
+  pasar a la deliberación pública
+  ([civic-deliberation](../civic-deliberation/SPEC.md)). Toda propuesta que pida
+  acción pasa por la fase pública y el consenso de toda la red.
+- **Riesgos:** que se forme una élite, que la red se vuelva opaca, o que un grupo
+  coordinado la capture. Mitigaciones:
+  - los foros se pueden leer desde el nivel 1;
+  - criterios de reputación públicos y calculados sólo con la conducta;
+  - mandatos con plazo para referentes;
+  - límite de foros por persona;
+  - la reputación no se transfiere ni se compra.
+
 ## Decisiones pendientes
 
 | ID | Decisión | Opciones |
@@ -110,6 +191,10 @@ contenido de las opiniones. Los valores son propuestas para calibrar (TC-2).
 | TC-6 | Partidos: verificación de responsables | Contra el registro de la justicia electoral ★ · declaración jurada · ambos |
 | TC-7 | Fiscales de partido en la jerarquía | Fuera de la jerarquía ciudadana ★ · dentro, con nivel 0 · elección del fiscal |
 | TC-8 | Credenciales anónimas (prueba de que alguien es una persona sin vincularla a su cuenta) | Después de la hackatón ★ · ahora |
+| TC-9 | Usuarios por teléfono | 1 por defecto, hasta 3 con "teléfono compartido" ★ · siempre 1 · sin límite con atestación |
+| TC-10 | Nombre y alcance de la reputación | "Reputación de participación", habilita invitaciones y foros ★ · sólo cupos de invitación · otro nombre |
+| TC-11 | Grafos de partidos | Separados del ciudadano, sin aristas cruzadas ★ · rótulo partidario dentro del grafo ciudadano |
+| TC-12 | Apertura de aristas | Quórum de custodios de distinto origen ★ · operador de la red con registro · nunca (sólo comprobantes en el teléfono) |
 
 ## Criterios de aceptación
 
