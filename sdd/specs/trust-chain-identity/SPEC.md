@@ -66,6 +66,29 @@ contenido de las opiniones. Los valores son propuestas para calibrar (TC-2).
      que hayan aportado. Lo extraído y lo confirmado se recalculan por separado.
 - Ninguna medida se basa en opiniones políticas expresadas.
 
+## Principio: la app no registra personas (precisión del autor, 31/10/2026)
+
+- **Por defecto, nadie queda registrado como persona.** La cuenta es una clave y un
+  seudónimo, sin datos que identifiquen a nadie.
+- **Perfil público, sólo por elección:** quien quiera visibilidad pública puede
+  activar un perfil con su nombre, su foto o los vínculos a sus cuentas en otras redes.
+- **Riesgo a evaluar en profundidad:** un perfil público identificado **expone a su
+  subred**. Quien la invitó y quienes invitó quedan a un paso de una persona conocida.
+  Si las aristas se filtran o se infieren por conducta, se pueden reidentificar.
+  También expone su historial seudónimo previo, si se lo vincula.
+- **Alternativas a ponderar (TC-15):**
+  1. **Perfil público como persona separada** ★: una clave nueva, sin aristas ni
+     historial vinculados a la cuenta de confianza. La reputación se puede mostrar sólo
+     con una credencial anónima ("nivel ≥ N"), sin revelar la cuenta.
+  2. Perfil público vinculado a la cuenta, pero con las aristas ocultas y un aviso
+     explícito del riesgo para su subred.
+  3. Sin perfiles públicos en esta etapa.
+- **Vincular cuentas de otras redes** (X, Instagram, TikTok…) agrega otro riesgo:
+  esas plataformas pueden cruzar los datos. Requiere una verificación que no publique
+  el vínculo entre la cuenta externa y la cuenta de confianza.
+- Pendiente: evaluación de `electoral_counsel` (legal y seguridad) y de trust & safety
+  antes de decidir.
+
 ## Dos redes desconectadas (precisión del autor, 31/10/2026)
 
 - **Red de confianza:** identidad seudónima, invitaciones, reputación, deliberación
@@ -223,6 +246,7 @@ ponderar (TC-9):
 | TC-10 | Nombre y alcance de la reputación | "Reputación de participación", habilita invitaciones y foros ★ · sólo cupos de invitación · otro nombre |
 | TC-11 | Grafos de partidos | Subredes con cuentas de rol genéricas, separadas del grafo ciudadano y sin aristas cruzadas ★ (precisión del autor) · rótulo partidario dentro del grafo ciudadano |
 | TC-13 | Relación entre la red de confianza y la de publicación de actas | Desconectadas ★ (precisión del autor) · vinculadas con credencial anónima · vinculadas por cuenta |
+| TC-15 | Perfiles públicos identificados | Persona pública separada, sin vínculo con la cuenta de confianza ★ · vinculado con aristas ocultas y aviso · sin perfiles públicos por ahora |
 | TC-14 | Traspaso de cuentas de rol de partido | Delegación con vencimiento firmada por el rol superior ★ · traspaso de clave · una cuenta por persona dentro del rol |
 | TC-12 | Apertura de aristas | Quórum de custodios de distinto origen ★ · operador de la red con registro · nunca (sólo comprobantes en el teléfono) |
 
