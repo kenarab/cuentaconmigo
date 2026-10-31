@@ -352,6 +352,10 @@ Criterios comunes a todas las pantallas [P0]:
 
 ### E-00. Aviso de plantilla ficticia (componente transversal) [P0]
 
+> Decisión del autor (31/10/2026): la app usa plantillas de elecciones reales
+> (`generales-2023`), así que el aviso no se muestra. El componente queda sólo para
+> plantillas con `fictitious = true`. Resuelve AS-7.
+
 - Propósito: que nadie cargue datos reales con una plantilla que no es el
   formulario oficial. Se muestra mientras `template.fictitious == true`.
 - Contenido: franja amarilla fija arriba de E-01, E-07 y E-10: "Prototipo con un

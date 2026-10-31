@@ -1,8 +1,8 @@
 {
-  "id": "demo-2027",
+  "id": "generales-2023",
   "version": 1,
-  "fictitious": true,
-  "title": "Plantilla DEMO ficticia (no es el formulario oficial)",
+  "fictitious": false,
+  "title": "Elecciones Generales 22/10/2023 · Presidente y Vicepresidente",
   "documentTypes": [
     "telegrama",
     "acta",
@@ -34,7 +34,7 @@
     },
     {
       "id": "votantes",
-      "label": "Total de votantes",
+      "label": "Total de votantes (sobres)",
       "required": true
     }
   ],
@@ -42,26 +42,32 @@
     {
       "id": "presidente",
       "label": "Presidente y Vicepresidente"
-    },
-    {
-      "id": "diputados",
-      "label": "Diputados Nacionales"
     }
   ],
   "rows": [
     {
-      "id": "lista-a",
-      "label": "Lista A (ficticia)",
+      "id": "agrupacion-132",
+      "label": "132 · Juntos por el Cambio",
       "kind": "agrupacion"
     },
     {
-      "id": "lista-b",
-      "label": "Lista B (ficticia)",
+      "id": "agrupacion-133",
+      "label": "133 · Hacemos por Nuestro País",
       "kind": "agrupacion"
     },
     {
-      "id": "lista-c",
-      "label": "Lista C (ficticia)",
+      "id": "agrupacion-134",
+      "label": "134 · Unión por la Patria",
+      "kind": "agrupacion"
+    },
+    {
+      "id": "agrupacion-135",
+      "label": "135 · La Libertad Avanza",
+      "kind": "agrupacion"
+    },
+    {
+      "id": "agrupacion-136",
+      "label": "136 · Frente de Izquierda y de Trabajadores - Unidad",
       "kind": "agrupacion"
     },
     {
@@ -82,6 +88,11 @@
     {
       "id": "impugnados",
       "label": "Identidad impugnada",
+      "kind": "especial"
+    },
+    {
+      "id": "comando",
+      "label": "Votos del comando electoral",
       "kind": "especial"
     }
   ],

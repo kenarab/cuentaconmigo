@@ -5,9 +5,13 @@ Fuente independiente de plataforma para iOS, Android y el futuro backend
 y sus vectores, después cada implementación.
 
 - `schemas/capture.schema.json`: paquete de captura exportado (JSON Schema 2020-12).
-- `templates/`: formularios declarativos. `demo-2027` es **ficticio**.
+- `templates/`: formularios declarativos. `generales-2023` (Presidente, generales
+  del 22/10/2023) es la que usa la app; `balotaje-2015` coincide con las muestras de
+  `data/ocr-samples/`; `demo-2027` es **ficticia** y sólo se usa en los vectores.
 - `vectors/validation.json`: reglas de validación; resultados comparados como conjunto.
 - `vectors/digits.json`: normalización de texto OCR a enteros.
 - `examples/`: ejemplos ficticios válidos.
 
-Todos los datos de este directorio son ficticios. Nunca agregar datos reales.
+Vectores y ejemplos son ficticios. Las plantillas de 2015 y 2023 reproducen formularios
+oficiales públicos (agrupaciones y filas, sin datos de mesas ni de personas), por
+decisión del autor del 31/10/2026. Nunca agregar datos personales.

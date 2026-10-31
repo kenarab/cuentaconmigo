@@ -47,8 +47,15 @@ geolocalización, Android.
 El formato vigente para 2027 no está relevado (ver preguntas abiertas). Por eso la
 estructura del formulario es **declarativa** (`contracts/templates/*.json`):
 categorías (cargos), filas (agrupaciones y votos especiales) y reglas.
-La plantilla incluida es **ficticia** (`demo-2027`, agrupaciones "Lista A/B/C")
-y la app lo indica en pantalla. Reemplazarla por la oficial no requiere cambiar código.
+Decisión del autor (31/10/2026): la app deja de usar la plantilla ficticia y ya no
+muestra avisos de formulario ficticio. Usa `generales-2023` (Presidente y
+Vicepresidente de las generales del 22/10/2023, con las agrupaciones por número),
+coherente con la [simulación del AMBA](../amba-simulation/SPEC.md). Las filas salen de
+los resultados por mesa de la DINE; **falta cotejarlas con un telegrama 2023 real**.
+`balotaje-2015` coincide con las muestras transcriptas de `data/ocr-samples/`
+(balotaje 2015; las de PASO 2017 tienen listas distintas por distrito y no tienen
+plantilla). `demo-2027` queda sólo para los vectores de prueba. Cambiar de plantilla
+no requiere cambiar código.
 
 ## Reglas de validación (contrato)
 
