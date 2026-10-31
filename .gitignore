@@ -20,3 +20,12 @@ data/private/
 ios/CuentaConmigo/Resources/Samples/
 ios/CuentaConmigo/Resources/nomina-2025.json
 ios/CuentaConmigo/Resources/build-info.json
+
+# LaTeX build outputs
+design/presentation/*.aux
+design/presentation/*.log
+design/presentation/*.nav
+design/presentation/*.out
+design/presentation/*.snm
+design/presentation/*.toc
+design/presentation/*.vrb
