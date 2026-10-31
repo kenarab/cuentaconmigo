@@ -54,6 +54,9 @@ struct ScrutinyClient {
         let confidence: Double
         let cellBox: [Int]
         let valueBox: [Int]?
+        /// value == nil && empty: a dash or blank cell (means 0, the person decides);
+        /// value == nil && !empty: could not be read (form-layouts SPEC §4).
+        var empty: Bool? = nil
     }
 
     struct ReadingSet: Decodable {

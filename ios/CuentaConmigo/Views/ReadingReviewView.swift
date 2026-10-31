@@ -256,12 +256,15 @@ struct ReadingReviewView: View {
         let fontSize = spot.fontSize
         let empty = shown == nil
         let stroke: Color = highlighted == reading.ref ? .orange : (empty ? .orange : (edited ? .blue : level.color))
+        let dash = empty && reading.empty == true
         return Button {
-            draft = shown.map(String.init) ?? ""
+            draft = shown.map(String.init) ?? (dash ? "0" : "")
             editing = reading
         } label: {
             HStack(spacing: fontSize * 0.2) {
-                if empty {
+                if dash {
+                    Text("—").font(.system(size: fontSize, weight: .bold)).foregroundStyle(.orange)
+                } else if empty {
                     Image(systemName: "pencil").font(.system(size: fontSize * 0.7)).foregroundStyle(.orange)
                 } else if edited, let original = reading.value {
                     Text("\(original)").strikethrough().foregroundStyle(.secondary)
@@ -282,7 +285,7 @@ struct ReadingReviewView: View {
         }
         .buttonStyle(.plain)
         .offset(x: spot.rect.minX, y: spot.rect.minY)
-        .accessibilityLabel("\(title(for: reading.ref)): \(shown.map(String.init) ?? "vacío, tocá para completar"), \(edited ? "corregido" : level.spoken)")
+        .accessibilityLabel("\(title(for: reading.ref)): \(shown.map(String.init) ?? (dash ? "raya, tocá para confirmar cero" : "vacío, tocá para completar")), \(edited ? "corregido" : level.spoken)")
     }
 
     /// Fields of the form the server did not locate on the image: filled in by hand below.
