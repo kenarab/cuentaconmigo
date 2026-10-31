@@ -46,6 +46,21 @@ struct ScrutinyClient {
         return try JSONEncoder().encode(reply.receipt)
     }
 
+    /// One per-cell reading aligned to the printed form (POST /v1/readings, form-layouts SPEC).
+    struct Reading: Decodable {
+        let ref: String
+        let value: Int?
+        let confidence: Double
+    }
+
+    /// Reads one page image; nothing is stored on the server. Values are suggestions.
+    func readings(jpeg: Data, templateId: String) async throws -> [Reading] {
+        struct Reply: Decodable { let fields: [Reading] }
+        let reply: Reply = try await send("POST", "v1/readings?templateId=\(templateId)", body: jpeg,
+                                          contentType: "image/jpeg")
+        return reply.fields
+    }
+
     func ocr(captureID: UUID) async throws -> OCRResult {
         struct Page: Decodable { let status: String; let numbers: [Int] }
         struct Reply: Decodable { let results: [Page] }

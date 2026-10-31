@@ -364,12 +364,15 @@ struct CaptureEditorView: View {
             let receipt = try await client.upload(current) { try? Data(contentsOf: store.pageURL($0, of: current.id)) }
             store.appendReceipt(receipt, for: current.id)
             serverStatus = "Leyendo los números…"
+            let filled = await fillFromReadings(current, client: client)
             for _ in 0..<30 {
                 let result = try await client.ocr(captureID: current.id)
                 if result.finished {
                     var seen = Set(detectedNumbers)
                     detectedNumbers += result.numbers.filter { seen.insert($0).inserted }
-                    serverStatus = result.numbers.isEmpty
+                    serverStatus = filled > 0
+                        ? "Listo: el servidor completó \(filled) campos. Revisalos contra la imagen y corregí lo que haga falta."
+                        : result.numbers.isEmpty
                         ? "El servidor no encontró números. Cargalos mirando la imagen."
                         : "Listo: el servidor sugirió \(result.numbers.count) números. Revisalos contra la imagen."
                     return
@@ -380,6 +383,31 @@ struct CaptureEditorView: View {
         } catch {
             serverStatus = error.localizedDescription
         }
+    }
+
+    /// Fills empty fields with the server's per-cell readings of the first page (origin
+    /// "ocr-accepted": the person still reviews and can edit every value). Returns how many.
+    private func fillFromReadings(_ current: Capture, client: ScrutinyClient) async -> Int {
+        guard let page = current.pages.first,
+              let jpeg = try? Data(contentsOf: store.pageURL(page, of: current.id)),
+              let readings = try? await client.readings(jpeg: jpeg, templateId: current.templateId) else { return 0 }
+        var filled = 0
+        for reading in readings {
+            guard let value = reading.value else { continue }
+            let parts = reading.ref.split(separator: ".").map(String.init)
+            let key: FieldKey
+            if parts.count == 2, parts[0] == "header", template.headerFields.contains(where: { $0.id == parts[1] }) {
+                key = .header(parts[1])
+            } else if parts.count == 3, parts[0] == "cells",
+                      template.categories.contains(where: { $0.id == parts[1] }),
+                      template.rows.contains(where: { $0.id == parts[2] }) {
+                key = .cell(parts[1], parts[2])
+            } else { continue }
+            guard self.value(for: key) == nil else { continue }
+            set(value, for: key, origin: .ocrAccepted)
+            filled += 1
+        }
+        return filled
     }
 
     /// Loads a bundled demo telegram and fills the table identification (F-17).
