@@ -16,6 +16,8 @@ basada en evidencia las ponga al servicio de la democracia. Construimos
 - **C. Campaña**: gasto y publicidad declarada vs. observada, plazos y debates.
 - **D. Jornada y escrutinio** (cierre del proceso de auditoría ciudadana): captura de telegramas y
   actas, cotejo y proyección.
+- **E. Propuestas y regulación**: deliberación ciudadana de iniciativas (cualquiera
+  puede proponer) y su consolidación para incidencia parlamentaria.
 
 La SPEC de cada módulo (en `sdd/specs/`) es la fuente del producto. Leerla antes de
 cambiar comportamiento. Ninguna tecnología, stack ni arquitectura está decidida:

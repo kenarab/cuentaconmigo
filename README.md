@@ -15,6 +15,8 @@ todo el proceso electoral y convertir la evidencia en presión pública:
 - **C. Campaña**: gasto y publicidad declarada contra lo que se observa.
 - **D. Jornada y escrutinio**, para cerrar el proceso de auditoría ciudadana: fiscales y autoridades de mesa
   escanean el telegrama de su mesa y lo cotejamos con los resultados oficiales.
+- **E. Propuestas y regulación**: un espacio para proponer y discutir iniciativas, por
+  ejemplo congelar el dinero de campaña en plataformas hasta después de la elección.
 
 Visión y prioridades en [sdd/specs/vision/SPEC.md](sdd/specs/vision/SPEC.md). Reglas
 de trabajo en [AGENTS.md](AGENTS.md). Ficha de la hackatón en [docs/hackdash.md](docs/hackdash.md).

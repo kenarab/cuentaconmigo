@@ -41,9 +41,11 @@ directa de parlamentarios del Mercosur y el calendario oficial.
 | **B. Desinformación** | Contenidos falsos virales sobre el proceso: detección, verificación y respuesta comunitaria; la evidencia alimenta al eje A | `misinformation-response` |
 | **C. Campaña** | Gasto y publicidad declarada vs. observada, plazos legales de campaña, debates presidenciales obligatorios | `campaign-watch` |
 | **D. Jornada y escrutinio** (cierre del proceso de auditoría ciudadana) | Telegramas y actas de cada mesa, cotejo con el escrutinio provisorio y el definitivo, proyección | `telegram-capture`, `amba-simulation` |
+| **E. Propuestas y regulación** | Convierte la evidencia en propuestas: la comunidad propone, discute y consolida iniciativas de regulación y de incidencia (por ejemplo, la cuenta de garantía electoral) | `civic-deliberation`, `reg-electoral-escrow` y las que surjan |
 
-El orden refleja la prioridad conceptual: el escrutinio es el cierre visible de un
+El escrutinio (D) cierra el proceso de auditoría ciudadana: es el final visible de un
 trabajo que empieza meses antes, cuando la campaña ya está corriendo en las plataformas.
+Las propuestas (E) atraviesan todo el ciclo y siguen después de la elección.
 
 ## Núcleo compartido: evidencia ciudadana
 
