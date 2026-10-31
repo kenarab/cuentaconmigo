@@ -18,3 +18,4 @@ data/private/
 
 # Real sample telegrams with personal data (fetched by scripts/samples/fetch_ocr_samples.py)
 ios/CuentaConmigo/Resources/Samples/
+ios/CuentaConmigo/Resources/nomina-2025.json

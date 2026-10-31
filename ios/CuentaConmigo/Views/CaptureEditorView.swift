@@ -137,7 +137,7 @@ struct CaptureEditorView: View {
                             Button(sample.label) { Task { await use(sample) } }
                         }
                     } label: {
-                        Label("Usar un ejemplo 2023", systemImage: "doc.text.image")
+                        Label("Usar un telegrama de ejemplo", systemImage: "doc.text.image")
                     }
                 }
             }
@@ -145,7 +145,10 @@ struct CaptureEditorView: View {
     }
 
     private func mesaSection(_ capture: Capture) -> some View {
-        Section("Mesa") {
+        Section {
+            if let places = PollingPlaces.shared, !capture.isLocked {
+                MesaPicker(places: places, mesa: capture.mesa) { try? self.capture?.setMesa($0) }
+            }
             ForEach(template.mesaFields) { field in
                 TextField(field.label, text: Binding(
                     get: { self.capture?.mesa[field.id] ?? "" },
@@ -153,6 +156,12 @@ struct CaptureEditorView: View {
                     .keyboardType(.numbersAndPunctuation)
                     .textInputAutocapitalization(.characters)
                     .disabled(capture.isLocked)
+            }
+        } header: {
+            Text("Mesa")
+        } footer: {
+            if PollingPlaces.shared != nil && !capture.isLocked {
+                Text("Elegí distrito, sección, establecimiento y mesa; los códigos se completan solos. También podés corregirlos a mano.")
             }
         }
     }

@@ -92,9 +92,11 @@ Identificar la mesa no debe requerir tipear códigos:
 - **Recordar** la última mesa y las mesas del plan del día ([fiscal-planning](../fiscal-planning/SPEC.md)),
   siempre dentro del teléfono.
 - Funciona sin conexión: las listas vienen dentro de la app, por distrito.
-- Datos: la nómina pública de distritos, secciones, circuitos y mesas. Los de 2023 ya
-  están en los resultados por mesa de la DINE. Para los establecimientos se usa la
-  nómina pública con su rango de mesas (pregunta Q1).
+- Datos: `data/establecimientos/nomina-2025.json` (Ministerio del Interior, 2025: 17.292
+  establecimientos con rangos de mesas y circuito), que se copia a la app al compilar.
+- Implementación inicial en iOS (`MesaPicker`): distrito, sección, establecimiento con
+  búsqueda y mesa. Elegir la mesa completa los cuatro códigos. Los campos de texto quedan
+  para corregir. Pendiente: probarla en el iPhone y sumarla al prototipo (#14).
 - La geolocalización a pedido (ver abajo) es un atajo más. Las listas siguen siendo el
   camino principal.
 

@@ -6,6 +6,7 @@ export TMPDIR="$HOME/home.codex/tmp" TMP="$HOME/home.codex/tmp" TEMP="$HOME/home
 ios_root="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ios_root"
 derived="$TMPDIR/cc-derived-data-signed"
+"$ios_root/scripts/sync-contracts.sh"
 # Real sample telegrams (git-ignored, personal data): fetched and verified before building.
 python3 "$ios_root/../scripts/samples/fetch_ocr_samples.py" || echo "Aviso: no se pudieron preparar los telegramas de ejemplo" >&2
 xcodebuild -project CuentaConmigo.xcodeproj -scheme CuentaConmigo -configuration Debug \
