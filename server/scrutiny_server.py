@@ -31,6 +31,8 @@ from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+import readings
+
 ROOT = Path(__file__).resolve().parents[1]
 DATA = Path(os.environ.get("CC_DATA_DIR", ROOT / ".runtime/scrutiny"))
 BLOBS = DATA / "blobs"
@@ -42,7 +44,7 @@ TRUST_PROXY = os.environ.get("CC_TRUST_PROXY") == "1"
 MAX_BLOB = 15 * 1024 * 1024
 MAX_QUEUE = 500
 # Requests allowed per window: (count, seconds).
-LIMITS = {"enroll": (5, 600), "ip": (240, 60), "capture": (120, 3600)}
+LIMITS = {"enroll": (5, 600), "ip": (240, 60), "capture": (120, 3600), "reading": (60, 3600)}
 _hits = defaultdict(deque)
 _hits_lock = threading.Lock()
 
@@ -266,6 +268,8 @@ class Handler(BaseHTTPRequestHandler):
         if self.limited():
             return
         parts = [p for p in self.path.split("?")[0].split("/") if p]
+        if parts == ["v1", "readings"]:
+            return self.post_reading()
         try:
             raw = self.body(limit=1024 * 1024)
             payload = json.loads(raw or b"{}")
@@ -318,6 +322,31 @@ class Handler(BaseHTTPRequestHandler):
                         enqueue_ocr(c, p["sha256"])
             return self.send_json(status, {"id": cid, "status": "received", "missingBlobs": missing, "receipt": receipt})
         return self.problem(HTTPStatus.NOT_FOUND, "Ruta inexistente")
+
+    def post_reading(self):
+        """Per-cell readings of one page image, aligned to the form layout (form-layouts SPEC).
+        Nothing is stored: the person validates the readings and then sends the capture."""
+        dev = self.device()
+        if dev is None:
+            return self.problem(HTTPStatus.UNAUTHORIZED, "Falta un token válido")
+        if self.limited("reading", dev):
+            return
+        query = dict(q.split("=", 1) for q in (self.path.split("?", 1)[1:] or [""])[0].split("&") if "=" in q)
+        template_id = query.get("templateId", "")
+        tpath = ROOT / "contracts/templates" / f"{template_id}.json"
+        if not re.fullmatch(r"[a-z0-9-]+", template_id) or not tpath.exists():
+            return self.problem(HTTPStatus.UNPROCESSABLE_ENTITY, "Plantilla desconocida", template_id)
+        try:
+            data = self.body()
+        except ValueError:
+            return self.problem(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Imagen demasiado grande")
+        try:
+            result = readings.read_telegram(data, json.loads(tpath.read_text()))
+        except Exception as exc:  # unreadable image or OCR failure: the person loads values by hand
+            return self.problem(HTTPStatus.UNPROCESSABLE_ENTITY, "No se pudo leer la imagen", type(exc).__name__)
+        with DB_LOCK, db() as c:
+            audit(c, dev, "reading", hashlib.sha256(data).hexdigest())
+        return self.send_json(HTTPStatus.OK, result)
 
     def do_PUT(self):
         if self.limited():
