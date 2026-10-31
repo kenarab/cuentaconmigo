@@ -8,7 +8,10 @@ import TelegramaCore
 @MainActor
 @Observable
 final class CaptureStore {
+    /// Default form for new captures.
     let template: FormTemplate
+    /// Every bundled form, by id: a capture uses the form of its own election.
+    let templates: [String: FormTemplate]
     private(set) var captures: [Capture] = []
     private(set) var lastError: String?
     private let root: URL
@@ -26,6 +29,14 @@ final class CaptureStore {
             fatalError("Bundled form template is missing or invalid")
         }
         self.template = template
+        var all = [template.id: template]
+        for id in ["balotaje-2015"] {
+            if let url = Bundle.main.url(forResource: id, withExtension: "json"),
+               let data = try? Data(contentsOf: url), let other = try? FormTemplate.decode(data) {
+                all[other.id] = other
+            }
+        }
+        templates = all
         let support = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         var root = support.appendingPathComponent("Captures", isDirectory: true)
         try? fm.createDirectory(at: root, withIntermediateDirectories: true,
@@ -48,6 +59,8 @@ final class CaptureStore {
     func folder(for id: UUID) -> URL { root.appendingPathComponent(id.uuidString, isDirectory: true) }
     func jsonURL(for id: UUID) -> URL { folder(for: id).appendingPathComponent("capture.json") }
     func pageURL(_ page: Page, of id: UUID) -> URL { folder(for: id).appendingPathComponent(page.file) }
+
+    func template(for capture: Capture) -> FormTemplate { templates[capture.templateId] ?? template }
 
     func create(documentType: DocumentType = .telegrama) -> Capture {
         let capture = Capture(template: template, documentType: documentType, app: Self.appInfo)

@@ -10,6 +10,8 @@ struct SampleTelegram: Decodable, Identifiable {
     let documentType: DocumentType
     let label: String
     let mesa: Mesa
+    /// Election of the telegram, which is also the id of its form template.
+    let election: String?
 
     private struct Manifest: Decodable { let samples: [SampleTelegram] }
 

@@ -28,7 +28,7 @@ struct CaptureEditorView: View {
     @State private var sendStatus: String?
     @FocusState private var focus: FieldKey?
 
-    private var template: FormTemplate { store.template }
+    private var template: FormTemplate { capture.map { store.template(for: $0) } ?? store.template }
 
     var body: some View {
         Group {
@@ -452,6 +452,14 @@ struct CaptureEditorView: View {
         guard let jpeg = sample.imageData else {
             message = "No se encontró el ejemplo."
             return
+        }
+        // The capture takes the form of the sample's election (e.g. the 2015 runoff), so every
+        // cell of that telegram has its field. Only possible before any page is added.
+        if let current = capture, current.pages.isEmpty, !current.isLocked,
+           let election = sample.election, election != current.templateId,
+           let form = store.templates[election] {
+            capture = Capture(id: current.id, template: form, documentType: sample.documentType,
+                              createdAt: current.createdAt, app: CaptureStore.appInfo)
         }
         try? capture?.setDocumentType(sample.documentType)
         try? capture?.setMesa(sample.mesa)

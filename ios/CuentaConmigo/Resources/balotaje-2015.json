@@ -1,0 +1,87 @@
+{
+  "id": "balotaje-2015",
+  "version": 1,
+  "fictitious": false,
+  "title": "Segunda vuelta 22/11/2015 · Presidente y Vicepresidente",
+  "documentTypes": [
+    "telegrama",
+    "acta",
+    "certificado"
+  ],
+  "mesaFields": [
+    {
+      "id": "distrito",
+      "label": "Distrito"
+    },
+    {
+      "id": "seccion",
+      "label": "Sección"
+    },
+    {
+      "id": "circuito",
+      "label": "Circuito"
+    },
+    {
+      "id": "mesa",
+      "label": "Mesa"
+    }
+  ],
+  "headerFields": [
+    {
+      "id": "electores",
+      "label": "Electores habilitados",
+      "required": false
+    },
+    {
+      "id": "votantes",
+      "label": "Total de votantes (sobres)",
+      "required": true
+    }
+  ],
+  "categories": [
+    {
+      "id": "presidente",
+      "label": "Presidente y Vicepresidente"
+    }
+  ],
+  "rows": [
+    {
+      "id": "agrupacion-131",
+      "label": "131 · Frente para la Victoria",
+      "kind": "agrupacion"
+    },
+    {
+      "id": "agrupacion-135",
+      "label": "135 · Cambiemos",
+      "kind": "agrupacion"
+    },
+    {
+      "id": "blanco",
+      "label": "Votos en blanco",
+      "kind": "especial"
+    },
+    {
+      "id": "nulos",
+      "label": "Votos nulos",
+      "kind": "especial"
+    },
+    {
+      "id": "recurridos",
+      "label": "Votos recurridos",
+      "kind": "especial"
+    },
+    {
+      "id": "impugnados",
+      "label": "Identidad impugnada",
+      "kind": "especial"
+    }
+  ],
+  "rules": {
+    "votantesMaxElectores": {
+      "severity": "error"
+    },
+    "categoryTotalEqualsVotantes": {
+      "severity": "warning"
+    }
+  }
+}
