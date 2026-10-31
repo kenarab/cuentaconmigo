@@ -269,3 +269,24 @@ responsables de partidos; rótulo de fiscales de partido; modelo de amenazas (Sy
 robo de dispositivo, coerción, abuso de cupos, compromiso de una cuenta de nivel 3,
 ataque al servidor el día de la elección); controles de NIST SP 800-63 y OWASP MASVS
 que apliquen.
+
+## Ajustes por el chequeo de electoral_counsel (31/10/2026)
+
+Informe: [checks/electoral_counsel.md](checks/electoral_counsel.md). Se incorporan como
+requisitos las mitigaciones no bloqueantes. Los ⛔ quedan para el autor.
+
+- **QR con intercambio en dos pasos** (S1): el QR de quien invita no alcanza por sí
+  solo. El teléfono invitado responde con su propio QR o código corto, y quien invita
+  lo escanea o confirma. Así una foto reenviada del QR no sirve para dar altas a
+  distancia.
+- **Recuperación social** (riesgo de secuestro de cuentas): exige dos confirmaciones
+  en persona de cuentas de ramas distintas, una espera de 72 h con aviso al
+  dispositivo anterior, y no se permite durante la veda.
+- **Perfiles no vinculables:** el hash por función se deriva de un secreto generado
+  en el teléfono, distinto para cada función y nunca de un identificador estable del
+  dispositivo.
+- **Detección de cuentas falsas y apertura por quórum:** sigue abierto (L2 ⛔ para
+  datos reales). Hay que decidir TC-5 y TC-12, y elegir un método de detección que no
+  lea el grafo en claro.
+- **Cuentas de rol de partido** (precisión del autor): con TC-11 ★ y contrato de
+  encargo por partido, L1 baja a ⚠️.

@@ -606,3 +606,27 @@ Riesgos legales identificados por el planner, para análisis del rol (no son con
 
 Salida esperada: `sdd/specs/scrutiny-backend/checks/electoral_counsel.md` con ⛔/⚠️ y
 alternativas ordenadas por riesgo; los ⛔ frenan la implementación hasta que decida el autor.
+
+## Ajustes por el chequeo de electoral_counsel (31/10/2026)
+
+Informe: [checks/electoral_counsel.md](checks/electoral_counsel.md). Se incorporan como
+requisitos las mitigaciones no bloqueantes. Los ⛔ quedan para el autor.
+
+- **Autorización por objeto** en cada ruta: el dispositivo y el rol salen del token,
+  nunca de un id de la ruta (OWASP API1).
+- **Enrolamiento resistente a fuerza bruta:** códigos de alta entropía, de un solo uso
+  y con vencimiento, con límite de intentos por IP y por código.
+- **Embargo a prueba de fallas:** si el servidor no puede determinar la hora o la hora
+  de cierre configurada, responde `423 Locked`. La liberación toma la hora real de
+  cierre de cada distrito (L3).
+- **Parser de imágenes aislado:** se procesa en un proceso aparte sin red, con límites
+  de tamaño y de tiempo; los metadatos se descartan.
+- **Operadores:** autenticación con llave física (FIDO2) y registro de cada acceso a
+  evidencia cruda.
+- **Imágenes con datos sensibles** (L6): acceso restringido y retención limitada hasta
+  el escrutinio definitivo más un plazo a definir (PP-7). Nunca se publican sin tapar.
+- **Voluntarios no fiscales en la muestra** (L4): no se los asigna a mesas hasta tener
+  base legal clara. Mientras tanto, la muestra se cubre con fiscales acreditados que
+  aceptan participar.
+- **Encuadre** (L5): se presenta como herramienta cívica de verificación, no como
+  acompañamiento cívico oficial. Las preguntas quedan para un abogado o abogada.

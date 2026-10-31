@@ -143,3 +143,15 @@ Con las recomendaciones ★ como provisorias hasta que se responda #3:
 - Q1. ¿Hay un dataset público de locales de votación de 2023 con coordenadas y
   cantidad de mesas? Asignar a electoral_analyst.
 - Q2. Respondida por el autor: CABA + 24 partidos.
+
+## Ajustes por el chequeo de electoral_counsel (31/10/2026)
+
+Informe: [checks/electoral_counsel.md](checks/electoral_counsel.md). Se incorporan como
+requisitos las mitigaciones no bloqueantes. Los ⛔ quedan para el autor.
+
+- **Imágenes 2023 con datos de personas** (L4): la muestra de telegramas y actas, si
+  se descarga, queda en `data/private/` sólo para probar la captura y medir el OCR.
+  Se borra después de la hackatón o cuando se termine la medición, lo que ocurra
+  primero, y nunca se muestra sin tapar los datos.
+- Atribución de licencias, rótulo "Provisorio 2023" y armado sin `innerHTML` ya están
+  aplicados (`a8feb7f`).

@@ -151,3 +151,20 @@ Flujo: Inicio (capturas) → Nueva → Escanear/Importar → Datos de mesa → V
 - Q3. ¿Qué identificación de mesa trae impresa el formulario (código de barras/QR)?
   Podría reemplazar la carga manual.
 - Q4. Recepción central, identidad de fiscales y antifraude de capturas (D-003).
+
+## Ajustes por el chequeo de electoral_counsel (31/10/2026)
+
+Informe: [checks/electoral_counsel.md](checks/electoral_counsel.md). Se incorporan como
+requisitos las mitigaciones no bloqueantes. Los ⛔ quedan para el autor.
+
+- **Sin ubicación en las imágenes:** al importar desde Fotos o escanear, se eliminan
+  los metadatos EXIF/GPS **antes** de calcular el hash y guardar la página. Así, el
+  original inmutable ya no contiene la ubicación (S1).
+- **Exportación:** antes de compartir, la app avisa que las fotos contienen nombres y
+  firmas. La copia publicable con datos tapados queda para F-50 (L4).
+- **Autoría:** el hash prueba la integridad del archivo, no quién lo generó. La firma
+  con clave del dispositivo llega con SB-8 (S2).
+- **Plantillas:** sólo plantillas embebidas en la app, o firmadas si en el futuro se
+  descargan (S4).
+- L-1 (si se puede fotografiar certificado y telegrama) sigue abierta para un abogado
+  o abogada electoral antes de cualquier uso real.

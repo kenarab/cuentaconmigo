@@ -256,3 +256,17 @@ la migración no cambia comportamiento.
 - XState v5, testing y `xstate/graph`: <https://stately.ai/docs/testing> · <https://stately.ai/docs/xstate-graph>
 - Design Tokens Format Module (DTCG): <https://www.designtokens.org/TR/2025.10/format/>
 - Server-driven UI, Airbnb Ghost Platform: <https://medium.com/airbnb-engineering/a-deep-dive-into-airbnbs-server-driven-ui-system-842244c5f5>
+
+## Ajustes por el chequeo de electoral_counsel (31/10/2026)
+
+Informe: [checks/electoral_counsel.md](checks/electoral_counsel.md). Se incorporan como
+requisitos las mitigaciones no bloqueantes. Los ⛔ quedan para el autor.
+
+- **Guardas legales en datos** (A2): el `capture.flow.json` va embebido en la app, o
+  firmado si algún día se descarga. Los vectores prueban que no se puede saltear el
+  aviso de Boleta Única ni editar tras confirmar.
+- **Canales de terceros** (A3): ningún workflow, bot ni asistente envía fotos o datos
+  de mesas por mensajería de terceros. Esos canales sólo guían el flujo; la evidencia
+  viaja por el canal propio.
+- **Traspaso en F-3** (A4): el modo traspaso sólo muestra la carga a ciegas, sin
+  acceso a la galería ni a otras capturas.

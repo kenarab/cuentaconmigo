@@ -112,3 +112,25 @@ y resumen. Se integran a la navegación que elija el autor en AS-1.
 Riesgos a evaluar: facultades del fiscal general y de quien cubre varias mesas;
 uso de capturas de otras fuerzas; avisos durante la jornada y veda; tratamiento de
 imágenes con datos de autoridades de mesa.
+
+## Ajustes por el chequeo de electoral_counsel (31/10/2026)
+
+Informe: [checks/electoral_counsel.md](checks/electoral_counsel.md). Se incorporan como
+requisitos las mitigaciones no bloqueantes. Los ⛔ quedan para el autor.
+
+- **La lista de mesas seguidas no revela el recorrido** (L4, S1). Se propone
+  reemplazar el `PUT watchlist` por una **consulta por circuito**: el teléfono descarga
+  los eventos de los circuitos que cubre y filtra en el teléfono qué mesas sigue. El
+  servidor no guarda qué mesas sigue cada dispositivo ni cuándo cambian sus estados.
+  Si hiciera falta una lista en el servidor, el dispositivo se deriva del token (nunca
+  de la ruta) y la lista se borra al cierre de la jornada.
+- **Avisos durante el embargo** (L2): mientras dure la ventana del art. 71 inc. h, los
+  avisos dicen sólo "hay una captura nueva / coincide / hay diferencias", sin cifras de
+  votos.
+- **Diferencias inyectadas** (S2): el aviso de "hay diferencias" requiere una captura
+  confirmada por una segunda persona o por coincidencia con el OCR.
+- **Push** (S3): si se usa push del sistema, debe ser silencioso y sin contenido, y la
+  app consulta el detalle por su cuenta.
+- **Resumen exportado** (S4): aviso de que revela el recorrido, y opción de exportarlo
+  sin horarios.
+- FP-3 "fuerza declarada" queda ⛔ si se elige.
