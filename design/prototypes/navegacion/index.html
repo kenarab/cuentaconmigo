@@ -1,0 +1,638 @@
+<title>Prototipo de navegación</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Mismo lenguaje visual que design/prototypes/escrutinio: iPhone (390×844) a la izquierda y panel de diseño
+   pegajoso a la derecha; en teléfono el marco desaparece, la pantalla ocupa el ancho y el panel va debajo. */
+:root{
+  --celeste:#7CB9E8; --azul:#1D4F91; --dorado:#F6B40E;
+  --bg:#EEF2F7; --surface:#FFFFFF; --surface-2:#F5F8FC; --fg:#14213A; --muted:#5B6B86; --border:#D3DCE8;
+  --accent:#1D4F91; --accent-fg:#FFFFFF; --accent-soft:#E3EEF9;
+  --warn-bg:#FFF1C2; --warn-fg:#5C4300; --warn-line:#E0A800;
+  --err:#B3261E; --err-bg:#FDECEA; --ok:#1E7A4A; --ok-bg:#E3F5EA;
+  --panel-bg:#FFFFFF; --focus:#F6B40E;
+  --spring-a:#1D4F91; --spring-b:#0E1524;
+  --f-ui:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+  --f-panel:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1524; --surface:#172238; --surface-2:#1E2B45; --fg:#E7EDF7; --muted:#9FB0C8; --border:#2C3C58;
+    --accent:#7CB9E8; --accent-fg:#0E1524; --accent-soft:#1F3556;
+    --warn-bg:#4A3A05; --warn-fg:#FFE08A; --warn-line:#F6B40E;
+    --err:#F2857B; --err-bg:#4A1F1C; --ok:#6CD39A; --ok-bg:#163A28;
+    --panel-bg:#121B2E; --focus:#F6B40E; --spring-a:#1F3556; --spring-b:#05080F; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1524; --surface:#172238; --surface-2:#1E2B45; --fg:#E7EDF7; --muted:#9FB0C8; --border:#2C3C58;
+  --accent:#7CB9E8; --accent-fg:#0E1524; --accent-soft:#1F3556;
+  --warn-bg:#4A3A05; --warn-fg:#FFE08A; --warn-line:#F6B40E;
+  --err:#F2857B; --err-bg:#4A1F1C; --ok:#6CD39A; --ok-bg:#163A28;
+  --panel-bg:#121B2E; --focus:#F6B40E; --spring-a:#1F3556; --spring-b:#05080F; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-panel);font-size:15px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 40px;overflow-x:hidden}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:var(--accent)}
+h1,h2,h3{text-wrap:balance;margin:0}
+.header{max-width:1240px;margin:0 auto 18px;display:flex;flex-wrap:wrap;gap:8px 18px;align-items:baseline}
+.header h1{font-size:20px;font-weight:600}
+.header p{margin:0;color:var(--muted);max-width:70ch}
+.stage{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,440px);gap:28px;align-items:start}
+/* marco del teléfono */
+.device{width:390px;height:844px;margin:0 auto;background:#0A0C10;border-radius:52px;padding:12px;box-shadow:0 20px 50px rgba(10,20,40,.35)}
+.phone{position:relative;width:100%;height:100%;border-radius:40px;overflow:hidden;background:var(--bg);display:flex;flex-direction:column;font-family:var(--f-ui);font-size:17px;color:var(--fg)}
+.statusbar{display:flex;justify-content:space-between;align-items:center;padding:14px 26px 2px;font-size:14px;font-weight:600;background:var(--bg)}
+.statusbar .mid{font-weight:500;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;padding:0 8px}
+.proto{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--warn-fg);background:var(--warn-bg);text-align:center;padding:2px 8px;font-weight:700}
+.app{flex:1;min-height:0;display:flex;flex-direction:column}
+.nav{display:flex;align-items:center;gap:6px;padding:4px 8px;min-height:52px;background:var(--bg)}
+.nav .title{flex:1;text-align:center;font-weight:600;font-size:17px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.icon-btn{min-width:44px;min-height:44px;border:0;background:transparent;border-radius:12px;color:var(--accent);font-weight:500;display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:0 8px;font-size:15px;white-space:nowrap}
+.icon-btn:hover{background:var(--accent-soft)}
+.content{flex:1;min-height:0;overflow:auto;padding:4px 16px 20px;-webkit-overflow-scrolling:touch}
+.footer{padding:10px 16px 10px;display:flex;flex-direction:column;gap:8px;background:var(--bg);border-top:1px solid var(--border)}
+.btn{min-height:44px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);padding:8px 16px;font-size:17px;font-weight:600;width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-align:center;text-decoration:none;color:inherit}
+.btn.primary{min-height:56px;background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.btn.quiet{border-color:transparent;background:transparent;color:var(--accent);min-height:44px}
+.btn.small{width:auto;min-height:44px;font-size:15px;padding:6px 14px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.banner{background:var(--warn-bg);color:var(--warn-fg);border-left:5px solid var(--warn-line);padding:10px 12px;border-radius:10px;font-size:14px;line-height:1.35;display:flex;gap:8px;align-items:flex-start;margin:4px 0 10px;width:100%;text-align:left;border-top:0;border-right:0;border-bottom:0;font-family:inherit}
+.banner strong{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.card h3{font-size:16px;margin-bottom:4px}
+.card p{margin:0 0 6px;font-size:14px}
+.row-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;min-height:64px;margin-bottom:8px;font-family:inherit;font-size:16px;color:inherit;text-decoration:none}
+.row-item .meta{color:var(--muted);font-size:14px;margin-top:2px}
+.row-item .grow{flex:1;min-width:0}
+.row-item .chev{color:var(--muted);flex:none}
+.row-item .ic{flex:none;width:36px;height:36px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:13px}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--surface-2);border:1px solid var(--border);white-space:nowrap}
+.pill.ok{background:var(--ok-bg);color:var(--ok);border-color:transparent}
+.pill.warn{background:var(--warn-bg);color:var(--warn-fg);border-color:transparent}
+.pill.err{background:var(--err-bg);color:var(--err);border-color:transparent}
+.pill.sim{background:var(--dorado);color:#14213A;border-color:transparent;letter-spacing:.06em}
+.empty{color:var(--muted);text-align:center;padding:28px 16px;font-size:16px}
+.h-screen{font-size:24px;font-weight:700;line-height:1.2;margin:12px 0 8px}
+.lead{color:var(--muted);margin:0 0 14px;font-size:15px}
+.section-h{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.callout{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;font-size:14px;color:var(--fg);margin:10px 0}
+.callout.warn{background:var(--warn-bg);color:var(--warn-fg);border-color:transparent}
+.callout.quiet{border-style:dashed}
+.kv{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;font-size:15px;margin:0}
+.kv dt{color:var(--muted)} .kv dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.mono{font-family:var(--f-mono);font-size:13px;color:var(--muted)}
+/* red: feed y espacios */
+.space{display:flex;align-items:center;gap:10px;width:100%;text-align:left;min-height:48px;border:0;border-bottom:1px solid var(--border);background:transparent;padding:4px 2px;font-family:inherit;font-size:16px;color:inherit}
+.space[aria-pressed="true"]{color:var(--accent);font-weight:600}
+.space .n{margin-left:auto;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.feed{list-style:none;margin:0;padding:0}
+.feed li{padding:10px 0;border-bottom:1px solid var(--border);font-size:15px;line-height:1.35}
+.feed .who{font-size:12.5px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap;margin-bottom:2px}
+.feed .who b{font-weight:600;color:var(--fg)}
+.feed .src{font-size:13px;color:var(--accent);margin-top:2px;display:inline-block}
+.subtabs{display:flex;gap:4px;overflow-x:auto;padding:4px 0 8px;scrollbar-width:thin}
+.subtabs button{flex:none;min-height:44px;border:1px solid var(--border);background:var(--surface);border-radius:12px;padding:4px 12px;font-size:14px;font-weight:600;white-space:nowrap}
+.subtabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.meter{display:grid;grid-template-columns:minmax(0,1fr) auto 28px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:15px}
+.meter .val{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.meter .st{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px}
+.meter .st.ok{background:var(--ok-bg);color:var(--ok)} .meter .st.no{background:var(--err-bg);color:var(--err)} .meter .st.pend{background:var(--warn-bg);color:var(--warn-fg)}
+.party{display:grid;grid-template-columns:48px minmax(0,1fr);gap:12px;align-items:start;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:8px}
+.party .logo{width:48px;height:48px;border-radius:12px;background:var(--surface-2);border:1px solid var(--border);display:grid;place-items:center;font-weight:700;color:var(--muted)}
+.party h3{font-size:16px;margin-bottom:2px}
+.party .meta{font-size:13.5px;color:var(--muted)}
+.party .acts{display:flex;gap:6px;margin-top:8px}
+.party .acts .btn{width:auto;min-height:44px;font-size:14px;padding:4px 12px}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:14px;font-weight:600;margin-bottom:4px}
+.field .box{min-height:46px;border:1.5px dashed var(--border);border-radius:12px;background:var(--surface);padding:10px 12px;font-size:15px;color:var(--muted)}
+.field .box.done{border-style:solid;color:var(--fg)}
+/* modo jornada y tab bar */
+.jbar{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--warn-bg);color:var(--warn-fg);padding:0 4px 0 14px;font-size:13px;font-weight:600;min-height:44px}
+.jbar button{min-height:44px;border:0;background:transparent;color:var(--warn-fg);font-weight:700;border-radius:10px;padding:0 10px;text-decoration:underline}
+.tabbar{display:flex;border-top:1px solid var(--border);background:var(--surface);padding:6px 4px 6px}
+.tab{flex:1;min-height:50px;min-width:44px;border:0;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10.5px;font-weight:600;color:var(--muted);border-radius:10px;padding:2px 0;font-family:inherit}
+.tab svg{width:24px;height:24px}
+.tab[aria-current="page"]{color:var(--accent)}
+.tab .ring{width:40px;height:40px;border-radius:50%;background:var(--accent-soft);display:grid;place-items:center;color:var(--accent);margin-top:-6px}
+.tab[aria-current="page"] .ring{background:var(--accent);color:var(--accent-fg)}
+.home-ind{height:44px;border:0;background:var(--bg);display:grid;place-items:center;width:100%;padding:0;cursor:pointer}
+.home-ind span{width:134px;height:5px;border-radius:3px;background:var(--fg);opacity:.75;display:block}
+.spring .home-ind{background:transparent} .spring .home-ind span{background:#fff}
+/* pantalla de inicio del teléfono */
+.spring{flex:1;min-height:0;display:flex;flex-direction:column;background:linear-gradient(165deg,var(--spring-a),var(--spring-b));color:#fff;padding:18px 20px 0}
+.spring .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px 8px;margin-top:8px}
+.appicon{display:flex;flex-direction:column;align-items:center;gap:6px;background:transparent;border:0;color:#fff;font-size:11.5px;font-weight:500;min-height:44px;padding:4px 0;border-radius:12px;font-family:inherit;text-align:center;line-height:1.15}
+.appicon .ic{width:60px;height:60px;border-radius:15px;display:grid;place-items:center;font-weight:800;font-size:20px;color:#14213A;box-shadow:0 4px 12px rgba(0,0,0,.35)}
+.appicon.ghost{opacity:.5;cursor:default}
+.appicon.ghost .ic{background:rgba(255,255,255,.18);color:#fff;font-size:13px;font-weight:600}
+.spring .hint{margin-top:auto;padding:12px 4px 10px;font-size:13px;color:rgba(255,255,255,.75);text-align:center}
+.toast{position:absolute;left:16px;right:16px;bottom:90px;background:var(--fg);color:var(--bg);padding:10px 14px;border-radius:12px;font-size:14px;z-index:30;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+/* panel */
+.panel{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto;background:var(--panel-bg);border:1px solid var(--border);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:16px}
+.panel h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px}
+.panel p{margin:0 0 8px;font-size:14px}
+.screen-list{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.screen-list button{display:flex;gap:8px;align-items:center;min-height:44px;border:1px solid transparent;background:transparent;border-radius:10px;padding:4px 8px;text-align:left;font-size:13.5px;line-height:1.2;font-family:inherit}
+.screen-list button code{font-family:var(--f-mono);font-size:12px;color:var(--accent);flex:none}
+.screen-list button:hover{background:var(--surface-2)}
+.screen-list button[aria-current="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.note h3{font-size:16px;font-weight:600;margin-bottom:6px}
+.note ul,.panel details ul{margin:0 0 8px;padding-left:18px;font-size:13.5px}
+.note li,.panel details li{margin-bottom:4px}
+.tag{display:inline-block;font-family:var(--f-mono);font-size:11px;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:0 5px;margin:0 4px 4px 0}
+.tag.warn{background:var(--warn-bg);color:var(--warn-fg);border-color:transparent}
+.seg{display:flex;gap:4px;flex-wrap:wrap}
+.seg button{min-height:44px;border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:4px 12px;font-size:13.5px;font-weight:600;font-family:inherit}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;font-size:14px;width:100%;background:transparent;border:0;border-bottom:1px solid var(--border);padding:4px 0;text-align:left;font-family:inherit}
+.toggle .sw{width:44px;height:26px;border-radius:13px;background:var(--border);position:relative;flex:none;transition:background .15s}
+.toggle .sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .15s}
+.toggle[aria-checked="true"] .sw{background:var(--accent)} .toggle[aria-checked="true"] .sw::after{left:21px}
+.toggle:disabled{opacity:.5;cursor:not-allowed}
+.phone .toggle{font-family:var(--f-ui);font-size:16px;min-height:56px}
+.panel .btn{font-size:14px;min-height:44px;font-family:var(--f-panel)}
+.panel details{border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:13.5px}
+.panel summary{cursor:pointer;font-weight:600;min-height:28px;display:flex;align-items:center}
+.tapbox{border:1.5px solid var(--accent);background:var(--accent-soft);border-radius:12px;padding:10px 12px;font-size:14px;margin-bottom:8px}
+.tapbox .big{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.taps{width:100%;border-collapse:collapse;font-size:13px}
+.taps th,.taps td{padding:5px 4px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+.taps td:not(:first-child){text-align:center;font-variant-numeric:tabular-nums;font-weight:600}
+.taps tr.on td{background:var(--accent-soft)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* ---- Piel Android (Material 3 / Compose): misma estructura, mismos datos, otros componentes de superficie ---- */
+.phone[data-platform="android"]{--f-ui:Roboto,"Segoe UI","Helvetica Neue",Arial,sans-serif;border-radius:30px}
+.phone[data-platform="android"] .statusbar{font-weight:500;font-size:13px;padding:10px 22px 2px}
+.phone[data-platform="android"] .nav{min-height:64px;padding:0 4px}
+.phone[data-platform="android"] .nav .title{text-align:left;font-size:22px;font-weight:400;padding-left:6px}
+.phone[data-platform="android"] .nav .spacer{min-width:12px!important}
+.phone[data-platform="android"] .icon-btn{border-radius:50%;min-width:48px;min-height:48px;color:var(--fg);font-size:14px}
+.phone[data-platform="android"] .btn{border-radius:999px}
+.phone[data-platform="android"] .row-item{border:0;border-bottom:1px solid var(--border);border-radius:0;background:transparent;margin-bottom:0;padding:12px 6px;min-height:72px}
+.phone[data-platform="android"] .row-item .ic,.phone[data-platform="android"] .party .logo,.phone[data-platform="android"] .appicon .ic{border-radius:50%}
+.phone[data-platform="android"] .card,.phone[data-platform="android"] .party,.phone[data-platform="android"] .callout{border-radius:12px;border-color:transparent;background:var(--surface-2)}
+.phone[data-platform="android"] .callout.warn{background:var(--warn-bg)}
+.phone[data-platform="android"] .banner{border-radius:12px;border-left-width:0}
+.phone[data-platform="android"] .subtabs{gap:0;border-bottom:1px solid var(--border);padding-bottom:0}
+.phone[data-platform="android"] .subtabs button{border:0;border-radius:0;background:transparent;min-height:48px;border-bottom:3px solid transparent;color:var(--muted);font-weight:500}
+.phone[data-platform="android"] .subtabs button[aria-selected="true"]{background:transparent;color:var(--accent);border-bottom-color:var(--accent)}
+.phone[data-platform="android"] .space[aria-pressed="true"]{background:var(--accent-soft);border-radius:999px;padding-left:12px}
+.phone[data-platform="android"] .tabbar{min-height:80px;padding:12px 0 12px;border-top:0;background:var(--surface-2)}
+.phone[data-platform="android"] .tab{font-size:12px;font-weight:500;gap:4px;color:var(--muted)}
+.phone[data-platform="android"] .tab .ind{display:grid;place-items:center;width:64px;height:32px;border-radius:16px}
+.phone[data-platform="android"] .tab[aria-current="page"]{color:var(--fg)}
+.phone[data-platform="android"] .tab[aria-current="page"] .ind{background:var(--accent-soft);color:var(--accent)}
+.phone[data-platform="android"] .home-ind span{width:108px;height:4px;opacity:.45}
+.phone[data-platform="android"] .toggle .sw{width:52px;height:32px;border-radius:16px;border:2px solid var(--muted);background:var(--surface-2)}
+.phone[data-platform="android"] .toggle .sw::after{width:16px;height:16px;top:6px;left:6px;background:var(--muted)}
+.phone[data-platform="android"] .toggle[aria-checked="true"] .sw{background:var(--accent);border-color:var(--accent)}
+.phone[data-platform="android"] .toggle[aria-checked="true"] .sw::after{width:24px;height:24px;top:2px;left:24px;background:var(--accent-fg)}
+.phone[data-platform="android"] .toast{border-radius:4px;left:12px;right:12px;text-align:left;bottom:96px;background:var(--fg);color:var(--bg)}
+.phone[data-platform="android"] .spring{background:linear-gradient(165deg,var(--spring-b),var(--spring-a))}
+.fab{position:absolute;right:16px;min-height:56px;border-radius:16px;background:var(--accent);color:var(--accent-fg);border:0;padding:0 20px 0 16px;font-weight:600;font-size:15px;display:inline-flex;align-items:center;gap:8px;box-shadow:0 6px 16px rgba(0,0,0,.28);z-index:5;font-family:inherit}
+@media (max-width:900px){
+  .stage{grid-template-columns:minmax(0,1fr)}
+  .device{width:100%;height:min(844px,calc(100dvh - 24px));border-radius:18px;padding:0;background:transparent;box-shadow:none}
+  .phone{border-radius:18px;border:1px solid var(--border)}
+  .panel{position:static;max-height:none}
+}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important;scroll-behavior:auto!important} }
+</style>
+
+<header class="header">
+  <h1>Prototipo de navegación · CuentaConmigo</h1>
+  <p>Propuesta navegable para comparar las tres arquitecturas de navegación global (SPEC app-screens, sección 3; decisión AS-1), con piel iOS o Android (Material 3) a elección. No es una decisión. Todos los datos son ficticios: Fuerza A/B/C, mesa 00042, cifras de ejemplo.</p>
+</header>
+
+<div class="stage">
+  <div class="device">
+    <div class="phone" id="phone">
+      <div class="statusbar"><span id="clock">20:47</span><span class="mid" id="midstate"></span><span id="battery">▮▮▮ 38 %</span></div>
+      <div class="app" id="app"></div>
+    </div>
+  </div>
+  <aside class="panel" id="panel" aria-label="Panel de diseño"></aside>
+</div>
+
+<script>
+/* ---------- alternativas (texto de la SPEC, sección 3) ---------- */
+const ALTS = {
+  'N-A':{ title:'Una app con tab bar y la red al centro',
+    desc:'Cinco pestañas; la red (inicio: actividad de los espacios y consensos en curso) en el centro. El escrutinio vive dentro de Herramientas como una herramienta más, igual que el archivo de evidencia o los agentes.',
+    pro:['Una sola identidad y una sola instalación.','El escrutinio se presenta como lo que es en la visión: una modalidad de acción de la red.','La pestaña Herramientas crece sin cambiar la estructura.'],
+    con:['El día de la elección, un fiscal con poca batería y poca señal tiene que encontrar el escrutinio dos toques adentro.','El prototipo de hoy no tiene red: cuatro de las cinco pestañas estarían vacías durante meses.','El tab bar compite con el espacio vertical en la carga de valores.'] },
+  'N-B':{ title:'App de escrutinio separada',
+    desc:'Dos apps: "CuentaConmigo" (red) y "CuentaConmigo Escrutinio" (el prototipo actual, tal como está). La app de escrutinio arranca directo en "Mis capturas".',
+    pro:['Es lo que ya existe; cero fricción el día D.','Se puede distribuir a fiscales de cualquier fuerza sin pedirles que se sumen a la red (coherente con la opción 1 de V-4).','Menor superficie de revisión en tiendas.'],
+    con:['Dos marcas y dos instalaciones.','El escrutinio queda desconectado de la historia ("cierre del proceso de auditoría").','Duplicación de perfil, ajustes y evidencia; dos apps en dos plataformas para mantener.'] },
+  'N-C':{ title:'Una app con "modo jornada electoral"',
+    desc:'La app es la red (tab bar como N-A). El día de la elección, o cuando la persona lo activa a mano en Ajustes, el inicio pasa a ser Escrutinio a pantalla completa, con "Volver a la red". Fuera del modo, el escrutinio sigue en Herramientas. El modo es local y se puede activar siempre, para practicar. Es la recomendación de la SPEC (propuesta, no decisión).',
+    pro:['Una sola app y una sola identidad.','El día D el escrutinio es lo primero que se ve y sin tab bar.','El prototipo actual es el modo jornada: lo que se construye ahora no se tira.','Respeta la veda: en ese modo no se muestran feeds ni contenidos partidarios (a definir con electoral_counsel).'],
+    con:['Dos "estados" de la misma app que hay que explicar.','El disparador por fecha depende del calendario oficial (aún abierto).','Hay que decidir qué pasa con las notificaciones de la red durante el modo.'] }
+};
+/* toques mínimos hasta "Nueva captura": [desde el inicio del teléfono, con la app ya abierta en su raíz] */
+const TAPS = [
+  {k:'N-A', label:'N-A', phone:4, app:3, how:'abrir app · Herramientas · Escrutinio · Nueva captura'},
+  {k:'N-B', label:'N-B (app Escrutinio)', phone:2, app:1, how:'abrir CC Escrutinio · Nueva captura'},
+  {k:'N-B-red', label:'N-B (desde la app de red)', phone:'—', app:3, how:'Herramientas · abrir la otra app · Nueva captura'},
+  {k:'N-C-normal', label:'N-C modo normal', phone:4, app:3, how:'igual que N-A'},
+  {k:'N-C-jornada', label:'N-C modo jornada', phone:2, app:1, how:'abrir app · Nueva captura'}
+];
+
+/* ---------- datos ficticios (neutrales; cada fuerza aparece una sola vez y con el mismo tratamiento) ---------- */
+const SPACES = [
+  {id:'plataformas',label:'Plataformas',n:12},{id:'desinformacion',label:'Desinformación',n:3},{id:'campana',label:'Campaña',n:1},
+  {id:'jornada',label:'Jornada y escrutinio',n:1},{id:'regulacion',label:'Regulación',n:8}
+];
+const FEED = [
+  {t:'20:40',space:'plataformas',by:'ciudadania',text:'Nueva evidencia en el archivo A1: anuncio con etiqueta "patrocinado" sin anunciante identificable (registro #0418, con huella digital).',src:'Captura y metadatos'},
+  {t:'20:31',space:'regulacion',by:'partido',who:'Fuerza B · cuenta institucional',text:'agregó un argumento en contra en "Compromiso de buenas prácticas digitales" (v1).',src:'Ver argumento'},
+  {t:'20:12',space:'regulacion',by:'ciudadania',text:'Propuesta v3 publicada: cuenta de garantía electoral para la publicidad en plataformas.',src:'Ver propuesta'},
+  {t:'19:55',space:'desinformacion',by:'ciudadania',text:'Verificación comunitaria cerrada: la cadena sobre "cambio de horario de votación" se refuta con la fuente oficial.',src:'Fuente oficial ↗'},
+  {t:'19:40',space:'plataformas',by:'agente',who:'Agente de monitoreo A4',text:'corrida semanal del tablero completada; datos agregados disponibles para descargar.',src:'Metodología ↗'},
+  {t:'19:02',space:'regulacion',by:'partido',who:'Fuerza A · cuenta institucional',text:'adhirió al compromiso de buenas prácticas digitales (v1).',src:'Ver adhesión'},
+  {t:'18:30',space:'jornada',by:'ciudadania',text:'Guía de la jornada: qué documento puede escanear cada rol. Abierta a preguntas.',src:'Marco legal ↗'},
+  {t:'18:05',space:'campana',by:'partido',who:'Fuerza C · cuenta institucional',text:'publicó su declaración de gasto en publicidad digital (misma plantilla para todas las fuerzas).',src:'Ver declaración'}
+];
+const PROPS = [
+  {id:'p1',title:'Cuenta de garantía electoral para la publicidad en plataformas',v:3,state:'En deliberación',space:'Regulación',favor:14,contra:9,preg:5,enm:2},
+  {id:'p2',title:'Compromiso de buenas prácticas digitales entre fuerzas',v:1,state:'Midiendo consenso',space:'Campaña',favor:21,contra:4,preg:2,enm:0},
+  {id:'p3',title:'Pedido de información pública sobre pauta oficial (Ley 27.275)',v:2,state:'Borrador',space:'Campaña',favor:0,contra:0,preg:1,enm:0},
+  {id:'p4',title:'La app: leer el código del documento en "Datos de mesa"',v:1,state:'En deliberación',space:'Jornada y escrutinio',favor:6,contra:1,preg:3,enm:1,kind:'app'}
+];
+const ARGS = {
+  favor:[{by:'ciudadania',text:'Hoy no hay un depósito previo verificable para la pauta en plataformas; la cuenta de garantía lo vuelve auditable antes de que corra el anuncio.',src:'Informe de gasto declarado 2023 ↗'},
+         {by:'partido',who:'Fuerza C · cuenta institucional',text:'Un mecanismo igual para todas las fuerzas evita ventajas por volumen de pauta.',src:'Declaración de gasto (plantilla común) ↗'},
+         {by:'ciudadania',text:'Las plataformas ya exigen identificación de anunciantes políticos en otros países; el costo de adaptación es conocido.',src:'Biblioteca de anuncios ↗'}],
+  contra:[{by:'ciudadania',text:'El depósito previo puede dejar afuera a fuerzas chicas si el monto mínimo no es proporcional.',src:'Simulación de montos ↗'},
+          {by:'partido',who:'Fuerza B · cuenta institucional',text:'Habría que definir quién custodia la cuenta y con qué control judicial; sin eso, la propuesta no es operativa.',src:'Marco legal, sección 4 ↗'}],
+  preg:[{by:'ciudadania',text:'¿La garantía cubre también la pauta de terceros que apoyan a una candidatura?',src:null}],
+  enm:[{by:'ciudadania',text:'Enmienda 2: reemplazar "monto fijo" por "porcentaje del tope de gasto de campaña" (diff de 3 líneas).',src:'Ver diff'}]
+};
+const PARTIES = ['Fuerza A','Fuerza B','Fuerza C'];
+const TOOLS = [
+  {id:'a1',label:'Archivo de evidencia viral (A1)',meta:'Cargar evidencia con huella digital, igual que un telegrama (mismo núcleo, D-EV-1)',ic:'A1'},
+  {id:'a4',label:'Tablero público de plataformas (A4)',meta:'Métricas con definición pública y descarga de datos agregados',ic:'A4'},
+  {id:'ag',label:'Agentes de monitoreo',meta:'Qué mide cada uno, con qué método, última corrida',ic:'IA'},
+  {id:'sim',label:'Simulación del AMBA',meta:'Web estática · datos de 2023 · no es una proyección',ic:'SIM',sim:true}
+];
+
+/* ---------- estado y navegación ---------- */
+let S, toastTimer=null;
+const SESSION_ORDER = PARTIES.slice().sort(()=>Math.random()-0.5); /* orden aleatorio por sesión, documentado en R-05 */
+function initialState(){ return { alt:'N-A', platform:'ios', screen:'s-00', app:'red', jornadaManual:false, sim:{veda:false},
+  ui:{space:null, order:0, sub:'favor', prop:'p1', taps:0, tapsDone:false, tapsResult:null, fromPanel:false} }; }
+const SCREENS = [
+  ['s-00','Inicio del teléfono'],['r-00','Red (inicio)'],['r-01','Espacios y feed'],['r-02','Propuestas'],['r-02b','Nueva propuesta'],
+  ['r-03','Deliberación'],['r-04','Consenso'],['r-05','Partidos'],['r-06','Herramientas'],['r-07','Perfil'],['a-01','Ajustes'],
+  ['e-01','Mis capturas'],['e-02','Nueva captura']
+];
+const ORDERS = ['Más reciente','Por tema','Por consenso alcanzado'];
+function esc(s){ return String(s).replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch])); }
+function hhmm(d){ return d.toTimeString().slice(0,5); }
+function jornadaActive(){ return S.alt==='N-C' && (S.jornadaManual || S.sim.veda); }
+function quiet(){ return S.sim.veda || jornadaActive(); }
+function isNet(id){ return id.startsWith('r-') || id.startsWith('a-'); }
+function isScrut(id){ return id.startsWith('e-'); }
+function appRoot(){ if(S.alt==='N-B') return S.app==='escrutinio'?'e-01':'r-00'; return jornadaActive()?'e-01':'r-00'; }
+function showTabBar(){
+  const id=S.screen; if(id==='s-00') return false;
+  if(S.alt==='N-B') return S.app==='red';
+  if(jornadaActive() && isScrut(id)) return false;
+  if(id==='e-02') return S.alt==='N-A'; /* N-A: el flujo es "una herramienta más" y conserva el tab bar; N-C: el flujo es pantalla completa */
+  return true;
+}
+function go(id){
+  if(!SCREENS.some(s=>s[0]===id)) id='r-00';
+  if(S.alt==='N-B'){ if(isScrut(id)) S.app='escrutinio'; else if(id!=='s-00') S.app='red'; } else S.app='red';
+  S.screen=id;
+  if(id==='s-00'){ S.ui.taps=0; S.ui.tapsDone=false; S.ui.tapsResult=null; S.ui.fromPanel=false; }
+  if(id==='e-02' && !S.ui.tapsDone){ S.ui.tapsDone=true; S.ui.tapsResult=S.ui.taps; }
+  const h=hashFor(id);
+  if(location.hash!==h) history.replaceState(null,'',h);
+  render();
+}
+function hashFor(id){ return '#'+S.alt.toLowerCase()+'/'+id+(S.jornadaManual?'/jornada':'')+(S.sim.veda?'/veda':'')+(S.platform==='android'?'/android':''); }
+function parseHash(){
+  const parts=location.hash.replace('#','').split('/').filter(Boolean); if(!parts.length) return null;
+  const alt=parts[0].toUpperCase(); if(!ALTS[alt]) return null;
+  return {alt, screen:parts[1]||'s-00', jornada:parts.includes('jornada'), veda:parts.includes('veda'), platform:parts.includes('android')?'android':'ios'};
+}
+function android(){ return S.platform==='android'; }
+
+/* ---------- íconos ---------- */
+const I = {
+  back:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>',
+  arrow:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12H4M10 6l-6 6 6 6"/></svg>',
+  plus:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+  chev:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>',
+  espacios:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>',
+  propuestas:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h6M9 16h6M9 8h3"/></svg>',
+  red:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="18" r="2.5"/><circle cx="19" cy="18" r="2.5"/><path d="M10.8 7.2 6.4 15.8M13.2 7.2l4.4 8.6M7.5 18h9"/></svg>',
+  herr:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 6.5a4 4 0 0 0-5 5L4 17l3 3 5.5-5.5a4 4 0 0 0 5-5l-2.3 2.3-2-2z"/></svg>',
+  yo:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
+  lock:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>',
+  hand:'<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11m0-6.5a1.5 1.5 0 0 1 3 0V11m0-5a1.5 1.5 0 0 1 3 0v6.5m0-4a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-2a6 6 0 0 1-5-2.7L4.6 15a1.7 1.7 0 0 1 2.7-2L8 14"/></svg>',
+  doc:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M9 13l2 2 4-4"/></svg>'
+};
+
+/* ---------- piezas comunes ---------- */
+function tabBar(){
+  const tabs=[['r-01','Espacios',I.espacios],['r-02','Propuestas',I.propuestas],['r-00','Red',I.red],['r-06','Herram.',I.herr],['r-07','Yo',I.yo]];
+  const active = {'r-00':'r-00','r-01':'r-01','r-02':'r-02','r-02b':'r-02','r-03':'r-02','r-04':'r-02','r-05':'r-01','r-06':'r-06','r-07':'r-07','a-01':'r-07','e-01':'r-06','e-02':'r-06'}[S.screen];
+  /* iOS: TabView (la pestaña central con anillo). Android: NavigationBar con indicador tipo píldora y etiquetas siempre visibles. */
+  const icon=(id,ic)=> android() ? `<span class="ind">${ic}</span>` : (id==='r-00'?`<span class="ring">${ic}</span>`:ic);
+  return `<nav class="tabbar" aria-label="Pestañas">${tabs.map(([id,l,ic])=>`<button class="tab" data-act="tab" data-to="${id}" aria-current="${active===id?'page':'false'}" aria-label="${l==='Herram.'?'Herramientas':l}">${icon(id,ic)}<span>${l}</span></button>`).join('')}</nav>`;
+}
+function jbar(){ return `<div class="jbar" role="status"><span>Modo jornada electoral activo</span><button data-act="go" data-to="e-01">Volver al escrutinio</button></div>`; }
+function vedaNotice(kind){
+  if(jornadaActive()) return `<div class="callout warn"><strong>Modo jornada electoral.</strong> No se muestran feeds ni contenidos de cuentas partidarias. <span class="mono" style="color:inherit">A definir con electoral_counsel (RC-3).</span></div>`;
+  if(S.sim.veda) return `<div class="callout warn"><strong>Veda electoral (simulada).</strong> ${kind==='parties'?'Las cuentas partidarias están en pausa.':'Se ocultan las publicaciones de cuentas partidarias.'} <span class="mono" style="color:inherit">Comportamiento a definir con electoral_counsel (RC-3).</span></div>`;
+  return '';
+}
+function feedList(items){
+  if(jornadaActive()) return '';
+  let list=items.slice(); if(S.sim.veda) list=list.filter(i=>i.by!=='partido');
+  if(S.ui.order===1) list.sort((a,b)=>a.space.localeCompare(b.space));
+  if(S.ui.order===2) list.sort((a,b)=>(/propuesta|compromiso/i.test(b.text)?1:0)-(/propuesta|compromiso/i.test(a.text)?1:0));
+  if(!list.length) return `<p class="empty">No hay publicaciones para mostrar.</p>`;
+  return `<ul class="feed">${list.map(i=>{ const sp=SPACES.find(s=>s.id===i.space).label; const who=i.who?`<b>${esc(i.who)}</b> `:'';
+    return `<li><div class="who"><span>${i.t}</span><span>·</span><span>${esc(sp)}</span><span>·</span><span>${i.by==='partido'?'partido':i.by==='agente'?'agente de IA':'ciudadanía'}</span></div>${who}${esc(i.text)}${i.src?`<br><span class="src">${esc(i.src)}</span>`:''}</li>`; }).join('')}</ul>`;
+}
+function orderBtn(){ return `<button class="icon-btn" data-act="order" aria-label="Cambiar el orden del feed. Actual: ${ORDERS[S.ui.order]}">Orden ▾</button>`; }
+function backBtn(to,label){ return {to,label}; }
+function e00(){ return `<div class="banner" role="note"><span aria-hidden="true">⚠</span><div><strong>Prototipo</strong>Formulario ficticio (Lista A/B/C). No cargues datos reales todavía.</div></div>`; }
+function scrutNav(){
+  /* cómo se presenta la rama de escrutinio según la alternativa y el modo */
+  if(S.alt==='N-B') return {title:'Escrutinio', back:null, trailing:`<button class="icon-btn" aria-label="Acerca de">ⓘ</button>`};
+  if(jornadaActive()) return {title:'Escrutinio · jornada', back:null, trailing:`<button class="icon-btn" data-act="go" data-to="a-01" aria-label="Ajustes">⚙</button>`};
+  return {title:'Escrutinio', back:backBtn('r-06','Herramientas')};
+}
+
+/* ---------- pantallas ---------- */
+const R = {};
+R['s-00'] = () => {
+  const two=S.alt==='N-B';
+  const icon=(label,bg,txt,act,app)=>`<button class="appicon" data-act="open-app" data-app="${app}" aria-label="Abrir ${label}"><span class="ic" style="background:${bg}">${txt}</span><span>${label}</span></button>`;
+  const ghost=(l)=>`<span class="appicon ghost" aria-hidden="true"><span class="ic">${l}</span><span>${l}</span></span>`;
+  return {nav:false, body:'', spring:`<div class="spring"><p style="margin:0;font-size:13px;color:rgba(255,255,255,.8)">Pantalla de inicio del teléfono (simulada)</p>
+    <div class="grid">${icon('CuentaConmigo','var(--celeste)','CC','','red')}${two?icon('CC Escrutinio','var(--dorado)',I.doc,'','escrutinio'):''}${ghost('Cámara')}${ghost('Fotos')}${two?'':ghost('Mensajes')}</div>
+    <p class="hint">${two?'Dos apps, dos íconos, dos instalaciones. "CC Escrutinio" abre directo en Mis capturas.':'Una sola app. '+(S.alt==='N-C'&&jornadaActive()?'Hoy abre en modo jornada electoral.':'Abre en la red; el escrutinio está en Herramientas.')}<br>Desde acá se cuentan los toques hasta "Nueva captura".</p>
+    <button class="home-ind" data-act="go" data-to="s-00" aria-label="Pantalla de inicio del teléfono"><span></span></button></div>`};
+};
+R['r-00'] = () => {
+  const act=feedList(FEED.slice(0,4));
+  const cons=PROPS.filter(p=>p.state!=='Borrador').slice(0,2).map(p=>`<button class="row-item" data-act="open-prop" data-id="${p.id}" data-to="r-04"><div class="grow"><div>${esc(p.title)}</div><div class="meta">${esc(p.state)} · v${p.v} · ${esc(p.space)}</div></div>${I.chev}</button>`).join('');
+  return {nav:{title:'Red', trailing:orderBtn()}, announce:'Red, inicio',
+    body:`<h1 class="h-screen">Cuidar el proceso</h1><p class="lead">Actividad de los espacios y consensos en curso. Orden: <strong>${ORDERS[S.ui.order]}</strong>. Nunca "para vos"; nada pago.</p>
+      ${vedaNotice()}
+      <div class="section-h"><span>Consensos en curso</span><button class="icon-btn" data-act="go" data-to="r-02" style="min-height:44px;font-size:13px">Ver todos</button></div>${cons}
+      <div class="section-h"><span>Actividad reciente</span><button class="icon-btn" data-act="go" data-to="r-01" style="min-height:44px;font-size:13px">Espacios</button></div>${act||'<p class="empty">Feed pausado durante el modo jornada.</p>'}`};
+};
+R['r-01'] = () => {
+  const sel=S.ui.space; const items=sel?FEED.filter(i=>i.space===sel):FEED;
+  return {nav:{title:'Espacios', trailing:orderBtn()}, announce:'Espacios temáticos',
+    body:`<p class="lead" style="margin-top:8px">Orden visible y elegible: <strong>${ORDERS[S.ui.order]}</strong>. Cada ítem muestra su fuente. Sin algoritmo de interacción.</p>
+      <div role="group" aria-label="Espacios temáticos">${SPACES.map(s=>`<button class="space" data-act="space" data-id="${s.id}" aria-pressed="${sel===s.id}">▸ ${esc(s.label)}<span class="n">${s.n?s.n+' nuevos':''}</span></button>`).join('')}</div>
+      ${vedaNotice()}
+      <div class="section-h"><span>${sel?esc(SPACES.find(s=>s.id===sel).label):'Todos los espacios'}</span>${sel?'<button class="icon-btn" data-act="space" data-id="" style="min-height:44px;font-size:13px">Ver todos</button>':''}</div>
+      ${feedList(items)||'<p class="empty">Feed pausado durante el modo jornada.</p>'}
+      <div class="section-h"><span>Participan</span></div><button class="row-item" data-act="go" data-to="r-05"><div class="grow"><div>Partidos en igualdad</div><div class="meta">${PARTIES.length} cuentas institucionales · misma tarjeta para todas</div></div>${I.chev}</button>`};
+};
+R['r-02'] = () => ({nav:{title:'Propuestas'}, announce:'Propuestas',
+  body:`<p class="lead" style="margin-top:8px">De la idea a la propuesta estructurada. Cualquiera puede proponer, también cambios a esta app.</p>
+    ${PROPS.map(p=>`<button class="row-item" data-act="open-prop" data-id="${p.id}" data-to="r-03"><div class="grow"><div>${esc(p.title)}</div><div class="meta">${esc(p.state)} · v${p.v} · ${esc(p.space)}${p.kind==='app'?' · <span class="pill">app</span>':''}</div></div>${I.chev}</button>`).join('')}${android()?'<div style="height:72px" aria-hidden="true"></div>':''}`,
+  /* iOS: botón primario abajo (safeAreaInset). Android: ExtendedFloatingActionButton, como haría Material. */
+  footer: android()?null:`<button class="btn primary" data-act="go" data-to="r-02b">Nueva propuesta</button>`,
+  fab: android()?{label:'Nueva propuesta',to:'r-02b'}:null});
+R['r-02b'] = () => {
+  const f=[['Problema','Qué está pasando y a quién afecta'],['Mecanismo','Qué cambia concretamente'],['Evidencia','Enlaces a los ejes A–D'],['Base legal','Normas en las que se apoya'],['Riesgos','Qué podría salir mal'],['Alternativas','Otras formas de resolverlo']];
+  return {nav:{title:'Nueva propuesta', back:backBtn('r-02','Propuestas')}, announce:'Nueva propuesta, plantilla obligatoria',
+    body:`<p class="lead" style="margin-top:8px">Plantilla obligatoria. No se publica sin completar las seis partes. Se ve igual para cualquier persona o cuenta.</p>
+      ${f.map(([l,h],i)=>`<div class="field"><label>${i+1}. ${l}</label><div class="box${i<2?' done':''}">${i<2?(i===0?'Hay pauta electoral en plataformas sin depósito previo verificable…':'Una cuenta de garantía por anunciante, auditable antes de…'):h}</div></div>`).join('')}`,
+    footer:`<button class="btn primary" disabled aria-disabled="true">Publicar (faltan 4 partes)</button>`};
+};
+R['r-03'] = () => {
+  const p=PROPS.find(x=>x.id===S.ui.prop)||PROPS[0]; const sub=S.ui.sub; const counts={favor:p.favor,contra:p.contra,preg:p.preg,enm:p.enm};
+  const labels={favor:'A favor',contra:'En contra',preg:'Preguntas',enm:'Enmiendas'};
+  let list=ARGS[sub]||[]; const hidden=quiet()?list.filter(a=>a.by==='partido').length:0; if(quiet()) list=list.filter(a=>a.by!=='partido');
+  return {nav:{title:`Propuesta v${p.v}`, back:backBtn('r-02','Propuestas')}, announce:`Deliberación, ${labels[sub]}`,
+    body:`<h2 style="font-size:18px;margin:8px 0 4px">${esc(p.title)}</h2><p class="lead">${esc(p.state)} · ${esc(p.space)} · versiones: ${p.v}</p>
+      <div class="subtabs" role="tablist" aria-label="Deliberación">${Object.keys(labels).map(k=>`<button role="tab" aria-selected="${sub===k}" data-act="sub" data-id="${k}">${labels[k]} (${counts[k]})</button>`).join('')}</div>
+      <p class="mono" style="margin:0 0 6px">Orden: por fecha · nunca por votos · sin "me gusta"</p>
+      ${hidden?`<div class="callout warn">${hidden} argumento${hidden>1?'s':''} de cuentas partidarias en pausa (veda/modo jornada; a definir con electoral_counsel).</div>`:''}
+      <ul class="feed">${list.map(a=>`<li>${a.who?`<div class="who"><b>${esc(a.who)}</b></div>`:'<div class="who"><span>ciudadanía</span></div>'}${esc(a.text)}${a.src?`<br><span class="src">${esc(a.src)}</span>`:''}</li>`).join('')||'<li class="empty">Todavía no hay nada acá.</li>'}</ul>
+      <button class="row-item" data-act="go" data-to="r-04" style="margin-top:12px"><div class="grow"><div>Estado del consenso</div><div class="meta">Umbrales publicados · chequeo legal</div></div>${I.chev}</button>`,
+    footer:`<button class="btn" data-act="toast" data-msg="Boceto: agregar argumento con fuente">Agregar argumento</button><button class="btn quiet" data-act="toast" data-msg="Boceto: enmienda como cambio concreto al texto, con diff">Proponer enmienda</button>`};
+};
+R['r-04'] = () => {
+  const p=PROPS.find(x=>x.id===S.ui.prop)||PROPS[0];
+  const m=(l,v,st)=>`<div class="meter"><span>${l}</span><span class="val">${v}</span><span class="st ${st}" aria-label="${st==='ok'?'cumple':st==='no'?'no cumple':'pendiente'}">${st==='ok'?'✓':st==='no'?'✗':'…'}</span></div>`;
+  return {nav:{title:'Consenso', back:backBtn('r-03','Propuesta')}, announce:'Estado del consenso',
+    body:`<h2 style="font-size:18px;margin:8px 0 4px">${esc(p.title)}</h2><p class="lead">Umbrales publicados antes de usarse (valores de ejemplo, RC-2).</p>
+      ${m('Participantes verificados','1.240 / mín. 1.000','ok')}${m('Acuerdo','78 % / umbral 70 %','ok')}${m('Objeciones sin responder','1','no')}${m('Consenso transversal (fuerzas de distinto signo)','2 / mín. 3','no')}${m('Chequeo de electoral_counsel','pendiente','pend')}
+      <div class="callout">Ninguna acción externa se marca "en curso" sin el chequeo legal y sin consenso registrado.</div>
+      <div class="section-h"><span>Modalidad propuesta</span></div>
+      <div class="card"><h3>Carta abierta a plataformas</h3><p>Procedimiento: redacción colaborativa → firmas de quienes adhieren → envío público. Responsable: a designar por consenso.</p><p class="mono">Catálogo abierto: cualquiera puede proponer otra modalidad.</p></div>`,
+    footer:`<button class="btn" data-act="toast" data-msg="Boceto: proponer otra modalidad de acción">Proponer otra modalidad</button>`};
+};
+R['r-05'] = () => ({nav:{title:'Partidos', back:backBtn('r-01','Espacios')}, announce:'Partidos en igualdad',
+  body:`<p class="lead" style="margin-top:8px">Misma tarjeta para cada partido reconocido. Orden aleatorio por sesión (documentado). Mismos límites, visibles.</p>
+    ${vedaNotice('parties')}
+    ${SESSION_ORDER.map(n=>`<article class="party" aria-label="${esc(n)}, cuenta institucional verificada"><div class="logo" aria-hidden="true">${n.slice(-1)}</div><div><h3>${esc(n)}</h3><div class="meta">Cuenta institucional · verificada contra el registro oficial (RC-3)</div><div class="meta">Publicaciones: ${quiet()?'<span class="pill warn">en pausa</span>':'5 por día (límite igual para todas)'} · Argumentos: 4</div><div class="acts"><button class="btn" data-act="toast" data-msg="Boceto: argumentos de ${esc(n)} (mismo acceso para todas)">Argumentos</button><button class="btn" data-act="toast" data-msg="Boceto: reglas públicas, iguales para todas las fuerzas">Reglas</button></div></div></article>`).join('')}
+    <div class="callout quiet">Sin destacados, sin logos de distinto tamaño, sin contenido de campaña ni pedidos de voto. Durante la veda: comportamiento a definir (RC-3).</div>`});
+R['r-06'] = () => {
+  const two=S.alt==='N-B';
+  const scrut = two
+    ? `<button class="row-item" data-act="open-app" data-app="escrutinio"><span class="ic" style="background:var(--dorado);color:#14213A">${I.doc}</span><div class="grow"><div>Escrutinio</div><div class="meta">Se abre en la app "CuentaConmigo Escrutinio" ↗</div></div>${I.chev}</button>`
+    : `<button class="row-item" data-act="go" data-to="e-01"><span class="ic">${I.doc}</span><div class="grow"><div>Escrutinio</div><div class="meta">Mis capturas · Nueva captura${S.alt==='N-C'?' · también como modo jornada':''}</div></div>${I.chev}</button>`;
+  return {nav:{title:'Herramientas'}, announce:'Herramientas y agentes de monitoreo',
+    body:`<p class="lead" style="margin-top:8px">Medimos y documentamos lo que hacen las plataformas con herramientas propias. Las mismas métricas valen para todos los actores.</p>
+      ${TOOLS.map(t=>`<button class="row-item" data-act="toast" data-msg="Boceto: ${esc(t.label)}"><span class="ic">${t.ic}</span><div class="grow"><div>${esc(t.label)}${t.sim?' <span class="pill sim">SIMULACIÓN</span>':''}</div><div class="meta">${esc(t.meta)}</div></div>${I.chev}</button>`).join('')}
+      <div class="section-h"><span>Jornada y escrutinio</span></div>${scrut}
+      <div class="section-h"><span>Agentes de IA · estado</span></div>
+      <dl class="kv card"><dt>Tablero A4</dt><dd>corrida 30/10 · ok</dd><dt>Archivo A1</dt><dd>12 registros nuevos</dd><dt>Verificación comunitaria</dt><dd>3 en curso</dd></dl>`};
+};
+R['r-07'] = () => {
+  const two=S.alt==='N-B';
+  const caps = two ? `<button class="row-item" data-act="open-app" data-app="escrutinio"><div class="grow"><div>Mis capturas</div><div class="meta">En la app "CuentaConmigo Escrutinio" ↗ (perfil duplicado)</div></div>${I.chev}</button>`
+                   : `<button class="row-item" data-act="go" data-to="e-01"><div class="grow"><div>Mis capturas</div><div class="meta">1 confirmada · mesa 00042 (ficticia)</div></div>${I.chev}</button>`;
+  return {nav:{title:'Yo', trailing:`<button class="icon-btn" data-act="go" data-to="a-01" aria-label="Ajustes">⚙</button>`}, announce:'Perfil',
+    body:`<div class="card" style="margin-top:8px"><h3>alias: vecina-0421</h3><p>Persona verificada <span class="pill ok">✓</span> · método a definir (RC-5)</p><p class="mono">Nunca se pide ni se muestra afinidad política.</p></div>
+      <button class="row-item" data-act="go" data-to="r-02"><div class="grow"><div>Mis propuestas</div><div class="meta">1 en deliberación</div></div>${I.chev}</button>
+      <button class="row-item" data-act="go" data-to="r-03"><div class="grow"><div>Mis argumentos</div><div class="meta">3 · con fuente</div></div>${I.chev}</button>
+      ${caps}
+      <button class="row-item" data-act="go" data-to="a-01"><div class="grow"><div>Ajustes</div><div class="meta">${S.alt==='N-C'?'Modo jornada electoral · ':''}notificaciones · acerca de</div></div>${I.chev}</button>`};
+};
+R['a-01'] = () => {
+  const nc=S.alt==='N-C';
+  const ja = nc ? `<div class="card"><button class="toggle" role="switch" aria-checked="${S.jornadaManual}" data-act="toggle-jornada"><span>Modo jornada electoral</span><span class="sw" aria-hidden="true"></span></button>
+      <p class="mono" style="margin-top:8px">${S.sim.veda?'Activado por fecha (día de la elección, simulado). El interruptor manual no lo apaga ese día.':'Se activa solo el día de la elección (calendario oficial, a confirmar). Podés activarlo cuando quieras para practicar: es local, no depende de servidor.'}</p>
+      <p class="mono">Pendiente: qué pasa con las notificaciones de la red durante el modo.</p></div>`
+    : `<div class="callout quiet">Modo jornada electoral: no existe en ${S.alt}. ${S.alt==='N-B'?'La app de escrutinio ya es "modo jornada" siempre.':'El escrutinio vive en Herramientas.'}</div>`;
+  return {nav:{title:'Ajustes', back:backBtn('r-07','Yo')}, announce:'Ajustes',
+    body:`<div style="margin-top:8px">${ja}</div>
+      <button class="row-item" data-act="toast" data-msg="Boceto: cuenta y verificación de persona (RC-5)"><div class="grow"><div>Cuenta y verificación</div><div class="meta">RC-5 · mínimos datos</div></div>${I.chev}</button>
+      <button class="row-item" data-act="toast" data-msg="Boceto: notificaciones"><div class="grow"><div>Notificaciones</div><div class="meta">Espacios que seguís · consensos</div></div>${I.chev}</button>
+      <button class="row-item" data-act="toast" data-msg="Boceto: Acerca de (E-12): plantilla en uso, versión, legal"><div class="grow"><div>Acerca de · legal</div><div class="meta">Plantilla en uso (ficticia) · versión · marco legal</div></div>${I.chev}</button>
+      <div class="callout quiet">No es una herramienta de acción política partidaria.</div>`};
+};
+R['e-01'] = () => {
+  const n=scrutNav(); const j=jornadaActive();
+  return {nav:{title:n.title, back:n.back, trailing:n.trailing}, announce:'Mis capturas',
+    body:`${e00()}<h1 class="h-screen" style="font-size:22px">Mis capturas</h1>
+      <button class="row-item" data-act="toast" data-msg="Boceto: detalle de la captura confirmada (E-10 en el prototipo de escrutinio)"><span class="ic">${I.lock}</span><div class="grow"><div>Mesa 00042 · Certificado</div><div class="meta">Confirmada · 2 páginas · 20:41 · no enviada</div></div>${I.chev}</button>
+      <p class="empty">Cuando termine el escrutinio de tu mesa, tocá "Nueva captura".</p>
+      ${j?'<div class="callout quiet">Modo jornada: pantalla completa, sin tab bar. La red queda a un toque, abajo.</div>':''}
+      ${S.alt==='N-A'?'<div class="callout quiet">N-A: el tab bar sigue presente; el escrutinio es una herramienta más.</div>':''}`,
+    footer:`<button class="btn primary" data-act="go" data-to="e-02">▣ Nueva captura</button>${j?'<button class="btn quiet" data-act="go" data-to="r-00">← Volver a la red</button>':''}`};
+};
+R['e-02'] = () => {
+  const n=scrutNav();
+  return {nav:{title:'Nueva captura', back:backBtn('e-01','Mis capturas'), trailing:n.trailing}, announce:'Nueva captura. Nunca fotografíes la Boleta Única',
+    body:`${e00()}<div style="text-align:center;color:var(--err);margin:8px 0 4px">${I.hand}</div>
+      <h1 class="h-screen" style="text-align:center">Nunca fotografíes la Boleta Única</h1>
+      <p class="lead" style="text-align:center">Está prohibido durante los comicios (Código Electoral, art. 71 inc. g). Escaneá sólo el documento que te corresponde según tu función.</p>
+      <div class="card"><h3>Acá sigue el flujo de escrutinio</h3><p>Tipo de documento → datos de mesa → escaneo → carga de valores → validación → confirmar y bloquear. Está completo en el prototipo de escrutinio; este prototipo sólo compara cómo se llega hasta acá.</p>
+        <a class="btn" href="https://claude.ai/artifact/L6cPoJUA8xziMqXUwLBiqZ" target="_blank" rel="noopener">Abrir el prototipo de escrutinio ↗</a></div>
+      ${S.ui.tapsResult!=null?`<div class="callout"><strong>${S.ui.tapsResult} toque${S.ui.tapsResult===1?'':'s'}</strong> desde el inicio del teléfono hasta esta pantalla (${S.alt}${jornadaActive()?', modo jornada':''}).</div>`:''}`,
+    footer:`<button class="btn primary" data-act="toast" data-msg="Continúa en el prototipo de escrutinio (E-03)">Entendido, continuar</button>`};
+};
+
+/* ---------- render ---------- */
+function render(){
+  const app=document.getElementById('app');
+  const r=(R[S.screen]||R['r-00'])();
+  phone.dataset.platform=S.platform;
+  if(r.spring){ app.innerHTML=r.spring+'<div id="live" class="sr-only" aria-live="polite"></div>'; }
+  else {
+    /* iOS: NavigationStack con chevron + texto del destino anterior. Android: TopAppBar con flecha atrás sin texto y título a la izquierda. */
+    const back = r.nav.back
+      ? `<button class="icon-btn" data-act="go" data-to="${r.nav.back.to}" aria-label="Volver a ${esc(r.nav.back.label)}">${android()?I.arrow:I.back+'<span>'+esc(r.nav.back.label)+'</span>'}</button>`
+      : '<span class="spacer" style="min-width:44px"></span>';
+    const nav=`<div class="nav">${back}<div class="title">${esc(r.nav.title||'')}</div>${r.nav.trailing||'<span style="min-width:44px"></span>'}</div>`;
+    const jb=(jornadaActive()&&isNet(S.screen))?jbar():'';
+    const fab=r.fab?`<button class="fab" data-act="go" data-to="${r.fab.to}" style="bottom:${showTabBar()?124:44}px">${I.plus}${esc(r.fab.label)}</button>`:'';
+    app.innerHTML=`<div class="proto" aria-hidden="true">Prototipo · datos ficticios · no es una decisión</div>${jb}${nav}<div class="content" id="content" tabindex="-1">${r.body}</div>${r.footer?`<div class="footer">${r.footer}</div>`:''}${showTabBar()?tabBar():''}<button class="home-ind" data-act="go" data-to="s-00" aria-label="Ir a la pantalla de inicio del teléfono"><span></span></button>${fab}<div id="live" class="sr-only" aria-live="polite"></div>`;
+  }
+  const mid=document.getElementById('midstate');
+  mid.textContent=[S.alt==='N-B'&&S.screen!=='s-00'?(S.app==='escrutinio'?'CC Escrutinio':'CuentaConmigo'):'', S.sim.veda?'Día D (sim.)':''].filter(Boolean).join(' · ');
+  document.getElementById('battery').textContent = android() ? '▾ ◢ ▮ 38' : '▮▮▮ 38 %';
+  renderPanel();
+  if(r.announce) announce(r.announce);
+}
+function announce(t){ const l=document.getElementById('live'); if(l){ l.textContent=''; setTimeout(()=>l.textContent=t,50); } }
+function toast(t){ const old=document.querySelector('.toast'); old&&old.remove(); const el=document.createElement('div'); el.className='toast'; el.setAttribute('role','status'); el.textContent=t; document.getElementById('phone').appendChild(el); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.remove(),2800); }
+
+/* ---------- acciones dentro del teléfono ---------- */
+function act(a,d){
+  switch(a){
+    case 'go': return go(d.to);
+    case 'tab': return go(d.to);
+    case 'open-app': {
+      if(S.alt==='N-B'){ S.app=d.app; return go(d.app==='escrutinio'?'e-01':'r-00'); }
+      return go(jornadaActive()?'e-01':'r-00');
+    }
+    case 'order': S.ui.order=(S.ui.order+1)%ORDERS.length; render(); return toast('Orden: '+ORDERS[S.ui.order]+' (siempre visible)');
+    case 'space': S.ui.space=d.id||null; return render();
+    case 'sub': S.ui.sub=d.id; return render();
+    case 'open-prop': S.ui.prop=d.id; S.ui.sub='favor'; return go(d.to);
+    case 'toggle-jornada': {
+      if(S.sim.veda){ return toast('Hoy es el día de la elección (simulado): el modo no se apaga a mano'); }
+      S.jornadaManual=!S.jornadaManual; toast(S.jornadaManual?'Modo jornada electoral activado. La app abre en Escrutinio.':'Modo jornada desactivado. La app vuelve a abrir en la red.');
+      return S.jornadaManual?go('e-01'):render();
+    }
+    case 'toast': return toast(d.msg);
+  }
+}
+const phone=document.getElementById('phone');
+/* El FAB queda fuera de .app pero dentro de .phone: los clics lo alcanzan por el mismo delegado. */
+phone.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]'); if(!el||el.disabled) return;
+  if(!S.ui.tapsDone && !S.ui.fromPanel) S.ui.taps++;
+  act(el.dataset.act, el.dataset);
+});
+
+/* ---------- panel de diseño ---------- */
+/* Cada pantalla usa sólo controles y patrones de scroll con equivalente directo en Material 3 / Jetpack Compose
+   (comp: "elemento: SwiftUI → Compose"). Sin patrones sólo-iOS: nada de deslizar para borrar, títulos grandes
+   colapsables, menús por pulsación larga ni búsqueda al tirar hacia abajo. */
+const SHELL_COMP = ['Pestañas: TabView → NavigationBar (indicador píldora, etiquetas siempre)','Barra superior: NavigationStack toolbar → TopAppBar (título a la izquierda, flecha atrás sin texto)','Scroll vertical: List / ScrollView → LazyColumn','Aviso breve: overlay propio → Snackbar'];
+const NOTES = {
+  's-00':{p:'Pantalla de inicio del teléfono (simulada): punto de partida del conteo de toques. N-B muestra dos íconos (dos marcas, dos instalaciones); N-A y N-C, uno solo.',tags:['AS-1'],comp:['Inicio del sistema: springboard → launcher (íconos adaptativos redondos)']},
+  'r-00':{p:'R-01 (inicio). Actividad reciente de los espacios y consensos en curso. Orden visible y elegible (más reciente · por tema · por consenso); nunca "para vos", nada pago. En N-A y N-C es la pestaña central.',tags:['AS-1','RC-1'],comp:['Actividad: List → LazyColumn','Fila de consenso: NavigationLink → ListItem clickable','Botón "Orden": Menu → DropdownMenu (acá cicla; en la app es un menú)']},
+  'r-01':{p:'R-01. Espacios temáticos y feed con orden transparente, sin algoritmo de interacción. Cada ítem muestra su fuente y quién publica (ciudadanía, partido o agente de IA). Los cinco espacios siguen el boceto R-01; la sección 2 de la SPEC lista seis (Jornada y Escrutinio separados).',tags:['RC-1','RC-3'],comp:['Espacios seleccionables: List con selección → LazyColumn de ListItem (selected)','Feed: List → LazyColumn','Botón "Orden": Menu → DropdownMenu']},
+  'r-02':{p:'R-02. Propuestas: de idea a propuesta estructurada. La app misma es objeto de deliberación (la cuarta propuesta es un cambio de la app, civic-network "La app evoluciona por consenso").',tags:['RC-1'],comp:['Lista: List → LazyColumn','Acción primaria: botón abajo (safeAreaInset) → ExtendedFloatingActionButton (así se ve en la piel Android)']},
+  'r-02b':{p:'R-02. Plantilla obligatoria en este orden: problema · mecanismo · evidencia · base legal · riesgos · alternativas. No se publica incompleta. La cuenta de garantía electoral se ve igual que cualquier otra propuesta.',tags:['RC-1'],comp:['Campos: Form + TextField → OutlinedTextField (minLines, etiqueta visible)','Publicar deshabilitado: .disabled → Button(enabled = false)']},
+  'r-03':{p:'R-03. Deliberación a favor / en contra / preguntas / enmiendas. Sin "me gusta"; orden por fecha o respuestas, nunca por votos. Enmiendas como cambios concretos al texto, con diff. Con veda o modo jornada, los argumentos de cuentas partidarias se pausan (a definir).',tags:['RC-3','DL-1'],comp:['Pestañas horizontales: Picker segmented / ScrollView horizontal → ScrollableTabRow (o LazyRow de FilterChip)','Argumentos: List → LazyColumn','Acciones abajo: safeAreaInset → BottomAppBar con Button + TextButton']},
+  'r-04':{p:'R-04. Consenso con umbrales publicados (los valores son de ejemplo: RC-2 está pendiente). Ninguna acción externa se marca "en curso" sin el chequeo de electoral_counsel. Catálogo abierto de modalidades.',tags:['RC-2'],comp:['Medidores: LabeledContent → ListItem con trailingContent (ícono + texto, no sólo color)','Tarjeta: GroupBox → Card tonal']},
+  'r-05':{p:'R-05. Partidos en igualdad: la misma tarjeta para cada partido reconocido, orden aleatorio por sesión (documentado), sin destacados ni logos de distinto tamaño, mismos límites visibles. Durante la veda: comportamiento a definir.',tags:['RC-3'],comp:['Tarjetas idénticas: List de GroupBox → LazyColumn de Card','Botones por tarjeta: Button bordered → OutlinedButton']},
+  'r-06':{p:'R-06. Herramientas y agentes de monitoreo: tablero A4, archivo A1 (mismo núcleo de evidencia que un telegrama, D-EV-1), estado de cada agente, simulación del AMBA con "SIMULACIÓN" siempre visible. En N-A y N-C el escrutinio entra acá; en N-B esta fila abre la otra app.',tags:['AS-1'],comp:['Lista: List + NavigationLink → LazyColumn de ListItem','Etiqueta SIMULACIÓN: cápsula → Badge / AssistChip','Estado de agentes: LabeledContent → ListItem','Abrir la otra app (N-B): openURL → Intent']},
+  'r-07':{p:'R-07. Perfil mínimo: alias, estado de verificación de persona (RC-5), mis propuestas, mis argumentos, mis capturas. Nunca se pide ni se muestra afinidad política. En N-B, "Mis capturas" vive en la otra app (perfil duplicado).',tags:['RC-5','AS-1'],comp:['Perfil: List → LazyColumn','Ajustes en la barra: ToolbarItem → TopAppBar actions (IconButton)']},
+  'a-01':{p:'Ajustes. En N-C acá se activa a mano el modo jornada electoral (local, también para practicar); el día de la elección se activa solo y el interruptor no lo apaga. Pendiente: notificaciones de la red durante el modo. Enlaza a Acerca de (E-12).',tags:['AS-1','AS-9'],comp:['Interruptor: Toggle → Switch','Filas: List → LazyColumn de ListItem']},
+  'e-01':{p:'E-01, Mis capturas (versión compacta del prototipo de escrutinio). N-A: con tab bar y botón "Herramientas" atrás. N-B: raíz de la app separada, sin tab bar. N-C en modo jornada: raíz a pantalla completa, sin tab bar, con "Volver a la red" abajo.',tags:['AS-1','AS-7'],comp:['Aviso E-00: Section Label → Card tonal con liveRegion','Lista: List → LazyColumn','Botón primario abajo: safeAreaInset → Scaffold bottomBar con Button ancho completo (no FAB: SPEC §6, E-01)','Volver a la red: Button plain → TextButton']},
+  'e-02':{p:'E-02, primer paso del flujo (aviso de Boleta Única). Acá termina el conteo de toques. El flujo completo (E-02…E-10) está en design/prototypes/escrutinio. En N-A conserva el tab bar (la SPEC lo señala como contra); en N-B y N-C es pantalla completa.',tags:['AS-1','AS-4'],comp:['Pantalla completa: fullScreenCover → destino propio del NavHost + BackHandler','Enlace externo: Link → TextButton con Intent','Botón primario: safeAreaInset → Scaffold bottomBar']}
+};
+function altLine(){
+  if(S.alt==='N-A') return 'En N-A: tab bar siempre visible; el escrutinio está dos toques adentro (Herramientas → Escrutinio).';
+  if(S.alt==='N-B') return S.app==='escrutinio'||S.screen==='s-00' ? 'En N-B: esta pantalla pertenece a "CuentaConmigo Escrutinio", app separada sin red ni tab bar.' : 'En N-B: esta pantalla pertenece a la app de red "CuentaConmigo"; el escrutinio es otra instalación.';
+  return jornadaActive() ? 'En N-C con modo jornada: la raíz es Escrutinio a pantalla completa; la red queda a un toque y sin feeds ni contenido partidario.' : 'En N-C en modo normal: idéntica a N-A. El modo jornada se activa en Ajustes o por fecha (simulá "Día de la elección").';
+}
+function renderPanel(){
+  const id=S.screen; const n=NOTES[id]||NOTES['r-00']; const name=SCREENS.find(s=>s[0]===id)?.[1]||''; const A=ALTS[S.alt];
+  const list=SCREENS;
+  const code=(i)=>i.toUpperCase().replace('B','b');
+  const curKey = S.alt==='N-B' ? (S.app==='escrutinio'||S.screen==='s-00'?'N-B':'N-B-red') : S.alt==='N-A' ? 'N-A' : (jornadaActive()?'N-C-jornada':'N-C-normal');
+  const tapLive = S.ui.fromPanel ? 'Saltaste desde el panel: tocá "Ir al inicio del teléfono" para contar un recorrido real.'
+    : S.ui.tapsDone ? `<span class="big">${S.ui.tapsResult}</span> toque${S.ui.tapsResult===1?'':'s'} hasta "Nueva captura" (${curKey.replace('-red',' desde la red').replace('-normal',' normal').replace('-jornada',' jornada')}).`
+    : `<span class="big">${S.ui.taps}</span> toque${S.ui.taps===1?'':'s'} hasta ahora. Seguí hasta "Nueva captura".`;
+  document.getElementById('panel').innerHTML=`
+    <section><h2>Alternativa (AS-1)</h2>
+      <div class="seg" role="group" aria-label="Alternativa de navegación">${Object.keys(ALTS).map(k=>`<button aria-pressed="${S.alt===k}" data-alt="${k}">${k}</button>`).join('')}</div>
+      <p class="mono" style="margin:8px 0 4px">Plataforma (misma estructura y datos; cambia la piel del shell)</p>
+      <div class="seg" role="group" aria-label="Plataforma">${[['ios','iOS · SwiftUI'],['android','Android · Material 3']].map(([v,l])=>`<button aria-pressed="${S.platform===v}" data-plat="${v}">${l}</button>`).join('')}</div>
+      <p style="margin-top:8px"><strong>${S.alt} · ${esc(A.title)}</strong></p><p>${esc(A.desc)}</p>
+      <details open><summary>A favor y en contra (SPEC §3)</summary><p style="margin:6px 0 2px"><strong>A favor</strong></p><ul>${A.pro.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><p style="margin:0 0 2px"><strong>En contra</strong></p><ul>${A.con.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></details></section>
+    <section><h2>Toques hasta "Nueva captura"</h2>
+      <div class="tapbox" aria-live="polite">${tapLive}</div>
+      <table class="taps"><thead><tr><th scope="col">Alternativa</th><th scope="col">Desde el inicio del teléfono</th><th scope="col">Con la app abierta</th></tr></thead><tbody>
+        ${TAPS.map(t=>`<tr class="${t.k===curKey?'on':''}"><td>${esc(t.label)}<br><span class="mono">${esc(t.how)}</span></td><td>${t.phone}</td><td>${t.app}</td></tr>`).join('')}</tbody></table>
+      <button class="btn" data-go="s-00" data-count="1" style="margin-top:8px">Ir al inicio del teléfono y contar</button></section>
+    <section><h2>Pantallas</h2><div class="screen-list">${list.map(([i,l])=>`<button data-go="${i}" aria-current="${i===id}"><code>${code(i)}</code><span>${l}</span></button>`).join('')}</div>
+      <p class="mono" style="margin-top:6px">Link directo: ${hashFor(id)}</p></section>
+    <section class="note"><h2>Nota de diseño</h2><h3>${code(id)} · ${esc(name)}</h3>
+      <p>${esc(n.p)}</p><p>${esc(altLine())}</p>
+      <p>${n.tags.map(t=>`<span class="tag${t.startsWith('RC-3')?' warn':''}">${t}</span>`).join('')}${quiet()?'<span class="tag warn">veda: a definir con electoral_counsel</span>':''}</p>
+      <details><summary>Equivalentes SwiftUI → Compose</summary><ul>${n.comp.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><p style="margin:4px 0 2px"><strong>Shell (todas las pantallas)</strong></p><ul>${SHELL_COMP.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><p class="mono">Sin patrones sólo-iOS: ni deslizar para borrar, ni títulos grandes colapsables, ni menús por pulsación larga, ni búsqueda al tirar hacia abajo.</p></details></section>
+    <section><h2>Simular</h2>
+      <button class="toggle" role="switch" aria-checked="${S.sim.veda}" data-sim="veda"><span>Día de la elección (veda)<br><span class="mono">N-C: activa el modo jornada por fecha. Todas: pausa el contenido partidario.</span></span><span class="sw" aria-hidden="true"></span></button>
+      <button class="toggle" role="switch" aria-checked="${S.jornadaManual}" data-sim="jornada" ${S.alt==='N-C'?'':'disabled'}><span>Modo jornada electoral (manual, Ajustes)<br><span class="mono">${S.alt==='N-C'?'Igual que el interruptor de A-01.':'Sólo existe en N-C.'}</span></span><span class="sw" aria-hidden="true"></span></button>
+      <p class="mono" style="margin-top:8px">Qué cambia con veda/modo jornada: sin feeds (modo jornada) o sin publicaciones de cuentas partidarias (veda), tarjetas de partidos en pausa, argumentos partidarios pausados. Todo marcado "a definir con electoral_counsel" (RC-3).</p></section>
+    <section><button class="btn" data-reset="1">Reiniciar el prototipo</button><p class="mono" style="margin-top:8px">Orden de partidos de esta sesión: ${SESSION_ORDER.map(esc).join(' · ')} (aleatorio, sin destacados). Estado en memoria: al recargar se pierde.</p></section>`;
+}
+document.getElementById('panel').addEventListener('click',e=>{
+  const g=e.target.closest('[data-go]'); if(g){ if(g.dataset.go!=='s-00') S.ui.fromPanel=true; go(g.dataset.go); return; }
+  const a=e.target.closest('[data-alt]'); if(a){ S.alt=a.dataset.alt; S.app='red'; go('s-00'); toast('Alternativa '+S.alt+': empezá desde el inicio del teléfono'); return; }
+  const p=e.target.closest('[data-plat]'); if(p){ S.platform=p.dataset.plat; go(S.screen); return; }
+  const s=e.target.closest('[data-sim]'); if(s){
+    if(s.dataset.sim==='veda'){ S.sim.veda=!S.sim.veda; if(S.alt==='N-C'&&S.sim.veda&&S.screen==='r-00'){ go('e-01'); toast('Día de la elección: la app abre en modo jornada'); return; } }
+    else { S.jornadaManual=!S.jornadaManual; }
+    go(S.screen); return; }
+  if(e.target.closest('[data-reset]')){ S=initialState(); go('s-00'); toast('Prototipo reiniciado'); }
+});
+
+/* ---------- arranque ---------- */
+function tick(){ const el=document.getElementById('clock'); if(el) el.textContent=hhmm(new Date()); }
+setInterval(tick,30000);
+function applyHash(h){ S.alt=h.alt; S.jornadaManual=h.jornada; S.sim.veda=h.veda; S.platform=h.platform; if(h.screen!=='s-00') S.ui.fromPanel=true; go(h.screen); }
+window.addEventListener('hashchange',()=>{ const h=parseHash(); if(!h) return; if(location.hash!==hashFor(S.screen)) applyHash(h); });
+(function start(){ S=initialState(); tick(); const h=parseHash(); if(h) applyHash(h); else go('s-00'); })();
+</script>
