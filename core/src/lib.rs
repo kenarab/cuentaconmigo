@@ -5,6 +5,9 @@
 pub mod capture;
 pub mod digits;
 pub mod flow;
+pub mod nomina;
+pub mod server;
+pub mod store;
 pub mod template;
 pub mod validation;
 
