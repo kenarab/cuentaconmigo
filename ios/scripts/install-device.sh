@@ -10,7 +10,7 @@ xcodebuild -project CuentaConmigo.xcodeproj -scheme CuentaConmigo -configuration
   -destination 'generic/platform=iOS' -derivedDataPath "$derived" \
   -clonedSourcePackagesDirPath "$TMPDIR/cc-spm" -allowProvisioningUpdates build
 app="$derived/Build/Products/Debug-iphoneos/CuentaConmigo.app"
-device="${1:-$(xcrun devicectl list devices 2>/dev/null | awk '/iPhone/ && /available/ && !/unavailable/ {print $3; exit}')}"
+device="${1:-$(xcrun devicectl list devices 2>/dev/null | awk '/iPhone/ && (/available/ || /connected/) && !/unavailable/ {for (i = 1; i < NF; i++) if ($(i+1) == "(UDID)") {print $i; exit}}')}"
 if [ -z "$device" ]; then
   echo "No hay un iPhone disponible. Conectalo por cable o Wi-Fi, desbloquealo y confiá en esta Mac." >&2
   echo "App compilada en: $app" >&2
