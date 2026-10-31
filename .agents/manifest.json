@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "package": "cuentaconmigo-agents",
+  "path_base": "repository-root",
+  "shared_instructions": [
+    "AGENTS.md",
+    "MULTIAGENT_ROLES.md"
+  ],
+  "task_template": ".agents/templates/task.md",
+  "max_active_ai_agents": 2,
+  "model_policy": {
+    "inherit_authorized_session": true,
+    "require_available_model_ids": true,
+    "allow_silent_provider_or_model_change": false,
+    "allow_silent_cost_increase": false
+  },
+  "agents": {
+    "planner": {
+      "instructions": ".agents/roles/planner.md",
+      "suggested_model": null,
+      "execution": "ai",
+      "access": "coordinate",
+      "git_integration": true,
+      "delivery": "Scope, SDD, ownership, integration and handoff"
+    },
+    "implementer": {
+      "instructions": ".agents/roles/implementer.md",
+      "suggested_model": null,
+      "execution": "ai",
+      "access": "scoped-write",
+      "git_integration": false,
+      "delivery": "Bounded agreed implementation and directed verification"
+    },
+    "capture_engineer": {
+      "instructions": ".agents/roles/capture_engineer.md",
+      "suggested_model": null,
+      "execution": "ai",
+      "access": "scoped-write",
+      "git_integration": false,
+      "delivery": "Telegram capture, upload, integrity and processing pipeline"
+    },
+    "electoral_analyst": {
+      "instructions": ".agents/roles/electoral_analyst.md",
+      "suggested_model": null,
+      "execution": "ai",
+      "access": "read-only",
+      "git_integration": false,
+      "delivery": "Electoral law, telegram formats and scrutiny evidence"
+    },
+    "trust_safety_analyst": {
+      "instructions": ".agents/roles/trust_safety_analyst.md",
+      "suggested_model": null,
+      "execution": "ai",
+      "access": "read-only",
+      "git_integration": false,
+      "delivery": "Misinformation response, abuse, privacy and threat model"
+    },
+    "ux_designer": {
+      "instructions": ".agents/roles/ux_designer.md",
+      "suggested_model": null,
+      "execution": "ai",
+      "access": "scoped-write",
+      "git_integration": false,
+      "delivery": "Mobile flows, accessibility and design acceptance criteria"
+    },
+    "reviewer": {
+      "instructions": ".agents/roles/reviewer.md",
+      "suggested_model": null,
+      "execution": "ai",
+      "access": "read-only",
+      "git_integration": false,
+      "delivery": "Independent findings against SPEC and evidence"
+    },
+    "executor": {
+      "instructions": ".agents/roles/executor.md",
+      "suggested_model": null,
+      "execution": "commands",
+      "access": "script-only",
+      "git_integration": false,
+      "delivery": "Established commands, exit codes and artifacts; no model"
+    }
+  }
+}

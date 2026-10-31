@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "mode": "explicit_dispatch",
+  "source_manifest": ".agents/manifest.json",
+  "source_sha256": "f7bce754af9a72a56851505b047fe03a76fd505521796cf46aa7c0aadea5e544",
+  "integration_owner": "planner",
+  "max_active_agents": 2,
+  "global_max_active_agents": 4,
+  "roles": {
+    "planner": {
+      "instructions": ".agents/roles/planner.md",
+      "suggested_model": null,
+      "execution": "ai",
+      "access": "coordinate",
+      "git_integration": true,
+      "delivery": "Scope, SDD, ownership, integration and handoff"
+    },
+    "implementer": {
+      "instructions": ".agents/roles/implementer.md",
+      "suggested_model": null,
+      "execution": "ai",
+      "access": "scoped-write",
+      "git_integration": false,
+      "delivery": "Bounded agreed implementation and directed verification"
+    },
+    "capture_engineer": {
+      "instructions": ".agents/roles/capture_engineer.md",
+      "suggested_model": null,
+      "execution": "ai",
+      "access": "scoped-write",
+      "git_integration": false,
+      "delivery": "Telegram capture, upload, integrity and processing pipeline"
+    },
+    "electoral_analyst": {
+      "instructions": ".agents/roles/electoral_analyst.md",
+      "suggested_model": null,
+      "execution": "ai",
+      "access": "read-only",
+      "git_integration": false,
+      "delivery": "Electoral law, telegram formats and scrutiny evidence"
+    },
+    "trust_safety_analyst": {
+      "instructions": ".agents/roles/trust_safety_analyst.md",
+      "suggested_model": null,
+      "execution": "ai",
+      "access": "read-only",
+      "git_integration": false,
+      "delivery": "Misinformation response, abuse, privacy and threat model"
+    },
+    "ux_designer": {
+      "instructions": ".agents/roles/ux_designer.md",
+      "suggested_model": null,
+      "execution": "ai",
+      "access": "scoped-write",
+      "git_integration": false,
+      "delivery": "Mobile flows, accessibility and design acceptance criteria"
+    },
+    "reviewer": {
+      "instructions": ".agents/roles/reviewer.md",
+      "suggested_model": null,
+      "execution": "ai",
+      "access": "read-only",
+      "git_integration": false,
+      "delivery": "Independent findings against SPEC and evidence"
+    },
+    "executor": {
+      "instructions": ".agents/roles/executor.md",
+      "suggested_model": null,
+      "execution": "commands",
+      "access": "script-only",
+      "git_integration": false,
+      "delivery": "Established commands, exit codes and artifacts; no model"
+    }
+  },
+  "policy": {
+    "one_writer_per_file": true,
+    "automatic_execution": false,
+    "automatic_installation": false,
+    "delegation_requires_explicit_instruction": true,
+    "independent_review_requires_distinct_reviewer": true,
+    "publication": "main_after_relevant_checks_under_existing_owner_authorization",
+    "temporary_directory": "~/home.codex/tmp",
+    "architecture_requires_owner_decision": true,
+    "non_partisan": true,
+    "personal_data_outside_git": true,
+    "protected_scope": [
+      "real personal or electoral data in Git",
+      "external publication or platform reporting without owner instruction"
+    ],
+    "task_template": ".agents/templates/task.md"
+  },
+  "tools": {
+    "codex": {
+      "instructions": "AGENTS.md"
+    },
+    "claude-code": {
+      "instructions": "CLAUDE.md"
+    }
+  }
+}
