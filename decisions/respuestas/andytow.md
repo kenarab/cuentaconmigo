@@ -134,6 +134,18 @@ Respuesta:
 
 Por qué:
 
+### PP-6 · ¿Separamos evidencia preservada (original) de copia publicable (derivada, con datos tapados y referencia al hash del original)?
+
+Respuesta:
+
+Por qué:
+
+### PP-7 · ¿Reemplazamos la garantía de anonimato absoluto por criterios verificables (inventario de datos, incautación simulada con un modelo de atacante definido)?
+
+Respuesta:
+
+Por qué:
+
 ## Plataforma móvil
 
 ### D-002 · Mecanismo para compartir lógica entre iOS y Android
@@ -199,6 +211,24 @@ Respuesta:
 Por qué:
 
 ### AS-9 · ¿Incluir la pantalla "Acerca de" (E-12) en el prototipo?
+
+Respuesta:
+
+Por qué:
+
+### AS-10 · Antes de usar la app con documentos reales, ¿consultamos a un abogado o abogada electoral si se puede fotografiar el certificado o el telegrama?
+
+Respuesta:
+
+Por qué:
+
+### AS-11 · Exportación de imágenes con datos de terceros: ¿quién es responsable de los datos, cuánto se conservan y por qué canal se ejercen los derechos?
+
+Respuesta:
+
+Por qué:
+
+### AS-12 · ¿Agregamos al contrato `fictitious`, `lockedAt` y `exportedAt`, o se dejan fuera?
 
 Respuesta:
 

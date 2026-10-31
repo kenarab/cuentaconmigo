@@ -58,6 +58,8 @@ SPEC: `sdd/specs/participant-protection/SPEC.md`
 | PP-3 | Verificar personas sin identidad | a) invitación por personas de confianza · b) verificación presencial con organizaciones aliadas · c) credenciales anónimas · d) combinación | — |
 | PP-4 | Jurisdicción y alojamiento de la infraestructura y de la entidad | libre | — |
 | PP-5 | Organizaciones a contactar y en qué orden | lista priorizada | — |
+| PP-6 | ¿Separamos evidencia preservada (original) de copia publicable (derivada, con datos tapados y referencia al hash del original)? | a) sí, con cambio de contrato · b) no publicar imágenes, sólo datos | a |
+| PP-7 | ¿Reemplazamos la garantía de anonimato absoluto por criterios verificables (inventario de datos, incautación simulada con un modelo de atacante definido)? | a) sí · b) otra formulación | a |
 
 ## Plataforma móvil
 
@@ -83,6 +85,9 @@ SPEC: `sdd/specs/app-screens/SPEC.md`
 | AS-7 | Aviso de plantilla ficticia en la demo | a) franja amarilla permanente · b) algo menos invasivo | a |
 | AS-8 | ¿Mostrar en pantalla si cada valor vino del OCR o se tipeó? | a) sí · b) sólo en el JSON exportado | — |
 | AS-9 | ¿Incluir la pantalla "Acerca de" (E-12) en el prototipo? | a) sí · b) después | — |
+| AS-10 | Antes de usar la app con documentos reales, ¿consultamos a un abogado o abogada electoral si se puede fotografiar el certificado o el telegrama? | a) sí, es condición para el uso real · b) en paralelo | a |
+| AS-11 | Exportación de imágenes con datos de terceros: ¿quién es responsable de los datos, cuánto se conservan y por qué canal se ejercen los derechos? | libre (ver DECISION.md de app-screens) | — |
+| AS-12 | ¿Agregamos al contrato `fictitious`, `lockedAt` y `exportedAt`, o se dejan fuera? | a) agregar con contract-change · b) dejar fuera del paquete exportado | — |
 
 ## Simulación del AMBA
 
