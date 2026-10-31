@@ -78,6 +78,46 @@ espacios y separadores de miles (`.` `,` espacio), corrige confusiones comunes
 (`O/o→0`, `l/I/|→1`, `S→5`, `B→8`) **sólo** si el token tiene al menos un dígito
 real, y rechaza el resto. Vectores en `contracts/vectors/digits.json`.
 
+## Identificación de la mesa con listas desplegables (pedido del autor, 31/10/2026)
+
+**La experiencia de usuario es fundamental** (principio 9 de la [visión](../vision/SPEC.md)).
+Identificar la mesa no debe requerir tipear códigos:
+
+- **Listas desplegables en cascada:** distrito → sección → circuito → establecimiento
+  → mesa. Cada lista se filtra por la elección anterior y admite búsqueda por texto
+  (nombre del establecimiento, localidad o número de mesa).
+- **Completar lo que ya se sabe:** al elegir el establecimiento se completan distrito,
+  sección y circuito, y la mesa se elige del rango de ese establecimiento. Al escribir
+  un número de mesa válido, se completa el resto.
+- **Recordar** la última mesa y las mesas del plan del día ([fiscal-planning](../fiscal-planning/SPEC.md)),
+  siempre dentro del teléfono.
+- Funciona sin conexión: las listas vienen dentro de la app, por distrito.
+- Datos: la nómina pública de distritos, secciones, circuitos y mesas. Los de 2023 ya
+  están en los resultados por mesa de la DINE. Para los establecimientos se usa la
+  nómina pública con su rango de mesas (pregunta Q1).
+- La geolocalización a pedido (ver abajo) es un atajo más. Las listas siguen siendo el
+  camino principal.
+
+## Modo demostración con 10 telegramas de ejemplo (pedido del autor, 31/10/2026)
+
+Para probar la app sin papeles reales:
+
+- En el escaneo, una opción **"Usar un telegrama de ejemplo"** abre una galería de 10
+  telegramas. Al elegir uno, la app **completa sola** la identificación de la mesa
+  (distrito, sección, circuito, establecimiento y mesa) y deja las cifras para cargar
+  o para probar el OCR.
+- **Contenido de los ejemplos:** telegramas **generados** con el formato de 2023 y
+  las cifras **reales por mesa** de las generales 2023 de mesas del AMBA, con nombres
+  y firmas **inventados** o en blanco. No se usan imágenes reales con datos de
+  personas: los ejemplos van dentro de la app y del repo (AGENTS.md: sólo datos
+  ficticios o anonimizados).
+- Cada ejemplo tiene su archivo de respuesta esperada, para medir el OCR, y queda
+  rotulado "Ejemplo 2023" en la captura y en el paquete exportado (`sample: true`).
+  Ese campo nuevo del contrato pasa por `contract-change`.
+- Selección de mesas: estratificada entre CABA, primer cordón y segundo cordón. Se
+  incluyen casos con avisos de validación (suma que no coincide, campo vacío) para
+  probar los mensajes.
+
 ## Sugerencia de establecimiento por ubicación, a pedido (pedido del autor, 31/10/2026)
 
 Surge de la primera prueba del autor en su iPhone: identificar el establecimiento y la

@@ -14,6 +14,11 @@ Producto central: [civic-network](sdd/specs/civic-network/SPEC.md). Prioridades:
 - **Consenso antes que acción:** ninguna acción externa (frente a plataformas,
   organismos o quien sea) se ejecuta sin un consenso registrado en la red y el
   chequeo de `electoral_counsel`.
+- **La experiencia de usuario es fundamental** (instrucción del autor, 31/10/2026).
+  Cada SPEC, prototipo y pantalla prioriza el ahorro de tiempo y de errores de quien
+  usa la app: elegir en lugar de tipear (listas desplegables, sugerencias), completar
+  lo que ya se sabe, pocos pasos y textos claros. Las revisiones evalúan la UX igual
+  que la legalidad y la neutralidad.
 
 Herramientas que la red puede activar por consenso:
 

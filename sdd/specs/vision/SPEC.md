@@ -34,6 +34,10 @@ democrático.** Producto central: [civic-network](../civic-network/SPEC.md).
    la sociedad civil, el periodismo y la academia.
 8. **Privacidad primero.** Mínimos datos. La afinidad política es un dato sensible
    (Ley 25.326) y no se le pide a nadie.
+9. **La experiencia de usuario es fundamental.** Quien fiscaliza lo hace bajo presión
+   y con poco tiempo. Se elige en lugar de tipear, se completa lo que ya se sabe y se
+   minimizan pasos y errores. La UX se evalúa en cada decisión (instrucción del autor,
+   31/10/2026).
 
 ## Qué se elige en 2027 (a confirmar en `docs/legal/`)
 
