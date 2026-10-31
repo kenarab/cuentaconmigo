@@ -280,6 +280,25 @@
      29
     ]
    }
+  },
+  {
+   "ref": "total.presidente",
+   "box": [
+    622,
+    1286,
+    551,
+    50
+   ],
+   "label": {
+    "text": "TOTAL",
+    "box": [
+     422,
+     1286,
+     190,
+     50
+    ]
+   },
+   "note": "Total escrito en el formulario: control de suma, no es un campo de la plantilla."
   }
  ],
  "masks": [
