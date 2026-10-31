@@ -94,6 +94,14 @@
       "access": "coordinate",
       "git_integration": true,
       "delivery": "Human-in-the-loop decision pipeline: issues, comparisons, applied consensus"
+    },
+    "consistency_reviewer": {
+      "instructions": ".agents/roles/consistency_reviewer.md",
+      "suggested_model": null,
+      "execution": "ai",
+      "access": "scoped-write",
+      "git_integration": false,
+      "delivery": "Detects and fixes inconsistencies across SPECs, decisions, registries and code; asks the owner when in doubt"
     }
   }
 }

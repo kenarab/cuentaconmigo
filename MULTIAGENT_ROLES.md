@@ -15,6 +15,7 @@ or infrastructure permissions are inherited.
 | trust_safety_analyst | Misinformation response, abuse, privacy, moderation and threat model | read-only |
 | ux_designer | Mobile flows for poll workers and volunteers, accessibility | scoped-write |
 | reviewer | Independent findings against SPEC, diff and evidence | read-only |
+| consistency_reviewer | Detects and fixes inconsistencies across SPECs, decisions, registries and code; the owner's word prevails; asks when in doubt | scoped-write |
 | executor | Established commands, exit codes and artifact references | script-only; no model |
 
 Only planner integrates Git. Each writer receives exclusive paths. Product rules in

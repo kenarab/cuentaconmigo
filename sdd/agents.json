@@ -2,7 +2,7 @@
   "schema_version": 1,
   "mode": "explicit_dispatch",
   "source_manifest": ".agents/manifest.json",
-  "source_sha256": "f87bf1a17a34063537895a1019ec58e3a8189fc393be142ac85f2ca1ed911810",
+  "source_sha256": "06cb059c7156abd66613194de91d19408c33306c4f7420f6954d117bc59dcff4",
   "integration_owner": "planner",
   "max_active_agents": 2,
   "global_max_active_agents": 4,
@@ -86,6 +86,14 @@
       "access": "coordinate",
       "git_integration": true,
       "delivery": "Human-in-the-loop decision pipeline: issues, comparisons, applied consensus"
+    },
+    "consistency_reviewer": {
+      "instructions": ".agents/roles/consistency_reviewer.md",
+      "suggested_model": null,
+      "execution": "ai",
+      "access": "scoped-write",
+      "git_integration": false,
+      "delivery": "Detects and fixes inconsistencies across SPECs, decisions, registries and code; asks the owner when in doubt"
     }
   },
   "policy": {
