@@ -73,7 +73,13 @@ struct ScrutinyClient {
 
     private func send<T: Decodable>(_ method: String, _ path: String, body: Data? = nil,
                                     contentType: String? = nil) async throws -> T {
-        var request = URLRequest(url: baseURL.appendingPathComponent(path), timeoutInterval: 30)
+        // appendingPathComponent keeps the base prefix (/cuentaconmigo) but would escape "?":
+        // add the query separately.
+        let pieces = path.split(separator: "?", maxSplits: 1).map(String.init)
+        var components = URLComponents(url: baseURL.appendingPathComponent(pieces[0]), resolvingAgainstBaseURL: false)
+        if pieces.count == 2 { components?.percentEncodedQuery = pieces[1] }
+        guard let url = components?.url else { throw Failure(message: "Dirección del servidor inválida.") }
+        var request = URLRequest(url: url, timeoutInterval: 60)
         request.httpMethod = method
         request.httpBody = body
         if let contentType { request.setValue(contentType, forHTTPHeaderField: "Content-Type") }
