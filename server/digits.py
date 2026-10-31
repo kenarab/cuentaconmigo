@@ -110,3 +110,25 @@ def read(bw_image):
     p = forward(weights, x)
     value = int("".join(str(int(d)) for d in p.argmax(axis=1)))
     return value, float(np.prod(p.max(axis=1)))
+
+
+def candidates(bw_image, k=5):
+    """Top-k readings of a cell as [(value, probability)], best first, combining the
+    three most likely classes of each digit. Used by the sum check in readings.py."""
+    weights = _load()
+    if weights is None:
+        return []
+    ink = (np.asarray(bw_image.convert("L"), dtype=np.float32) < 128).astype(np.float32)
+    parts = split(ink)
+    if not 1 <= len(parts) <= 4:
+        return []
+    x = [normalize(d) for d in parts]
+    if any(v is None for v in x):
+        return []
+    p = forward(weights, np.stack(x))
+    beams = [("", 1.0)]
+    for row in p:
+        top = np.argsort(row)[::-1][:3]
+        beams = sorted(((s + str(int(d)), q * float(row[d])) for s, q in beams for d in top),
+                       key=lambda b: -b[1])[:k]
+    return [(int(s), q) for s, q in beams]

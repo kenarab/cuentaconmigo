@@ -147,16 +147,17 @@ def align(layout, words, size):
 # --- cell reading -------------------------------------------------------------------
 
 def read_cell(img, box):
-    """Digits-only reading of one cell. Returns (value, confidence, digit box, empty)."""
+    """Digits-only reading of one cell. Returns (value, confidence, digit box, empty, alternatives)
+    where alternatives are [(value, probability)] for the sum check."""
     x, y, w, h = box
     mx, my = int(0.03 * w) + 3, int(0.12 * h) + 2  # inner margin: skip the table lines
     x0, y0, x1, y1 = max(0, x + mx), max(0, y + my), min(img.width, x + w - mx), min(img.height, y + h - my)
     if x1 - x0 < 8 or y1 - y0 < 8:
-        return None, 0.0, None, False
+        return None, 0.0, None, False, []
     crop = ImageOps.autocontrast(ImageOps.grayscale(img.crop((x0, y0, x1, y1))))
     ink = sum(1 for p in crop.getdata() if p < 110) / (crop.width * crop.height)
     if ink < 0.004:
-        return None, 0.0, None, True
+        return None, 0.0, None, True, [(0, 0.6)]
     bw = crop.point(lambda p: 0 if p < 150 else 255)
     px = bw.load()
     # Drop long horizontal runs (table lines and underlines) so only the handwriting remains.
@@ -172,13 +173,17 @@ def read_cell(img, box):
             run = 0
     box_ink = ImageOps.invert(bw).getbbox()
     if box_ink is None:
-        return None, 0.0, None, True
+        return None, 0.0, None, True, [(0, 0.6)]
     ox, oy = box_ink[0], box_ink[1]
     bw = bw.crop(box_ink)
+    # A short, wide stroke is the dash written for "no votes": it means 0.
+    if bw.height < 0.3 * (y1 - y0) and bw.width > 2.2 * bw.height:
+        return None, 0.0, [x0 + ox, y0 + oy, bw.width, bw.height], True, [(0, 0.8)]
     # Neural digit classifier first (server/digits.py); Tesseract is the fallback.
+    alts = digits.candidates(bw)
     nn = digits.read(bw)
     if nn is not None and nn[1] >= 0.5:
-        return nn[0], round(nn[1], 2), [x0 + ox, y0 + oy, bw.width, bw.height], False
+        return nn[0], round(nn[1], 2), [x0 + ox, y0 + oy, bw.width, bw.height], False, alts
     scale = 80 / max(1, bw.height)
     big = bw.resize((max(1, round(bw.width * scale)), 80)).filter(ImageFilter.MinFilter(3))
     big = ImageOps.expand(big, border=30, fill=255)
@@ -193,10 +198,82 @@ def read_cell(img, box):
                 if w["text"].isdigit() and (best is None or (w["conf"], len(w["text"])) > (best["conf"], len(best["text"]))):
                     best = w
     if best is None:
-        return None, 0.0, None, ink < 0.02  # a dash or a scribble: the person decides
+        dash = ink < 0.02  # a dash or a scribble: the person decides
+        return None, 0.0, None, dash, alts or ([(0, 0.5)] if dash else [])
     vbox = [x0 + round((best["x"] - 30) / scale), y0 + round((best["y"] - 30) / scale),
             round(best["w"] / scale), round(best["h"] / scale)]
-    return int(best["text"]), round(max(0.0, min(best["conf"], 99.0)) / 100, 2), vbox, False
+    conf = round(max(0.0, min(best["conf"], 99.0)) / 100, 2)
+    return int(best["text"]), conf, vbox, False, alts or [(int(best["text"]), conf)]
+
+
+def options(field, limit=3):
+    """Plausible values of a cell: its reading first, then the classifier's alternatives."""
+    opts = []
+    if field["value"] is not None:
+        opts.append((field["value"], max(field["confidence"], 0.05)))
+    if field.get("empty"):
+        opts.append((0, 0.8))
+    for value, prob in field.get("_alts") or []:
+        if all(value != v for v, _ in opts):
+            opts.append((value, prob))
+    return opts[:limit]
+
+
+def sum_check(fields, template, category):
+    """The form's own checksum: the rows of a category add up to the written TOTAL and to
+    the envelopes (header.votantes). Picks the most probable combination of readings that
+    closes the sum; when it closes, the cells involved become sum-verified."""
+    by_ref = {f["ref"]: f for f in fields}
+    rows = [by_ref.get(f"cells.{category}.{r['id']}") for r in template["rows"]]
+    if any(r is None for r in rows):
+        return {"category": category, "ok": False, "reason": "faltan filas"}
+    targets = [by_ref[ref] for ref in ("header.votantes", f"total.{category}") if ref in by_ref]
+    row_opts = [options(r) for r in rows]
+    if not targets or any(not o for o in row_opts):
+        return {"category": category, "ok": False, "reason": "lecturas insuficientes"}
+    target_opts = {}
+    for t in targets:
+        for value, prob in options(t):
+            target_opts.setdefault(value, []).append((t, prob))
+    best = None
+
+    def search(i, acc, prob, chosen):
+        nonlocal best
+        if best and prob <= best[0]:
+            return
+        if i == len(rows):
+            if acc in target_opts:
+                score = prob * max(p for _, p in target_opts[acc])
+                if best is None or score > best[0]:
+                    best = (score, acc, list(chosen))
+            return
+        for value, p in row_opts[i]:
+            chosen.append(value)
+            search(i + 1, acc + value, prob * p, chosen)
+            chosen.pop()
+
+    search(0, 0, 1.0, [])
+    readings_sum = sum(r["value"] or 0 for r in rows)
+    if best is None:
+        return {"category": category, "ok": False, "sum": readings_sum,
+                "total": next((t["value"] for t in targets if t["value"] is not None), None)}
+    _, total, chosen = best
+    changed = any(r["value"] != v for r, v in zip(rows, chosen))
+    sources = {t["ref"] for t, _ in target_opts[total]}
+    # Changing readings to make the sum close needs two independent witnesses (written
+    # TOTAL and envelopes); otherwise a lucky combination could close by chance.
+    strong = any(p >= 0.9 for _, p in target_opts[total])
+    if changed and len(sources) < 2 and not strong:
+        return {"category": category, "ok": False, "sum": readings_sum,
+                "total": next((t["value"] for t in targets if t["value"] is not None), None)}
+    for row, value in zip(rows, chosen):
+        if row["value"] != value:
+            row["value"], row["empty"] = value, False
+        row["confidence"] = max(row["confidence"], 0.9)
+        row["sumVerified"] = True
+    for t, _ in target_opts[total]:
+        t["value"], t["confidence"], t["sumVerified"] = total, max(t["confidence"], 0.9), True
+    return {"category": category, "ok": True, "sum": total, "total": total}
 
 
 def read_telegram(image_bytes, template):
@@ -228,14 +305,17 @@ def read_telegram(image_bytes, template):
     fields = []
     for cell in layout["cells"]:
         box = map_box(t, cell["box"])
-        value, conf, vbox, empty = read_cell(img, box)
+        value, conf, vbox, empty, alts = read_cell(img, box)
         field = {"ref": cell["ref"], "value": value, "confidence": conf, "empty": empty,
-                 "valueBox": vbox, "cellBox": box}
+                 "valueBox": vbox, "cellBox": box, "_alts": alts}
         if "label" in cell:
             field["label"] = {"text": cell["label"]["text"], "box": map_box(t, cell["label"]["box"])}
         fields.append(field)
+    checks = [sum_check(fields, template, c["id"]) for c in template["categories"]]
+    for f in fields:
+        f.pop("_alts", None)
     found = {f["ref"] for f in fields}
-    return {**base, "layoutId": layout["id"],
+    return {**base, "layoutId": layout["id"], "checks": checks,
             "alignment": {"ok": True, "anchorsUsed": used, "meanErrorPx": round(err, 1)},
             "masks": [map_box(t, m["box"]) for m in layout.get("masks", [])],
             "fields": fields, "notFound": [r for r in expected if r not in found]}
