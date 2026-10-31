@@ -19,3 +19,12 @@ Limitaciones conocidas:
 - Las fotos importadas se re-codifican a JPEG. El hash corresponde al archivo
   guardado, no al original de la galería.
 - No hay tests de UI ni de la app (no hay runtime de simulador).
+
+## 31/10/2026 · revisión `87927df` · compilación firmada de la primera versión (0.1.0)
+
+- `xcodebuild … -destination generic/platform=iOS -allowProvisioningUpdates build` →
+  **BUILD SUCCEEDED**. Firma: Apple Development (equipo del autor), perfil "iOS Team
+  Provisioning Profile: *".
+- Incluye el bloqueo completo de capturas confirmadas (`0eb1e3b`) y el aviso de Boleta Única.
+- **Instalación pendiente:** el iPhone 12 Pro del autor figuraba como "unavailable" en
+  `devicectl`. Instalar con `ios/scripts/install-device.sh` con el teléfono conectado y desbloqueado.
