@@ -28,3 +28,12 @@ Limitaciones conocidas:
 - Incluye el bloqueo completo de capturas confirmadas (`0eb1e3b`) y el aviso de Boleta Única.
 - **Instalación pendiente:** el iPhone 12 Pro del autor figuraba como "unavailable" en
   `devicectl`. Instalar con `ios/scripts/install-device.sh` con el teléfono conectado y desbloqueado.
+
+## 31/10/2026 · revisión `a7e84cb` (plantilla generales-2023) · instalación en el iPhone del autor
+
+- Dispositivo: iPhone 12 Pro (iPhone13,3), iOS 27.0.1, emparejado por red. Antes figuraba
+  "unavailable"; quedó "available (paired)" al conectar la Mac a la red del teléfono.
+- `xcrun devicectl device install app` → instalada; `device process launch` → **la app abrió**.
+- Script: `ios/scripts/install-device.sh` detecta ahora el UDID correctamente (`f5b7439`).
+- **Pendiente (autor):** recorrer el flujo en el teléfono (escanear, cargar, confirmar,
+  exportar) y anotar el resultado de los criterios 4 y 5.
