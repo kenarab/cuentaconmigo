@@ -71,6 +71,11 @@ del teléfono ya entrega la hoja recortada y plana, así que la afín alcanza pa
 - Motor de dígitos: Tesseract con lista blanca de dígitos (base actual, SB-2). La salida
   por celda es `{value, confidence, valueBox, cellBox, label}` (assisted-review §5).
 - Raya, guion o celda vacía → `value: null` con `empty: true`: la persona decide si es 0.
+- **Convención de "no leído":** el servidor devuelve **una entrada por cada celda de la
+  diagramación**, se haya leído o no, con su `cellBox`. `value: null` y `empty: false` =
+  no se pudo leer: la app dibuja un casillero vacío para completar a mano. `value: null`
+  y `empty: true` = raya o celda en blanco: casillero con "—" que propone 0. Nunca se
+  inventa un número para llenar el hueco.
 - El motor es intercambiable: la diagramación y la alineación no dependen de Tesseract.
   Si la exactitud sobre manuscritos no alcanza, el reemplazo es un clasificador de dígitos
   sobre los mismos recortes (scrutiny-backend §5.3).
