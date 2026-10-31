@@ -9,11 +9,12 @@ basada en evidencia las ponga al servicio de la democracia. Construimos
 **herramientas externas**, independientes de las plataformas, en cuatro ejes
 (ver [sdd/specs/vision/SPEC.md](sdd/specs/vision/SPEC.md), fuente de prioridades):
 
-- **A. Plataformas** (eje central): publicidad política, algoritmos, desinformación,
+- **A. Plataformas** (eje central): uso indebido de publicidad electoral, algoritmos,
+  desinformación,
   veda y compromisos, medidos desde afuera.
 - **B. Desinformación**: detección, verificación y respuesta comunitaria.
 - **C. Campaña**: gasto y publicidad declarada vs. observada, plazos y debates.
-- **D. Jornada y escrutinio** (la "frutilla del postre"): captura de telegramas y
+- **D. Jornada y escrutinio** (cierre del proceso de auditoría ciudadana): captura de telegramas y
   actas, cotejo y proyección.
 
 La SPEC de cada módulo (en `sdd/specs/`) es la fuente del producto. Leerla antes de

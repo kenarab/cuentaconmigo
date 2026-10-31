@@ -37,10 +37,10 @@ directa de parlamentarios del Mercosur y el calendario oficial.
 
 | Eje | Qué audita | Módulos (cada uno con su SPEC) |
 | --- | --- | --- |
-| **A. Plataformas** (eje central) | Qué hacen las plataformas con la conversación electoral: publicidad política, algoritmos, desinformación, cumplimiento de la veda y de sus propios compromisos | `platform-accountability` |
+| **A. Plataformas** (eje central) | Qué hacen las plataformas con la conversación electoral: uso indebido de publicidad electoral (desinformación viralizada con dinero de campaña), algoritmos, desinformación, cumplimiento de la veda y de sus propios compromisos | `platform-accountability` |
 | **B. Desinformación** | Contenidos falsos virales sobre el proceso: detección, verificación y respuesta comunitaria; la evidencia alimenta al eje A | `misinformation-response` |
 | **C. Campaña** | Gasto y publicidad declarada vs. observada, plazos legales de campaña, debates presidenciales obligatorios | `campaign-watch` |
-| **D. Jornada y escrutinio** (la "frutilla del postre") | Telegramas y actas de cada mesa, cotejo con el escrutinio provisorio y el definitivo, proyección | `telegram-capture`, `amba-simulation` |
+| **D. Jornada y escrutinio** (cierre del proceso de auditoría ciudadana) | Telegramas y actas de cada mesa, cotejo con el escrutinio provisorio y el definitivo, proyección | `telegram-capture`, `amba-simulation` |
 
 El orden refleja la prioridad conceptual: el escrutinio es el cierre visible de un
 trabajo que empieza meses antes, cuando la campaña ya está corriendo en las plataformas.
@@ -63,7 +63,7 @@ pre-campaña ── campaña ── debates ── veda ── jornada ── es
 
 - V-1. Prioridad de construcción para la hackatón: propuesta, mostrar el **eje A**
   (observatorio de plataformas) con un caso concreto y cerrar con el **eje D**
-  (prototipo de telegramas y simulación del AMBA) como "frutilla del postre".
+  (prototipo de telegramas y simulación del AMBA) como cierre del proceso de auditoría ciudadana.
 - V-2. ¿Nombre y marca? "CuentaConmigo" funciona para todo el proceso
   ("contá conmigo para cuidar la elección"); confirmar.
 - V-3. Alianzas a buscar: organizaciones de chequeo, sociedad civil, universidades
