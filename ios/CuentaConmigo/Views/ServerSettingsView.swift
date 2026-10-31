@@ -6,7 +6,7 @@ struct ServerSettingsView: View {
     let appVersion: String
     let onConnected: () -> Void
     @Environment(\.dismiss) private var dismiss
-    @State private var address = ServerSettings.url?.absoluteString ?? "http://"
+    @State private var address = ServerSettings.url?.absoluteString ?? "https://"
     @State private var code = ""
     @State private var working = false
     @State private var error: String?
@@ -15,7 +15,7 @@ struct ServerSettingsView: View {
         NavigationStack {
             Form {
                 Section {
-                    TextField("http://192.168.1.99:8740", text: $address)
+                    TextField("https://newbery.duckdns.org/cuentaconmigo", text: $address)
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()

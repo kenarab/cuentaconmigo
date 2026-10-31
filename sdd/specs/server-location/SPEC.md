@@ -1,7 +1,13 @@
 # SPEC · Ubicación del servidor de escrutinio en la app
 
-Pedido del autor; redactada desde Nexo (metodologia-ia), que opera el proxy público.
-Estado: **propuesta; aceptación del autor pendiente.** Fecha: 31/10/2026.
+Origen: entrega de Nexo (metodologia-ia), integrada por la sesión de `cuentaconmigo`.
+Estado: **vigente por pedido del autor** ("la app carga la dirección del servidor por
+default, nada configurado a mano"). Fecha: 31/10/2026.
+**Verificado** el 31/10/2026 desde este equipo por HTTPS, con estos resultados:
+- `health` responde 200 y el alta con código de un solo uso funciona.
+- La captura y la imagen se envían y vuelve el comprobante encadenado.
+- El OCR termina y sin token se responde 401.
+- `/v1/readings` alinea con 18–20 anclas y error de 0,3–0,4 px.
 Relacionada con [scrutiny-backend](../scrutiny-backend/SPEC.md) (decisión D-003 de
 mobile-platform) y con la pantalla de servidor de [app-screens](../app-screens/SPEC.md).
 
@@ -38,8 +44,17 @@ con rutas absolutas como `/v1/...`, porque descartaría el prefijo.
    cambiar de servidor exige un nuevo alta.
 4. **HTTPS obligatorio fuera de Debug.** En Release, rechazar `http://` con el mensaje
    «La dirección tiene que empezar con https://».
-5. **El código de alta sigue siendo manual.** El código es de un solo uso y lo entrega quien
-   coordina; nunca va en el binario, en `Info.plist` ni en enlaces públicos.
+5. **Alta sin configuración (decisión del autor, reemplaza la propuesta original).** Los
+   builds del equipo traen un **código de alta de la app** (24+ caracteres) en
+   `Resources/server.json`, fuera de Git y copiado por `ios/scripts/install-device.sh` desde
+   `.private/server.json`. Al abrirse, la app se da de alta sola. Los códigos de un solo
+   uso siguen valiendo para quien instale otro build.
+   - **Riesgo:** el código se puede extraer del binario. Mitigaciones:
+     - límite de altas por IP;
+     - el código no da más permisos que un alta común (subir capturas propias);
+     - se rota cambiando `CC_APP_ENROLL_CODE` y `.private/server.json`;
+     - nunca va en Git, en `Info.plist` ni en enlaces públicos.
+   - Pendiente: chequeo de `electoral_counsel`.
 6. **Placeholder y texto de ayuda** sin direcciones de LAN; ejemplo
    `https://newbery.duckdns.org/cuentaconmigo`.
 7. **Prueba de conexión** antes del alta: `GET /v1/health`. Si falla, mostrar «No se pudo

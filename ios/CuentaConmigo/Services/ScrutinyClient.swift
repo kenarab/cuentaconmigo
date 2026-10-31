@@ -118,8 +118,12 @@ enum ServerSettings {
         }
     }
 
+    /// Build default (Info.plist CCDefaultServerURL, sdd/specs/server-location/SPEC.md).
+    static let defaultURL: URL? = (Bundle.main.object(forInfoDictionaryKey: "CCDefaultServerURL") as? String)
+        .flatMap { $0.isEmpty ? nil : URL(string: $0) }
+
     static var url: URL? {
-        get { UserDefaults.standard.string(forKey: urlKey).flatMap(URL.init(string:)) ?? bundled?.url }
+        get { UserDefaults.standard.string(forKey: urlKey).flatMap(URL.init(string:)) ?? bundled?.url ?? defaultURL }
         set { UserDefaults.standard.set(newValue?.absoluteString, forKey: urlKey) }
     }
 

@@ -4,6 +4,9 @@
 <dict>
 	<!-- Merged with the generated Info.plist. Plain HTTP only on the local network
 	     (prototype server); public servers must use HTTPS. -->
+	<!-- Default scrutiny server (sdd/specs/server-location/SPEC.md). -->
+	<key>CCDefaultServerURL</key>
+	<string>$(CC_DEFAULT_SERVER_URL)</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>
