@@ -75,7 +75,7 @@ final class CaptureTests: XCTestCase {
 
     func filled(_ t: FormTemplate) throws -> Capture {
         var c = Capture(template: t, documentType: .telegrama, app: AppInfo(platform: "ios", version: "test"))
-        c.mesa = Mesa(distrito: "99", seccion: "001", circuito: "0001", mesa: "00042")
+        try c.setMesa(Mesa(distrito: "99", seccion: "001", circuito: "0001", mesa: "00042"))
         try c.set(header: "votantes", 70)
         for cat in t.categories { for row in t.rows { try c.set(category: cat.id, row: row.id, 10) } }
         return c
@@ -87,15 +87,27 @@ final class CaptureTests: XCTestCase {
         try c.confirm(template: t)
         XCTAssertTrue(c.isLocked)
         XCTAssertNotNil(c.confirmedAt)
-        XCTAssertThrowsError(try c.set(header: "votantes", 1)) {
-            XCTAssertEqual($0 as? CaptureError, .alreadyConfirmed)
+        let page = Page(file: "page-1.jpg", sha256: String(repeating: "0", count: 64),
+                        capturedAt: Date(), source: .scanner)
+        let mutations: [(inout Capture) throws -> Void] = [
+            { try $0.set(header: "votantes", 1) },
+            { try $0.set(category: "presidente", row: "lista-a", 1) },
+            { try $0.setMesa("mesa", "1") },
+            { try $0.setMesa(Mesa()) },
+            { try $0.setDocumentType(.acta) },
+            { try $0.appendPage(page) },
+        ]
+        let before = c
+        for mutate in mutations {
+            XCTAssertThrowsError(try mutate(&c)) { XCTAssertEqual($0 as? CaptureError, .alreadyConfirmed) }
         }
+        XCTAssertEqual(c, before, "A confirmed capture must not change")
     }
 
     func testErrorsBlockConfirmation() throws {
         let t = try template()
         var c = try filled(t)
-        c.mesa.mesa = ""
+        try c.setMesa("mesa", "")
         XCTAssertThrowsError(try c.confirm(template: t))
         XCTAssertFalse(c.isLocked)
     }

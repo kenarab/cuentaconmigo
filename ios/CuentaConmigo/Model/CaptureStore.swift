@@ -64,7 +64,7 @@ final class CaptureStore {
                         sha256: EvidenceHash.sha256Hex(jpeg),
                         capturedAt: Date(), source: source)
         try jpeg.write(to: pageURL(page, of: capture.id), options: [.withoutOverwriting, .completeFileProtection])
-        capture.pages.append(page)
+        try capture.appendPage(page)
         save(capture)
     }
 

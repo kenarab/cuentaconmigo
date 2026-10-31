@@ -74,11 +74,12 @@ public struct Capture: Codable, Equatable, Sendable, Identifiable {
     public let id: UUID
     public let templateId: String
     public let templateVersion: Int
-    public var documentType: DocumentType
-    public var mesa: Mesa
-    public var pages: [Page]
-    public var header: [String: CellValue]
-    public var cells: [String: [String: CellValue]]
+    // Evidence fields are only mutable through methods that refuse changes once confirmed.
+    public private(set) var documentType: DocumentType
+    public private(set) var mesa: Mesa
+    public private(set) var pages: [Page]
+    public private(set) var header: [String: CellValue]
+    public private(set) var cells: [String: [String: CellValue]]
     public private(set) var status: CaptureStatus
     public private(set) var warningJustification: String?
     public let createdAt: Date
@@ -104,6 +105,26 @@ public struct Capture: Codable, Equatable, Sendable, Identifiable {
 
     public func value(header field: String) -> Int? { header[field]?.value }
     public func value(category: String, row: String) -> Int? { cells[category]?[row]?.value }
+
+    public mutating func setDocumentType(_ type: DocumentType) throws {
+        guard !isLocked else { throw CaptureError.alreadyConfirmed }
+        documentType = type
+    }
+
+    public mutating func setMesa(_ field: String, _ value: String) throws {
+        guard !isLocked else { throw CaptureError.alreadyConfirmed }
+        mesa[field] = value
+    }
+
+    public mutating func setMesa(_ value: Mesa) throws {
+        guard !isLocked else { throw CaptureError.alreadyConfirmed }
+        mesa = value
+    }
+
+    public mutating func appendPage(_ page: Page) throws {
+        guard !isLocked else { throw CaptureError.alreadyConfirmed }
+        pages.append(page)
+    }
 
     public mutating func set(header field: String, _ value: Int?, origin: ValueOrigin = .manual) throws {
         guard !isLocked else { throw CaptureError.alreadyConfirmed }

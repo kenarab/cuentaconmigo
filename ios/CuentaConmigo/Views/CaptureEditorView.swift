@@ -98,7 +98,8 @@ struct CaptureEditorView: View {
 
     private func documentSection(_ capture: Capture) -> some View {
         Section("Documento") {
-            Picker("Tipo", selection: binding(\.documentType)) {
+            Picker("Tipo", selection: Binding(get: { capture.documentType },
+                                              set: { try? self.capture?.setDocumentType($0) })) {
                 ForEach(template.documentTypes, id: \.self) { Text($0.label).tag($0) }
             }
             .disabled(capture.isLocked)
@@ -139,7 +140,7 @@ struct CaptureEditorView: View {
             ForEach(template.mesaFields) { field in
                 TextField(field.label, text: Binding(
                     get: { self.capture?.mesa[field.id] ?? "" },
-                    set: { self.capture?.mesa[field.id] = $0 }))
+                    set: { try? self.capture?.setMesa(field.id, $0) }))
                     .keyboardType(.numbersAndPunctuation)
                     .textInputAutocapitalization(.characters)
                     .disabled(capture.isLocked)
@@ -246,10 +247,6 @@ struct CaptureEditorView: View {
     private func fillFocused(with number: Int) {
         guard let focus else { return }
         set(number, for: focus, origin: .ocrAccepted)
-    }
-
-    private func binding<T>(_ keyPath: WritableKeyPath<Capture, T>) -> Binding<T> {
-        Binding(get: { capture![keyPath: keyPath] }, set: { capture?[keyPath: keyPath] = $0 })
     }
 
     // MARK: - Actions
