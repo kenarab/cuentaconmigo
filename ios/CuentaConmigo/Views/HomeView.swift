@@ -28,6 +28,13 @@ struct HomeView: View {
                         offsets.map { store.captures[$0] }.forEach(store.deleteDraft)
                     }
                 }
+                Section {
+                } footer: {
+                    Text(BuildInfo.summary)
+                        .font(.footnote.monospacedDigit())
+                        .frame(maxWidth: .infinity)
+                        .textSelection(.enabled)
+                }
             }
             .navigationTitle("Cuenta Conmigo")
             .navigationDestination(for: UUID.self) { id in
