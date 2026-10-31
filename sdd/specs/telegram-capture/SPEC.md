@@ -78,11 +78,36 @@ espacios y separadores de miles (`.` `,` espacio), corrige confusiones comunes
 (`O/o→0`, `l/I/|→1`, `S→5`, `B→8`) **sólo** si el token tiene al menos un dígito
 real, y rechaza el resto. Vectores en `contracts/vectors/digits.json`.
 
+## Sugerencia de establecimiento por ubicación, a pedido (pedido del autor, 31/10/2026)
+
+Surge de la primera prueba del autor en su iPhone: identificar el establecimiento y la
+mesa lleva tiempo. Propuesta:
+
+- En la pantalla de identificación de la mesa, un botón **"Sugerir mi
+  establecimiento"**. Recién al tocarlo la app pide la ubicación **una sola vez**:
+  permiso "mientras se usa" o ubicación aproximada. La app nunca usa la ubicación en
+  segundo plano ni la deja activada. **Política:** sólo en casos puntuales.
+- La comparación se hace **en el teléfono**, contra la lista pública de
+  establecimientos del distrito incluida en la app (o descargada sin enviar la
+  ubicación). La app muestra los 3 más cercanos; la persona elige uno y completa la mesa.
+- **La ubicación no se guarda, no se envía y no entra en el paquete de evidencia.**
+  En el paquete sólo queda el establecimiento elegido, como cualquier dato de la mesa.
+- Sin permiso o sin señal, la carga manual sigue igual.
+- **Dependencia:** un dataset público de establecimientos con coordenadas y rango de
+  mesas (pregunta Q1 de [amba-simulation](../amba-simulation/SPEC.md)). Si no existe
+  con coordenadas, se puede derivar del padrón de establecimientos más geocodificación,
+  con revisión humana.
+- Pantalla: se suma al prototipo de [app-screens](../app-screens/SPEC.md) antes de
+  implementarla (review-pipeline).
+- Chequeo pendiente: `electoral_counsel` (legal y seguridad). Riesgo a evaluar: un
+  teléfono incautado no debe revelar recorridos; por eso no se guarda historial.
+
 ## Privacidad y seguridad
 
 - Las fotos pueden contener nombres y firmas: son datos personales (Ley 25.326).
   Se guardan en el contenedor de la app con Data Protection `complete`, excluidas
-  del respaldo de iCloud. No se piden ubicación ni contactos.
+  del respaldo de iCloud. No se piden contactos. La ubicación sólo se pide a demanda
+  para sugerir el establecimiento (ver arriba) y nunca se guarda.
 - Permisos: sólo cámara (escáner). Importar de Fotos usa el selector sin permiso amplio.
 - La exportación la decide la persona; la app no envía nada a la red en P0.
 

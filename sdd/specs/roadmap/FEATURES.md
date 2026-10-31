@@ -26,6 +26,7 @@ Estado: ✅ implementado (prototipo) · 🟡 parcial · 🎨 en prototipo de pan
 | F-12 | Backend local: ingesta de capturas, OCR en servidor, revisión humana y espejo oficial | scrutiny-backend | SB-1…SB-4 | P0 | 📝 |
 | F-13 | Conteo rápido propio sobre una muestra de mesas, antes que el oficial | scrutiny-backend, amba-simulation | SB-5, SB-6, S-3 | P1 | 📝 |
 | F-14 | Modo planificación para fiscales que cubren varias mesas, con avisos de capturas de terceros | fiscal-planning | FP-1…FP-6 | P1 | 📝 |
+| F-15 | Sugerir el establecimiento con la ubicación pedida a demanda (nunca en segundo plano, sin guardarla) | telegram-capture, app-screens | dataset de establecimientos (Q1) | P1 | 📝 |
 
 ## Red ciudadana (producto central)
 
