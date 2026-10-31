@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulación AMBA 2023</title>
+<style>
+:root {
+  --bg: #f7f7f5; --panel: #ffffff; --ink: #1d1d1b; --muted: #6b6b66; --line: #dcdcd6;
+  --accent: #2b59c3; --warn: #b3261e; --banner-bg: #fff4d6; --banner-ink: #5c4400;
+  --map-empty: #ecebe6; --map-full: 43, 89, 195;
+  --l0: #4e79a7; --l1: #f28e2b; --l2: #59a14f; --l3: #b07aa1; --l4: #9c755f;
+  --naive: #b3261e; --strat: #2b59c3;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #161615; --panel: #1f1f1d; --ink: #ecebe6; --muted: #a3a29b; --line: #36352f;
+    --accent: #8fb0ff; --warn: #ff8a80; --banner-bg: #3a2f10; --banner-ink: #ffe08a;
+    --map-empty: #2a2a27; --map-full: 143, 176, 255;
+    --naive: #ff8a80; --strat: #8fb0ff;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #161615; --panel: #1f1f1d; --ink: #ecebe6; --muted: #a3a29b; --line: #36352f;
+  --accent: #8fb0ff; --warn: #ff8a80; --banner-bg: #3a2f10; --banner-ink: #ffe08a;
+  --map-empty: #2a2a27; --map-full: 143, 176, 255;
+  --naive: #ff8a80; --strat: #8fb0ff;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; }
+.banner { background: var(--banner-bg); color: var(--banner-ink); text-align: center; padding: 8px 16px; font-weight: 600; letter-spacing: .02em; position: sticky; top: 0; z-index: 2; }
+main { max-width: 1200px; margin: 0 auto; padding: 16px; display: grid; gap: 16px; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+@media (max-width: 860px) { main { grid-template-columns: minmax(0, 1fr); } }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+h1 { font-size: 18px; margin: 0 0 4px; } h2 { font-size: 15px; margin: 0 0 8px; }
+.muted { color: var(--muted); font-size: 13px; }
+svg { width: 100%; height: auto; display: block; }
+#map path { stroke: var(--panel); stroke-width: .6; }
+#map path:hover { stroke: var(--ink); stroke-width: 1.2; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+.controls label { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+button { font: inherit; padding: 6px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--accent); color: var(--panel); cursor: pointer; }
+button.secondary { background: transparent; color: var(--ink); }
+input[type=number] { width: 80px; font: inherit; padding: 4px; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; }
+.kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 10px 0; }
+.kpi { border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+.kpi b { display: block; font-size: 20px; font-variant-numeric: tabular-nums; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 14px; }
+th, td { padding: 5px 6px; text-align: right; border-bottom: 1px solid var(--line); }
+th:first-child, td:first-child { text-align: left; }
+.sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+.err-bad { color: var(--warn); }
+.legend { display: flex; gap: 14px; font-size: 13px; color: var(--muted); }
+.legend i { display: inline-block; width: 14px; height: 3px; vertical-align: middle; margin-right: 4px; }
+#loader { grid-column: 1 / -1; }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="banner">SIMULACIÓN · reproducción de las generales 2023 · no es una proyección de una elección en curso</div>
+<main>
+  <section class="card" id="loader">
+    <h1>Cargar datos</h1>
+    <p class="muted">Los datos se generan con <code>scripts/amba-simulation/normalize.py</code> y <code>geography.py</code> y quedan en <code>data/private/amba-simulation/</code> (fuera de Git). Si la página no los encuentra sola, elegí los dos archivos: <code>mesas_2023_amba.json</code> y <code>strata_2023_amba.geojson</code>.</p>
+    <input type="file" id="files" multiple accept=".json,.geojson">
+    <p class="muted" id="loadmsg"></p>
+  </section>
+
+  <section class="card hidden" id="mapcard">
+    <h1>AMBA · Presidente 2023</h1>
+    <p class="muted">CABA (15 comunas) y 24 partidos. El color indica el porcentaje de mesas cargadas en cada estrato.</p>
+    <svg id="map" role="img" aria-label="Mapa del AMBA por estrato"></svg>
+    <div class="controls" style="margin-top:10px">
+      <button id="play">Reproducir</button>
+      <button id="reset" class="secondary">Reiniciar</button>
+      <label>Velocidad <input id="speed" type="range" min="1" max="400" value="60"></label>
+      <label>Semilla <input id="seed" type="number" value="2023"></label>
+      <label title="0: llegada pareja. 1: CABA reporta antes que el primer cordón y este antes que el segundo.">Sesgo de llegada <input id="bias" type="range" min="0" max="100" value="70"></label>
+    </div>
+  </section>
+
+  <section class="card hidden" id="panel">
+    <h2>Proyección en vivo</h2>
+    <div class="kpis">
+      <div class="kpi"><span class="muted">Mesas cargadas</span><b id="k-loaded">0 %</b></div>
+      <div class="kpi"><span class="muted">Error máx. ingenua</span><b id="k-naive">–</b></div>
+      <div class="kpi"><span class="muted">Error máx. estratificada</span><b id="k-strat">–</b></div>
+    </div>
+    <table>
+      <thead><tr><th>Lista</th><th>Oficial 2023</th><th>Ingenua</th><th>Estratificada</th><th>IC 95 %</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <p class="muted">Porcentajes sobre votos afirmativos. Oficial: escrutinio provisorio DINE de las mismas mesas. Ingenua: suma de las mesas cargadas. Estratificada: razón por electores dentro de cada comuna o partido, expandida a su padrón; los estratos sin datos se imputan con la razón global.</p>
+    <h2 style="margin-top:14px">Error máximo vs. mesas cargadas</h2>
+    <svg id="chart" viewBox="0 0 400 170" role="img" aria-label="Error de cada método según el avance"></svg>
+    <div class="legend"><span><i style="background:var(--naive)"></i>Ingenua</span><span><i style="background:var(--strat)"></i>Estratificada</span></div>
+  </section>
+</main>
+<script>
+"use strict";
+const DATA_BASE = "../../../data/private/amba-simulation/";
+// Approximate ring classification (INDEC). Used only to shape arrival bias.
+const FIRST_RING = new Set(["Avellaneda","Lanús","Lomas de Zamora","La Matanza","Morón","Tres de Febrero","General San Martín","Vicente López","San Isidro","Quilmes","Hurlingham","Ituzaingó"]);
+const LIST_COLORS = ["--l0","--l1","--l2","--l3","--l4"];
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = id => document.getElementById(id);
+
+let D, G, S;  // data, geography, simulation state
+
+function mulberry32(a) {
+  return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+}
+
+async function tryFetch() {
+  try {
+    const [m, g] = await Promise.all([fetch(DATA_BASE + "mesas_2023_amba.json"), fetch(DATA_BASE + "strata_2023_amba.geojson")]);
+    if (!m.ok || !g.ok) throw new Error("http");
+    start(await m.json(), await g.json());
+  } catch (e) { $("loadmsg").textContent = "No se encontraron los datos automáticamente: elegilos a mano."; }
+}
+
+$("files").addEventListener("change", async ev => {
+  let m, g;
+  for (const f of ev.target.files) {
+    const j = JSON.parse(await f.text());
+    if (j.type === "FeatureCollection") g = j; else if (j.rows) m = j;
+  }
+  if (m && g) start(m, g); else $("loadmsg").textContent = "Faltan archivos: hacen falta los dos.";
+});
+
+function start(mesas, geo) {
+  D = mesas; G = geo;
+  const nL = D.lists.length;
+  // Only tables with a provisional count take part.
+  D.tables = D.rows.filter(r => r.slice(4, 4 + nL).reduce((a, b) => a + b, 0) > 0);
+  D.lat = D.strata.map(s => s.distrito === "1" ? 0 : FIRST_RING.has(s.name) ? 0.5 : 1);
+  D.E = new Float64Array(D.strata.length);
+  D.N = new Int32Array(D.strata.length);
+  const truth = new Float64Array(nL);
+  for (const r of D.tables) { D.E[r[0]] += r[3]; D.N[r[0]]++; for (let k = 0; k < nL; k++) truth[k] += r[4 + k]; }
+  const tot = truth.reduce((a, b) => a + b, 0);
+  D.truth = Array.from(truth, v => v / tot);
+  $("loader").classList.add("hidden");
+  $("mapcard").classList.remove("hidden");
+  $("panel").classList.remove("hidden");
+  drawMap();
+  reset();
+}
+
+function drawMap() {
+  const svg = $("map");
+  let minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
+  const each = (geom, fn) => geom.coordinates.forEach(poly => poly.forEach(ring => ring.forEach(fn)));
+  G.features.forEach(f => each(f.geometry, ([x, y]) => { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); }));
+  const kx = Math.cos((minY + maxY) / 2 * Math.PI / 180), W = 600, H = W * (maxY - minY) / ((maxX - minX) * kx);
+  svg.setAttribute("viewBox", `0 0 ${W} ${H.toFixed(0)}`);
+  const px = x => ((x - minX) / (maxX - minX) * W).toFixed(1), py = y => ((maxY - y) / (maxY - minY) * H).toFixed(1);
+  const idx = Object.fromEntries(D.strata.map((s, i) => [s.name, i]));
+  svg.innerHTML = "";
+  D.paths = [];
+  for (const f of G.features) {
+    const d = f.geometry.coordinates.map(poly => poly.map(ring => "M" + ring.map(([x, y]) => px(x) + "," + py(y)).join("L") + "Z").join("")).join("");
+    const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    p.setAttribute("d", d);
+    p.setAttribute("fill-rule", "evenodd");
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "title");
+    p.appendChild(t);
+    svg.appendChild(p);
+    D.paths[idx[f.properties.name]] = p;
+  }
+}
+
+function reset() {
+  stop();
+  const rnd = mulberry32(Number($("seed").value) || 0), bias = $("bias").value / 100;
+  const order = D.tables.map(r => ({ r, t: rnd() * (1 + 2 * bias * D.lat[r[0]]) }));
+  order.sort((a, b) => a.t - b.t);
+  const nS = D.strata.length, nL = D.lists.length;
+  S = {
+    order: order.map(o => o.r), pos: 0, hist: [],
+    n: new Int32Array(nS), Se: new Float64Array(nS), See: new Float64Array(nS),
+    Sx: new Float64Array(nS), Sxx: new Float64Array(nS), Sxe: new Float64Array(nS),
+    Sy: Array.from({ length: nL }, () => new Float64Array(nS)), Syy: Array.from({ length: nL }, () => new Float64Array(nS)),
+    Syx: Array.from({ length: nL }, () => new Float64Array(nS)), Sye: Array.from({ length: nL }, () => new Float64Array(nS)),
+  };
+  render();
+}
+
+function addTable(r) {
+  const s = r[0], e = r[3], nL = D.lists.length;
+  let x = 0;
+  for (let k = 0; k < nL; k++) x += r[4 + k];
+  S.n[s]++; S.Se[s] += e; S.See[s] += e * e; S.Sx[s] += x; S.Sxx[s] += x * x; S.Sxe[s] += x * e;
+  for (let k = 0; k < nL; k++) { const y = r[4 + k]; S.Sy[k][s] += y; S.Syy[k][s] += y * y; S.Syx[k][s] += y * x; S.Sye[k][s] += y * e; }
+}
+
+function estimate() {
+  const nL = D.lists.length, nS = D.strata.length;
+  const sum = a => a.reduce((p, v) => p + v, 0);
+  const SxAll = sum(S.Sx), SeAll = sum(S.Se);
+  if (!SxAll) return null;
+  const naive = S.Sy.map(a => sum(a) / SxAll);
+  // Separate ratio estimator by electors; empty strata imputed with the global ratio.
+  const Yhat = k => { let t = 0; const g = sum(S.Sy[k]) / SeAll; for (let s = 0; s < nS; s++) t += D.E[s] * (S.n[s] ? S.Sy[k][s] / S.Se[s] : g); return t; };
+  let Xhat = 0;
+  for (let s = 0; s < nS; s++) Xhat += D.E[s] * (S.n[s] ? S.Sx[s] / S.Se[s] : SxAll / SeAll);
+  const strat = [], half = [];
+  for (let k = 0; k < nL; k++) {
+    const R = Yhat(k) / Xhat;
+    strat.push(R);
+    // Linearized variance of R: z = y - R x, residual u = z - (Sz/Se) e within each stratum.
+    let V = 0;
+    for (let s = 0; s < nS; s++) {
+      const n = S.n[s]; if (n < 2) continue;
+      const Sz = S.Sy[k][s] - R * S.Sx[s];
+      const Szz = S.Syy[k][s] - 2 * R * S.Syx[k][s] + R * R * S.Sxx[s];
+      const Sze = S.Sye[k][s] - R * S.Sxe[s];
+      const b = Sz / S.Se[s];
+      const Suu = Szz - 2 * b * Sze + b * b * S.See[s];  // sum of u^2; sum of u is 0
+      const s2 = Math.max(Suu, 0) / (n - 1), N = D.N[s], ebar = S.Se[s] / n;
+      V += N * N * (1 - n / N) * s2 / n * (D.E[s] / (N * ebar)) ** 2;
+    }
+    half.push(1.96 * Math.sqrt(V) / Xhat);
+  }
+  return { naive, strat, half };
+}
+
+const pct = v => (100 * v).toFixed(1).replace(".", ",") + " %";
+const pts = v => (100 * v).toFixed(1).replace(".", ",") + " pts";
+
+function render() {
+  const nL = D.lists.length, est = estimate(), frac = S.pos / S.order.length;
+  $("k-loaded").textContent = pct(frac);
+  let eN = null, eS = null;
+  if (est) {
+    eN = Math.max(...est.naive.map((v, k) => Math.abs(v - D.truth[k])));
+    eS = Math.max(...est.strat.map((v, k) => Math.abs(v - D.truth[k])));
+  }
+  $("k-naive").textContent = est ? pts(eN) : "–";
+  $("k-strat").textContent = est ? pts(eS) : "–";
+  $("k-naive").className = est && eN > 0.02 ? "err-bad" : "";
+  $("k-strat").className = est && eS > 0.02 ? "err-bad" : "";
+  $("rows").innerHTML = D.lists.map((l, k) => `<tr><td><span class="sw" style="background:${css(LIST_COLORS[k % 5])}"></span>Lista ${l.letter}</td>
+    <td>${pct(D.truth[k])}</td><td>${est ? pct(est.naive[k]) : "–"}</td><td>${est ? pct(est.strat[k]) : "–"}</td>
+    <td>${est ? "± " + pts(est.half[k]) : "–"}</td></tr>`).join("");
+  const rgb = css("--map-full"), empty = css("--map-empty");
+  D.strata.forEach((st, s) => {
+    const p = D.paths[s]; if (!p) return;
+    const f = S.n[s] / D.N[s];
+    p.setAttribute("fill", S.n[s] ? `rgba(${rgb}, ${(0.15 + 0.85 * f).toFixed(3)})` : empty);
+    p.firstChild.textContent = `${st.name} · ${S.n[s]} de ${D.N[s]} mesas (${pct(f)})`;
+  });
+  if (est) S.hist.push([frac, eN, eS]);
+  drawChart();
+}
+
+function drawChart() {
+  const svg = $("chart"), W = 400, H = 170, L = 34, B = 20, T = 8, ymax = 0.1;
+  const X = f => L + f * (W - L - 6), Y = e => T + (1 - Math.min(e, ymax) / ymax) * (H - T - B);
+  const line = (i, c) => S.hist.length ? `<polyline fill="none" stroke="${css(c)}" stroke-width="1.8" points="${S.hist.map(h => X(h[0]).toFixed(1) + "," + Y(h[i]).toFixed(1)).join(" ")}"/>` : "";
+  const grid = [0, 0.02, 0.05, 0.1].map(e => `<line x1="${L}" x2="${W - 6}" y1="${Y(e)}" y2="${Y(e)}" stroke="${css("--line")}"/><text x="${L - 4}" y="${Y(e) + 4}" text-anchor="end" font-size="10" fill="${css("--muted")}">${e * 100}</text>`).join("");
+  const xt = [0, 0.25, 0.5, 0.75, 1].map(f => `<text x="${X(f)}" y="${H - 6}" text-anchor="middle" font-size="10" fill="${css("--muted")}">${f * 100} %</text>`).join("");
+  svg.innerHTML = grid + xt + line(1, "--naive") + line(2, "--strat");
+}
+
+let timer = null;
+function tick() {
+  const step = Math.max(1, Math.round(Number($("speed").value)));
+  const end = Math.min(S.order.length, S.pos + step);
+  for (; S.pos < end; S.pos++) addTable(S.order[S.pos]);
+  render();
+  if (S.pos >= S.order.length) stop();
+}
+function stop() { clearInterval(timer); timer = null; $("play").textContent = S && S.pos ? "Continuar" : "Reproducir"; }
+$("play").addEventListener("click", () => { if (timer) stop(); else { timer = setInterval(tick, 100); $("play").textContent = "Pausar"; } });
+$("reset").addEventListener("click", reset);
+$("seed").addEventListener("change", reset);
+$("bias").addEventListener("change", reset);
+tryFetch();
+</script>
+</body>
+</html>
