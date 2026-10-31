@@ -1,0 +1,317 @@
+{
+ "id": "balotaje-2015.telegrama-a",
+ "templateId": "balotaje-2015",
+ "documentType": "telegrama",
+ "description": "Telegrama del balotaje 2015, modelo con encabezado CORREO ARGENTINO arriba y columna 'TOTAL DE VOTOS EN NÚMERO' (p. ej. distrito 01).",
+ "reference": {
+  "width": 1275,
+  "height": 2100,
+  "source": "data/ocr-samples 2015/010010001_0001.pdf, página 1 a 150 dpi (fuera de Git: tiene datos personales)"
+ },
+ "anchors": [
+  {
+   "text": "TELEGRAMA",
+   "center": [
+    319,
+    252
+   ]
+  },
+  {
+   "text": "ELECCIONES",
+   "center": [
+    255,
+    328
+   ]
+  },
+  {
+   "text": "PRESIDENCIALES",
+   "center": [
+    367,
+    329
+   ]
+  },
+  {
+   "text": "NOVIEMBRE",
+   "center": [
+    428,
+    349
+   ]
+  },
+  {
+   "text": "Destinatario",
+   "center": [
+    160,
+    430
+   ]
+  },
+  {
+   "text": "JUNTA",
+   "center": [
+    262,
+    428
+   ]
+  },
+  {
+   "text": "DIRECCION",
+   "center": [
+    287,
+    465
+   ]
+  },
+  {
+   "text": "Letras",
+   "center": [
+    573,
+    534
+   ]
+  },
+  {
+   "text": "SECCION",
+   "center": [
+    819,
+    551
+   ]
+  },
+  {
+   "text": "CIRCUITO",
+   "center": [
+    743,
+    617
+   ]
+  },
+  {
+   "text": "MESA",
+   "center": [
+    1016,
+    618
+   ]
+  },
+  {
+   "text": "ALIANZAS",
+   "center": [
+    393,
+    832
+   ]
+  },
+  {
+   "text": "NÚMERO",
+   "center": [
+    1024,
+    836
+   ]
+  },
+  {
+   "text": "VICTORIA",
+   "center": [
+    556,
+    920
+   ]
+  },
+  {
+   "text": "CAMBIEMOS",
+   "center": [
+    349,
+    1043
+   ]
+  },
+  {
+   "text": "NULOS",
+   "center": [
+    582,
+    1128
+   ]
+  },
+  {
+   "text": "RECURRIDOS",
+   "center": [
+    545,
+    1168
+   ]
+  },
+  {
+   "text": "BLANCO",
+   "center": [
+    574,
+    1210
+   ]
+  },
+  {
+   "text": "IDENTIDAD",
+   "center": [
+    415,
+    1249
+   ]
+  },
+  {
+   "text": "IMPUGNADA",
+   "center": [
+    554,
+    1249
+   ]
+  },
+  {
+   "text": "SUPLENTE",
+   "center": [
+    963,
+    1492
+   ]
+  }
+ ],
+ "cells": [
+  {
+   "ref": "header.electores",
+   "box": [
+    410,
+    554,
+    71,
+    30
+   ],
+   "label": {
+    "text": "Cantidad de electores que han votado",
+    "box": [
+     78,
+     552,
+     330,
+     30
+    ]
+   }
+  },
+  {
+   "ref": "header.votantes",
+   "box": [
+    410,
+    584,
+    71,
+    31
+   ],
+   "label": {
+    "text": "Cantidad de sobres en la urna",
+    "box": [
+     78,
+     584,
+     330,
+     30
+    ]
+   }
+  },
+  {
+   "ref": "cells.presidente.agrupacion-131",
+   "box": [
+    630,
+    863,
+    567,
+    122
+   ],
+   "label": {
+    "text": "131 ALIANZA FRENTE PARA LA VICTORIA",
+    "box": [
+     79,
+     882,
+     549,
+     74
+    ]
+   }
+  },
+  {
+   "ref": "cells.presidente.agrupacion-135",
+   "box": [
+    630,
+    985,
+    567,
+    124
+   ],
+   "label": {
+    "text": "135 ALIANZA CAMBIEMOS",
+    "box": [
+     79,
+     1008,
+     549,
+     74
+    ]
+   }
+  },
+  {
+   "ref": "cells.presidente.nulos",
+   "box": [
+    630,
+    1109,
+    567,
+    40
+   ],
+   "label": {
+    "text": "VOTOS NULOS",
+    "box": [
+     420,
+     1112,
+     205,
+     34
+    ]
+   }
+  },
+  {
+   "ref": "cells.presidente.recurridos",
+   "box": [
+    630,
+    1149,
+    567,
+    41
+   ],
+   "label": {
+    "text": "VOTOS RECURRIDOS",
+    "box": [
+     370,
+     1152,
+     255,
+     34
+    ]
+   }
+  },
+  {
+   "ref": "cells.presidente.blanco",
+   "box": [
+    630,
+    1190,
+    567,
+    40
+   ],
+   "label": {
+    "text": "VOTOS EN BLANCO",
+    "box": [
+     390,
+     1193,
+     235,
+     34
+    ]
+   }
+  },
+  {
+   "ref": "cells.presidente.impugnados",
+   "box": [
+    630,
+    1230,
+    567,
+    40
+   ],
+   "label": {
+    "text": "VOTOS DE IDENTIDAD IMPUGNADA",
+    "box": [
+     215,
+     1233,
+     410,
+     34
+    ]
+   }
+  }
+ ],
+ "masks": [
+  {
+   "kind": "firmas, nombres y documentos",
+   "box": [
+    66,
+    1335,
+    1140,
+    700
+   ]
+  }
+ ]
+}
