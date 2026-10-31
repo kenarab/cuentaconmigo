@@ -29,3 +29,4 @@ design/presentation/*.out
 design/presentation/*.snm
 design/presentation/*.toc
 design/presentation/*.vrb
+ios/CuentaConmigo/Resources/server.json

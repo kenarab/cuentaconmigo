@@ -188,7 +188,10 @@ struct CaptureEditorView: View {
                 }
                 if !capture.pages.isEmpty {
                     Button {
-                        if ServerSettings.token == nil { showServer = true } else { Task { await readWithServer() } }
+                        Task {
+                            await ServerSettings.connectIfNeeded(appVersion: CaptureStore.appInfo.version)
+                            if ServerSettings.token == nil { showServer = true } else { await readWithServer() }
+                        }
                     } label: {
                         Label("Leer números con el servidor", systemImage: "text.viewfinder")
                     }

@@ -102,8 +102,24 @@ enum ServerSettings {
     private static let urlKey = "scrutinyServerURL"
     private static let service = "com.kenarab.CuentaConmigo.scrutiny"
 
+    /// Team build default (Resources/server.json, git-ignored, copied by install-device.sh).
+    struct Bundled: Decodable { let url: URL; let enrollmentCode: String }
+    static let bundled: Bundled? = Bundle.main.url(forResource: "server", withExtension: "json")
+        .flatMap { try? Data(contentsOf: $0) }
+        .flatMap { try? JSONDecoder().decode(Bundled.self, from: $0) }
+
+    /// Enrolls silently with the bundled server when the phone is not connected yet.
+    static func connectIfNeeded(appVersion: String) async {
+        guard token == nil, let bundled else { return }
+        if let newToken = try? await ScrutinyClient(baseURL: bundled.url, token: nil)
+            .enroll(code: bundled.enrollmentCode, appVersion: appVersion) {
+            url = bundled.url
+            token = newToken
+        }
+    }
+
     static var url: URL? {
-        get { UserDefaults.standard.string(forKey: urlKey).flatMap(URL.init(string:)) }
+        get { UserDefaults.standard.string(forKey: urlKey).flatMap(URL.init(string:)) ?? bundled?.url }
         set { UserDefaults.standard.set(newValue?.absoluteString, forKey: urlKey) }
     }
 

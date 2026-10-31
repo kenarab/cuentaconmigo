@@ -7,6 +7,8 @@ ios_root="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ios_root"
 derived="$TMPDIR/cc-derived-data-signed"
 "$ios_root/scripts/sync-contracts.sh"
+# Team server defaults (git-ignored): .private/server.json -> app bundle, so the app needs no setup.
+if [ -f "$ios_root/../.private/server.json" ]; then cp "$ios_root/../.private/server.json" "$ios_root/CuentaConmigo/Resources/server.json"; fi
 # Real sample telegrams (git-ignored, personal data): fetched and verified before building.
 python3 "$ios_root/../scripts/samples/fetch_ocr_samples.py" || echo "Aviso: no se pudieron preparar los telegramas de ejemplo" >&2
 xcodebuild -project CuentaConmigo.xcodeproj -scheme CuentaConmigo -configuration Debug \

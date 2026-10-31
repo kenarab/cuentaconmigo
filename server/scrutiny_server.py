@@ -39,6 +39,8 @@ BLOBS = DATA / "blobs"
 VERSION = "0.1.0"
 ENROLL_CODE = os.environ.get("CC_ENROLL_CODE") or secrets.token_urlsafe(18)
 CODES_FILE = os.environ.get("CC_ENROLL_CODES_FILE")
+# Shared code bundled in the team's app builds (zero-config); rate limited like any enrollment.
+APP_CODE = os.environ.get("CC_APP_ENROLL_CODE")
 PUBLIC = os.environ.get("CC_PUBLIC") == "1"
 TRUST_PROXY = os.environ.get("CC_TRUST_PROXY") == "1"
 MAX_BLOB = 15 * 1024 * 1024
@@ -64,7 +66,9 @@ def allowed(kind, key):
 
 
 def take_enroll_code(code):
-    """Single-use codes from CC_ENROLL_CODES_FILE, otherwise the shared CC_ENROLL_CODE."""
+    """Single-use codes from CC_ENROLL_CODES_FILE, the app-build code, or the shared CC_ENROLL_CODE."""
+    if APP_CODE and secrets.compare_digest(code, APP_CODE):
+        return True
     if CODES_FILE:
         with DB_LOCK:
             path = Path(CODES_FILE)
@@ -380,6 +384,8 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main():
+    if PUBLIC and APP_CODE and len(APP_CODE) < 24:
+        sys.exit("CC_APP_ENROLL_CODE must have 24+ characters")
     if PUBLIC and not CODES_FILE and len(ENROLL_CODE) < 16:
         sys.exit("CC_PUBLIC=1 requires CC_ENROLL_CODES_FILE or a CC_ENROLL_CODE of 16+ characters")
     init_db()

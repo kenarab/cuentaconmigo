@@ -8,6 +8,7 @@ struct CuentaConmigoApp: App {
         WindowGroup {
             HomeView()
                 .environment(store)
+                .task { await ServerSettings.connectIfNeeded(appVersion: CaptureStore.appInfo.version) }
         }
     }
 }

@@ -130,6 +130,10 @@ Hasta hoy la app era una maqueta sin conexión. Ahora se conecta al backend de
 [scrutiny-backend](../scrutiny-backend/SPEC.md), según el contrato
 `contracts/api/scrutiny-v1.openapi.json`:
 
+0. **Sin configuración (pedido del autor):** los builds del equipo traen la dirección del
+   servidor y un código de alta de la app (`.private/server.json`, fuera de Git, copiado
+   por `install-device.sh`). Al abrirse, la app se da de alta sola. El ingreso manual
+   queda en Ajustes para otros servidores.
 1. **Alta del teléfono:** en la captura, "Leer números con el servidor" pide la
    dirección del servidor y un **código de alta** que entrega quien coordina. No se
    piden datos personales. El token del dispositivo queda en el Keychain (sólo en
