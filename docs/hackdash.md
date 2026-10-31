@@ -52,6 +52,24 @@ desinformación, plataformas digitales, civic tech, elecciones 2027
 
 `design/cover/cover.png` (1200×630).
 
+## Qué se entrega en la hackatón (31/10/2026)
+
+- **App iOS nativa (SwiftUI)** para fiscales y autoridades de mesa: escaneo del
+  telegrama o acta, identificación de la mesa con listas en cascada, carga y validación,
+  confirmación como evidencia con SHA-256, envío al servidor con comprobante encadenado
+  y tres diseños de carga para comparar (F-1, F-2, F-3). Probada en un iPhone 12 Pro.
+- **Servidor de escrutinio** (`server/`): ingesta de capturas con evidencia inmutable,
+  OCR con Tesseract y lectura por celda alineada a la diagramación del formulario
+  (`POST /v1/readings`): 18–21 anclas impresas, error de 0,3 a 2 px. La lectura de
+  dígitos manuscritos está medida como línea de base (2/9) para mejorar.
+- **Simulación del AMBA** (`design/prototypes/simulacion-amba/`): 29.962 mesas reales de
+  las generales 2023; muestra cómo la proyección se estabiliza con pocas mesas
+  (cobertura del IC 95 % medida: 92,5–96 %).
+- **Prototipos navegables** de pantallas y navegación (`design/prototypes/`).
+- **SPECs** de la red ciudadana, deliberación, identidad por cadenas de confianza,
+  gobernanza, simulación de la red, protección de participantes, cuenta de garantía
+  electoral y chequeos legales (`sdd/specs/`).
+
 ## Links
 
 - Repositorio: https://github.com/kenarab/cuentaconmigo
