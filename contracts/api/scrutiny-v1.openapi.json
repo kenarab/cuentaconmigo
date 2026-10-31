@@ -1,0 +1,449 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "CuentaConmigo · scrutiny backend",
+    "version": "0.1.0",
+    "description": "Subset implemented by server/scrutiny_server.py. Source of truth for the app client. Full design: sdd/specs/scrutiny-backend/SPEC.md. Errors use RFC 9457 problem+json. OCR results are suggestions (origin \"ocr\"), never confirmed data."
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:8740",
+      "description": "Local prototype"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "device": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "Problem": {
+        "type": "object",
+        "required": [
+          "title",
+          "status"
+        ],
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "detail": {
+            "type": "string"
+          }
+        }
+      },
+      "Sha256": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      },
+      "Receipt": {
+        "type": "object",
+        "description": "Hash-chained receipt; chainHash = sha256(prevHash|captureId|bodySha256|receivedAt). Kept by the device for audits.",
+        "required": [
+          "captureId",
+          "bodySha256",
+          "receivedAt",
+          "index",
+          "prevHash",
+          "chainHash"
+        ],
+        "properties": {
+          "captureId": {
+            "type": "string"
+          },
+          "bodySha256": {
+            "$ref": "#/components/schemas/Sha256"
+          },
+          "receivedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "index": {
+            "type": "integer"
+          },
+          "prevHash": {
+            "$ref": "#/components/schemas/Sha256"
+          },
+          "chainHash": {
+            "$ref": "#/components/schemas/Sha256"
+          },
+          "rule": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "responses": {
+      "Problem": {
+        "description": "Error",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/v1/health": {
+      "get": {
+        "summary": "Liveness",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "version": {
+                      "type": "string"
+                    },
+                    "time": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/ocr/engines": {
+      "get": {
+        "summary": "Available OCR engines",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/devices/enroll": {
+      "post": {
+        "summary": "Enroll a device with a one-time code; no personal data",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "enrollmentCode"
+                ],
+                "properties": {
+                  "enrollmentCode": {
+                    "type": "string"
+                  },
+                  "platform": {
+                    "type": "string"
+                  },
+                  "appVersion": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Enrolled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "deviceId",
+                    "deviceToken"
+                  ],
+                  "properties": {
+                    "deviceId": {
+                      "type": "string"
+                    },
+                    "deviceToken": {
+                      "type": "string"
+                    },
+                    "scopes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/v1/captures": {
+      "post": {
+        "summary": "Submit a capture package (contracts/schemas/capture.schema.json). Same id and content: 200 with the existing receipt. Same id, new content from the same device: new version (201) with a new receipt. Another device: 409.",
+        "security": [
+          {
+            "device": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "../schemas/capture.schema.json"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Received",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "const": "received"
+                    },
+                    "missingBlobs": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Sha256"
+                      }
+                    },
+                    "receipt": {
+                      "$ref": "#/components/schemas/Receipt"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Already received, same content"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/v1/blobs/{sha256}": {
+      "put": {
+        "summary": "Upload a page image; the body must hash to the path",
+        "security": [
+          {
+            "device": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "sha256",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Sha256"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "image/jpeg": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Stored"
+          },
+          "200": {
+            "description": "Already stored"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "422": {
+            "$ref": "#/components/responses/Problem"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/v1/captures/{id}": {
+      "get": {
+        "summary": "Capture status (own captures only)",
+        "security": [
+          {
+            "device": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/v1/captures/{id}/ocr": {
+      "get": {
+        "summary": "OCR suggestions per page",
+        "security": [
+          {
+            "device": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "origin": {
+                      "const": "ocr"
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "page": {
+                            "type": "integer"
+                          },
+                          "engine": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "enum": [
+                              "queued",
+                              "running",
+                              "done",
+                              "failed",
+                              "waiting-blob"
+                            ]
+                          },
+                          "numbers": {
+                            "type": "array",
+                            "items": {
+                              "type": "integer"
+                            }
+                          },
+                          "startedAt": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "finishedAt": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem"
+          }
+        }
+      }
+    },
+    "/v1/log/head": {
+      "get": {
+        "summary": "Head of the receipt hash chain, for publishing and audits (public)",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "index": {
+                      "type": "integer"
+                    },
+                    "chainHash": {
+                      "$ref": "#/components/schemas/Sha256"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

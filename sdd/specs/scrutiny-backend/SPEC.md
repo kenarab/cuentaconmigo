@@ -647,3 +647,31 @@ los números detectados en la página, que es la ayuda que la app muestra como f
 - **Provisorio:** las celdas todavía no están confirmadas por personas (`borrador_ia`),
   y los números chicos (0, 1, 2) pueden coincidir por azar. No mide la posición: falta
   la extracción por regiones de la plantilla (SB-2) y una métrica por celda (SB-3).
+
+## Prototipo implementado (`server/`) · 31/10/2026
+
+Sólo biblioteca estándar de Python y Tesseract 5, sin instalaciones nuevas.
+Contrato: `contracts/api/scrutiny-v1.openapi.json`.
+
+- **Endpoints:** health, motores de OCR, alta de dispositivos, capturas en dos pasos,
+  blobs, estado de la captura, OCR por captura y cabeza del registro (`/v1/log/head`).
+- **Evidencia:** blobs inmutables por SHA-256 (sólo lectura). Sólo se aceptan JPEG
+  (415). Cada versión de una captura se agrega a un **registro encadenado por hash** y
+  devuelve un comprobante. La verificación de la cadena completa está probada.
+- **Seguridad para exposición pública** (`CC_PUBLIC=1`):
+  - **Códigos de alta:** de un solo uso, desde `CC_ENROLL_CODES_FILE`. En modo
+    público el server no arranca con un código compartido débil.
+  - **Límites de uso:** 5 altas cada 10 min por IP, 240 pedidos por minuto por IP y
+    120 capturas por hora por dispositivo (429).
+  - **Autorización:** el dispositivo sale siempre del token, nunca de la ruta.
+  - **Conexiones:** se cortan si quedan colgadas más de 30 s.
+  - **Cola de OCR:** tope de 500 trabajos.
+  - **Encabezados:** `nosniff` y `no-store`; la versión no se informa.
+  - **Evidencia cruda:** no hay endpoint que la publique.
+- **Para publicarlo (lo hace el autor):** escuchar en 127.0.0.1 detrás de un proxy
+  inverso con TLS (por ejemplo Caddy, nginx o un túnel), con `CC_PUBLIC=1`,
+  `CC_ENROLL_CODES_FILE` y `CC_TRUST_PROXY=1`. Copias de seguridad de
+  `.runtime/scrutiny/`, y publicar periódicamente `/v1/log/head` (SB-9).
+- **Pendiente:** revisión humana y doble carga en el servidor, espejo oficial,
+  conteo rápido, embargo, FastAPI (SB-1) y pruebas de penetración antes del uso real
+  (chequeo legal).
