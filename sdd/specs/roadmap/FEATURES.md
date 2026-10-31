@@ -68,7 +68,7 @@ Estado: ✅ implementado (prototipo) · 🟡 parcial · 🎨 en prototipo de pan
 | F-50 | Evidencia preservada vs. copia publicable (datos tapados, sin EXIF) | participant-protection | PP-6 | P1 | 📝 |
 | F-51 | Inventario de datos y retención mínima | participant-protection | PP-7 | P1 | 📝 |
 
-## Propuesta de cierre de #1 (31/10/2026) · pendiente de aceptación del autor
+## Decisión de #1 · aceptada por el autor el 31/10/2026
 
 - **F-P0 = b:** se muestran funcionando el escrutinio guiado (F-01..F-05, F-16, F-17) y
   la simulación del AMBA (F-10). La red, la identidad, la gobernanza y el backend se

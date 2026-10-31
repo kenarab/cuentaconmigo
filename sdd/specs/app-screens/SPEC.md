@@ -955,7 +955,7 @@ argumentos, mis capturas. Nunca se pide ni se muestra afinidad política.
 
 ---
 
-## Propuesta de consenso de #2 (31/10/2026) · pendiente de aceptación del autor
+## Consenso de #2 · aceptado por el autor el 31/10/2026
 
 Respuesta de Andy combinada con lo que el autor ya indicó hoy (detalle en el issue #2):
 
@@ -972,7 +972,7 @@ Respuesta de Andy combinada con lo que el autor ya indicó hoy (detalle en el is
 | AS-9 | "Acerca de" después; E-12 sólo con el selector de diseño | Andy |
 | AS-10..AS-12 | ★ (consulta legal antes de uso real; ver #23) | ★ |
 
-Al aceptarla, el coordinador la marca como decisión vigente y cierra #2.
+Decisión vigente. Reemplaza la recomendación híbrida de AS-2: las tres presentaciones quedan seleccionables.
 
 ## 8. Preguntas para el autor
 
