@@ -11,15 +11,18 @@ Rol: `.agents/roles/design_coordinator.md`. SPEC: `sdd/specs/human-in-the-loop/S
 2. Estado: `gh issue list --label decision-humana --state open` y
    `git log --oneline -10 -- decisions/respuestas/`.
 3. Por cada issue abierto:
-   - Si están las dos respuestas en `decisions/respuestas/` y todavía no hay comparación,
-     comentar en el issue (`gh issue comment`): coincidencias, diferencias con las razones
-     de cada uno y alternativas intermedias.
+   - Leer los comentarios (`gh issue view N --comments`). Las respuestas son la plantilla
+     pegada con opciones marcadas `[x]`. Si están las de kenarab y andytow y todavía no hay
+     comparación, comentar (`gh issue comment`): coincidencias, diferencias con los
+     comentarios de cada uno y alternativas intermedias.
    - Si en el issue hay un consenso explícito de ambos, aplicarlo a las SPECs y a
      `decisions/CONSENSO.md` (commit atómico "Apply decision #N: …" + push) y cerrar
      el issue con un comentario que enlace el commit.
-4. Si aparecen decisiones nuevas en SPECs o revisiones, agregarlas a `decisions/PREGUNTAS.md`
-   y a las plantillas de respuestas; abrir un issue sólo si bloquean el trabajo siguiente:
-   `gh issue create --label decision-humana --label area:<x> --assignee kenarab --assignee andytow`.
+4. Si aparecen decisiones nuevas, agregarlas a `decisions/questions.json` (máximo cinco
+   opciones codificadas + Otro; ★ en la propuesta), regenerar con
+   `scripts/decisions/render.py` y actualizar o abrir el issue
+   (`gh issue create --label decision-humana --label area:<x> --assignee kenarab --assignee andytow --body-file …`).
+   Abrir issues sólo para lo que bloquea el trabajo siguiente.
 5. Informar al usuario en pocas líneas qué espera a quién.
 
 Nunca decidir por las personas ni cerrar un issue sin el consenso explícito de ambos.

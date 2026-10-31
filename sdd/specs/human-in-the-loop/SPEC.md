@@ -10,27 +10,27 @@ Las decisiones humanas del proyecto se toman en **issues de GitHub asignados al 
 decisiones pendientes, plantea las preguntas en el momento oportuno, consolida las
 respuestas y aplica lo decidido. Los agentes proponen y revisan; **las personas deciden**.
 
-## Flujo
+## Flujo (interacción definida por el autor, 31/10/2026)
 
 ```
-SPEC/prototipo ─► revisión de agentes ─► issue "decision-humana" (asignado a ambos)
-      ▲                                                │
-      │                    respuestas por separado en decisions/respuestas/<usuario>.md
-      │                                                │
-      └── se aplica a las SPECs ◄── consenso en el issue ◄── comparación del coordinador
+SPEC/prototipo ─► revisión de agentes ─► issue "decision-humana" con plantilla precompletada
+                                                   │
+                   cada persona pega la plantilla como comentario y marca [x]
+                                                   │
+      SPECs actualizadas ◄── consenso en el issue ◄── comparación del coordinador
 ```
 
-1. **Apertura:** el coordinador abre un issue por tema de decisión, con contexto,
-   enlaces, preguntas, opciones y la propuesta de las SPECs (no vinculante).
-   Etiquetas: `decision-humana` y el área (`area:escrutinio`, `area:red`…). Asignados: ambos.
-2. **Respuestas independientes:** cada persona responde en su archivo de
-   `decisions/respuestas/` sin mirar el del otro (Andy por PR) y avisa en el issue.
-3. **Comparación:** el coordinador comenta en el issue qué coincide, qué difiere
-   (con las razones de cada uno) y alternativas intermedias, con el chequeo de
-   electoral_counsel cuando aplica.
+1. **Apertura:** el coordinador abre un issue por tema con contexto, enlaces y una
+   **plantilla precompletada**: cada pregunta con hasta **cinco opciones codificadas**
+   (★ marca la propuesta de las SPECs, no vinculante) y **Otro** al final. Fuente única:
+   `decisions/questions.json`, que se convierte en issue con `scripts/decisions/render.py`.
+2. **Respuestas:** cada persona copia la plantilla, la pega como **comentario** del issue
+   y marca sus opciones con `[x]`.
+3. **Comparación:** el coordinador comenta qué coincide, qué difiere (con los comentarios
+   de cada uno) y alternativas intermedias, con el chequeo de electoral_counsel cuando aplica.
 4. **Consenso:** se cierra por comentario en el issue. Ningún agente decide por las personas.
-5. **Aplicación:** el coordinador actualiza las SPECs y `decisions/CONSENSO.md` en
-   commits atómicos que referencian el issue, y lo cierra.
+5. **Aplicación:** el coordinador actualiza las SPECs y `decisions/CONSENSO.md` en commits
+   atómicos que referencian el issue, y lo cierra.
 
 ## Coordinador de diseño (`design_coordinator`)
 

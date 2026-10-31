@@ -1,37 +1,35 @@
-# Decisiones por consenso
+# Decisiones por consenso (human in the loop)
 
-Proceso para resolver las preguntas abiertas entre Alejandro (`kenarab`) y Andy (`andytow`).
+Las decisiones humanas se toman en **issues de GitHub** con la etiqueta `decision-humana`,
+asignados a Alejandro (`kenarab`) y a Andy (`andytow`).
 
-1. **Preguntas:** [PREGUNTAS.md](PREGUNTAS.md) reúne todas las decisiones pendientes de
-   las SPECs, con opciones y la propuesta (no vinculante) de cada SPEC.
-2. **Respuestas por separado:** cada uno completa su archivo sin mirar el del otro:
-   - Alejandro → [respuestas/kenarab.md](respuestas/kenarab.md) (commit directo a `main`).
-   - Andy → [respuestas/andytow.md](respuestas/andytow.md) (por PR).
+1. Cada issue trae una **plantilla precompletada**: cada pregunta con hasta cinco opciones
+   codificadas (★ = propuesta de las SPECs, no vinculante) y **Otro** al final.
+2. Cada uno pega la plantilla como **comentario** del issue y marca sus opciones con `[x]`.
+3. El coordinador de diseño (skill `hitl-decisions`) comenta la comparación: coincidencias,
+   diferencias y alternativas intermedias.
+4. El consenso se cierra con un comentario en el issue. El coordinador lo aplica a las
+   SPECs y a `CONSENSO.md`, y cierra el issue.
 
-   Archivos distintos, así no hay conflictos de merge.
-3. **Comparación:** cuando estén los dos, el planner arma `CONSENSO.md`:
-   - **Coinciden** → decisión propuesta para cerrar.
-   - **Difieren** → se muestran ambas posturas con sus razones, más alternativas
-     intermedias y el chequeo de electoral_counsel si aplica.
-4. **Consenso:** lo cierran ustedes dos. El planner sólo registra el resultado.
-5. **Aplicación:** cada decisión cerrada se aplica a su SPEC en un commit atómico
-   (estado "Decidido por el autor y Andy, <fecha>").
+Fuente de las preguntas: [questions.json](questions.json). Vista de lectura:
+[PREGUNTAS.md](PREGUNTAS.md). Para regenerar las vistas y los issues:
 
-Hasta el consenso, las propuestas de las SPECs **no son decisiones**.
+```sh
+python3 scripts/decisions/render.py                    # PREGUNTAS.md
+python3 scripts/decisions/render.py --issue N > body.md
+gh issue edit N --body-file body.md
+```
 
-## Issues de decisión (GitHub, asignados a kenarab y andytow)
+Nuevas decisiones: plantilla de issue "Decisión humana" (`.github/ISSUE_TEMPLATE/decision.md`).
 
-| Issue | Tema | Preguntas |
-| --- | --- | --- |
-| #1 | Funcionalidades iniciales y alcance de la hackatón (prioridad alta) | FEATURES.md, V-1 |
-| #2 | Pantallas y flujo del escrutinio en iPhone (prioridad alta) | AS-1 a AS-12 |
-| #3 | Simulación del AMBA (prioridad alta) | S-1 a S-3 |
-| #4 | Visión, marca y posicionamiento legal | V-2 a V-4 |
-| #5 | Red ciudadana y deliberación | RC-1 a RC-5, DL-2, DL-4 |
-| #6 | Herramientas frente a las plataformas | P-1 a P-4 |
-| #7 | Protección de participantes | PP-1 a PP-7 |
-| #8 | Plataforma móvil y backend | D-002, D-003 |
-| #9 | Organización del trabajo con agentes | D-MA-1 a D-MA-3, PR-1, PR-3, HL-1 |
-
-El coordinador de diseño (skill `hitl-decisions`) compara las respuestas en cada issue
-y aplica sólo los consensos explícitos.
+| Issue | Tema |
+| --- | --- |
+| #1 | Funcionalidades iniciales y alcance de la hackatón (prioridad alta) |
+| #2 | Pantallas y flujo del escrutinio en iPhone (prioridad alta) |
+| #3 | Simulación del AMBA (prioridad alta) |
+| #4 | Visión, marca y posicionamiento legal |
+| #5 | Red ciudadana y deliberación |
+| #6 | Herramientas frente a las plataformas |
+| #7 | Protección de participantes |
+| #8 | Plataforma móvil y backend |
+| #9 | Organización del trabajo con agentes |

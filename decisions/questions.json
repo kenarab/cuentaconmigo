@@ -1,0 +1,94 @@
+{
+  "legend": "★ = propuesta de las SPECs (no vinculante)",
+  "issues": [
+    {"number": 1, "title": "Decidir: funcionalidades iniciales y alcance de la hackatón",
+     "context": "Backlog: `sdd/specs/roadmap/FEATURES.md` (F-01 a F-51 con prioridad propuesta y estado).",
+     "questions": [
+      {"id": "F-P0", "q": "¿Qué entra en la hackatón (P0)?", "options": [
+        "Propuesta completa: escrutinio guiado (F-01..F-05) + simulación AMBA (F-10) + deliberación de muestra (F-21, F-40) + evidencia viral con tablero (F-30..F-32) ★",
+        "Sólo escrutinio guiado + simulación AMBA",
+        "Escrutinio + AMBA + deliberación de muestra",
+        "Escrutinio + AMBA + evidencia viral con tablero",
+        "Deliberación + evidencia viral (sin escrutinio)"], "extra": "IDs a agregar o quitar de P0:"},
+      {"id": "F-ORD", "q": "¿Por dónde empezamos a construir?", "options": [
+        "Escrutinio en iPhone (ya hay base) ★", "Simulación del AMBA", "Deliberación de muestra", "Evidencia viral y tablero", "En paralelo con Andy"]}
+     ]},
+    {"number": 2, "title": "Decidir: pantallas y flujo del escrutinio en iPhone",
+     "context": "Propuesta de Fable: `sdd/specs/app-screens/SPEC.md`. Revisión de Astra: `sdd/specs/app-screens/DECISION.md`. Prototipo navegable: `design/prototypes/escrutinio/`.",
+     "questions": [
+      {"id": "AS-1", "q": "Navegación global", "options": ["N-A: pestañas con la red al centro", "N-B: app de escrutinio separada", "N-C: una app con \"modo jornada electoral\" ★", "N-B ahora y N-C cuando exista la red"]},
+      {"id": "AS-2", "q": "Flujo de escrutinio", "options": ["F-1: asistente paso a paso", "F-2: imagen arriba + campos con OCR", "F-3: doble carga a ciegas", "Híbrido: 4 pasos + F-2, F-3 opcional después ★"]},
+      {"id": "AS-3", "q": "¿Certificado de escrutinio preseleccionado?", "options": ["Sí", "No, para no sugerir qué documento fotografiar"]},
+      {"id": "AS-4", "q": "¿Registrar en el contrato que se aceptó el aviso de Boleta Única?", "options": ["Sí (cambio de contrato)", "No"]},
+      {"id": "AS-5", "q": "Doble carga a ciegas", "options": ["Mínima ya (votantes y totales)", "Completa ya (todas las celdas)", "Después ★"]},
+      {"id": "AS-6", "q": "Campos vacíos", "options": ["Botón \"Cero\" explícito ★", "Vacío = 0 con aviso"]},
+      {"id": "AS-7", "q": "Aviso de plantilla ficticia en la demo", "options": ["Franja permanente ★", "Aviso al inicio + etiqueta discreta", "Sólo en \"Acerca de\""]},
+      {"id": "AS-8", "q": "¿Mostrar si cada valor vino del OCR o se tipeó?", "options": ["Sí, en pantalla", "Sólo en el JSON exportado", "En pantalla sólo al revisar"]},
+      {"id": "AS-9", "q": "Pantalla \"Acerca de\" (E-12)", "options": ["Ahora", "Después"]},
+      {"id": "AS-10", "q": "Consulta a abogado/a electoral sobre fotografiar certificado/telegrama", "options": ["Condición antes de cualquier uso real ★", "En paralelo al desarrollo", "Más adelante"]},
+      {"id": "AS-11", "q": "Datos de terceros en las imágenes exportadas", "options": ["Definirlo con abogado/a antes del uso real ★", "Responsable: la organización operadora; conservar hasta el escrutinio definitivo + plazo", "Cada fiscal responde por lo que exporta; la app no guarda fuera del teléfono"]},
+      {"id": "AS-12", "q": "Campos `fictitious`, `lockedAt`, `exportedAt`", "options": ["Agregar los tres al contrato", "Agregar sólo `fictitious`", "Dejarlos fuera del paquete exportado"]}
+     ]},
+    {"number": 3, "title": "Decidir: simulación del AMBA",
+     "context": "SPEC: `sdd/specs/amba-simulation/SPEC.md`. Sólo datos sintéticos.",
+     "questions": [
+      {"id": "S-1", "q": "Plataforma", "options": ["Web estática con mapa (MapLibre) ★", "Notebook Python", "SwiftUI + MapKit", "Web para la demo + notebook para el análisis"]},
+      {"id": "S-2", "q": "Geografía", "options": ["Polígonos oficiales + puntos sintéticos ★", "Locales de votación reales si hay dataset público", "Grilla sintética sin geografía real"]},
+      {"id": "S-3", "q": "Modelo estadístico", "options": ["Estratificado por municipio ★", "Postestratificado con regresión", "Bayesiano jerárquico", "Estratificado ahora, bayesiano después"]}
+     ]},
+    {"number": 4, "title": "Decidir: visión, marca y posicionamiento legal",
+     "context": "SPEC: `sdd/specs/vision/SPEC.md`. Marco legal: `docs/legal/MARCO_LEGAL.md`.",
+     "questions": [
+      {"id": "V-2", "q": "Nombre y marca \"CuentaConmigo\"", "options": ["Confirmar ★", "Buscar otro nombre", "Confirmar y sumar una bajada fija"]},
+      {"id": "V-3", "q": "¿Qué alianzas buscamos primero?", "options": ["Derechos digitales", "Verificación y periodismo", "Universidades", "Transparencia electoral", "Todas en paralelo"]},
+      {"id": "V-4", "q": "Posicionamiento frente al acompañamiento cívico (Acordada CNE 128/11)", "options": ["Herramienta abierta a cualquier fiscal, sin acreditación", "Organización sin fines de lucro y sin vínculo partidario que se acredite", "Las dos ★"]}
+     ]},
+    {"number": 5, "title": "Decidir: red ciudadana y deliberación",
+     "context": "SPECs: `sdd/specs/civic-network/SPEC.md` y `sdd/specs/civic-deliberation/SPEC.md`.",
+     "questions": [
+      {"id": "RC-1", "q": "¿Construir o reutilizar la red?", "options": ["Decidim", "CONSUL", "Desarrollo propio", "Híbrido: reutilizar + puente propio con la evidencia ★"]},
+      {"id": "RC-2", "q": "Umbral de consenso para pasar a la acción", "options": ["Bajo: 50 personas verificadas y 60 % de acuerdo", "Medio: 200 y 66 %", "Alto: 500 y 75 %", "Distinto según el tipo de acción", "Definirlo en un piloto"]},
+      {"id": "RC-2b", "q": "Consenso transversal (acciones que involucran partidos)", "options": ["Apoyo de al menos 3 fuerzas distintas", "Apoyo de al menos 2 fuerzas de bloques distintos", "Mayoría de las fuerzas participantes", "No exigirlo salvo acciones con partidos"]},
+      {"id": "RC-3", "q": "Reglas para los partidos", "options": ["Cuentas verificadas con límites iguales; sin publicar durante la veda ★", "Cuentas verificadas sin reglas especiales de veda", "Los partidos sólo leen y firman compromisos", "Definirlo con electoral_counsel"]},
+      {"id": "RC-4", "q": "Gobernanza de la red", "options": ["Asociación civil con comisión directiva plural", "Consejo consultivo de organizaciones aliadas", "La comunidad elige moderadores por consenso", "Combinación de las tres"]},
+      {"id": "RC-5", "q": "Verificación de personas", "options": ["Mismo criterio que PP-3 ★", "Invitación por personas de confianza", "Verificación presencial con organizaciones aliadas", "Credenciales anónimas"]},
+      {"id": "DL-2", "q": "¿Quién modera?", "options": ["Voluntarios capacitados + comité diverso de apelación ★", "Organizaciones aliadas", "Rotativa entre participantes", "Mixta"]},
+      {"id": "DL-4", "q": "Iniciativa popular (Constitución art. 39) como vía formal", "options": ["Explorarla con chequeo legal ★", "No por ahora"]}
+     ]},
+    {"number": 6, "title": "Decidir: herramientas frente a las plataformas (eje A)",
+     "context": "SPEC: `sdd/specs/platform-accountability/SPEC.md`. Toda acción frente a las plataformas surge de consensos de la red.",
+     "questions": [
+      {"id": "P-1", "q": "Plataformas a cubrir primero", "options": ["Meta, X, TikTok y YouTube + método especial para WhatsApp/Telegram ★", "Sólo Meta y X", "Sólo TikTok y YouTube", "Todas, incluidas Telegram y Kick"]},
+      {"id": "P-2", "q": "¿Qué herramientas del eje A van a la hackatón?", "options": ["A1 archivo de evidencia + A4 tablero mínimo ★", "Sólo A1", "A1 + A2 publicidad indebida", "Ninguna en la hackatón"]},
+      {"id": "P-3", "q": "Plataforma técnica de A1/A4", "options": ["Web estática + backend serverless", "Web + backend propio", "Reutilizar una herramienta de archivo existente", "Decidir después de la hackatón"]},
+      {"id": "P-4", "q": "Pedido colectivo de datos personales a las plataformas (derecho de acceso)", "options": ["Explorarlo con opinión legal ★", "No"]}
+     ]},
+    {"number": 7, "title": "Decidir: protección de participantes",
+     "context": "SPEC: `sdd/specs/participant-protection/SPEC.md`. Revisión de Astra: `sdd/specs/participant-protection/DECISION.md`.",
+     "questions": [
+      {"id": "PP-1", "q": "¿Quién se ocupa de la protección?", "options": ["Rol de agente `protection_officer`", "Repartir entre seguridad, datos personales y electoral_counsel", "Una persona responsable + rol de agente de apoyo"]},
+      {"id": "PP-2", "q": "Arquitectura", "options": ["Centralizada con minimización", "Federada", "Híbrida"]},
+      {"id": "PP-3", "q": "Verificar personas sin pedir identidad", "options": ["Invitación por personas de confianza", "Verificación presencial con organizaciones aliadas", "Credenciales anónimas", "Combinación"]},
+      {"id": "PP-4", "q": "Jurisdicción y alojamiento", "options": ["Argentina", "Exterior", "Varias jurisdicciones con espejos", "Definirlo con abogado/a"]},
+      {"id": "PP-5", "q": "¿A qué organizaciones contactamos primero?", "options": ["Derechos digitales (ADC, Vía Libre)", "Derechos humanos (CELS)", "Transparencia electoral (Poder Ciudadano)", "Periodismo y verificación (FOPEA, Chequeado)", "Un grupo diverso en paralelo"]},
+      {"id": "PP-6", "q": "Evidencia preservada vs. copia publicable", "options": ["Separarlas, con cambio de contrato ★", "No publicar imágenes, sólo datos"]},
+      {"id": "PP-7", "q": "Garantía de anonimato", "options": ["Reemplazarla por criterios verificables ★", "Otra formulación"]}
+     ]},
+    {"number": 8, "title": "Decidir: plataforma móvil y backend",
+     "context": "SPEC: `sdd/specs/mobile-platform/SPEC.md`.",
+     "questions": [
+      {"id": "D-002", "q": "Lógica compartida iOS/Android", "options": ["Dos apps nativas + contratos ★", "Kotlin Multiplatform para el núcleo", "Skip (SwiftUI → Compose)", "Nativas ahora; evaluar KMP al empezar Android"]},
+      {"id": "D-003", "q": "Backend y recepción central", "options": ["Serverless gestionado", "Backend propio en contenedores", "Reutilizar la plataforma de la red (RC-1)", "Después de la hackatón"]}
+     ]},
+    {"number": 9, "title": "Decidir: organización del trabajo con agentes",
+     "context": "SPECs: `sdd/specs/multiagent-system/SPEC.md`, `sdd/specs/review-pipeline/SPEC.md`, `sdd/specs/human-in-the-loop/SPEC.md`.",
+     "questions": [
+      {"id": "D-MA-1", "q": "Agentes IA activos en paralelo", "options": ["Mantener 2", "4 para revisiones de sólo lectura", "6", "Sin límite fijo, a criterio del coordinador"]},
+      {"id": "D-MA-2", "q": "Roles de chequeo a activar ya (además de electoral_counsel)", "options": ["platform_accountability, legal, data_protection y neutrality ★", "Esos 4 + security", "Todos", "Sólo electoral_counsel por ahora"]},
+      {"id": "D-MA-3", "q": "Abogado/a electoral humano que valide el marco legal", "options": ["Sí, buscarlo ya ★", "Más adelante"]},
+      {"id": "PR-1", "q": "Lentes de revisión obligatorias", "options": ["Todas para SPECs de producto; code + legal para código con datos ★", "Todas, siempre", "Sólo legal obligatoria"]},
+      {"id": "PR-3", "q": "Segunda opinión cuando Astra marca ⛔", "options": ["Sí, con otro modelo", "No"]},
+      {"id": "HL-1", "q": "Revisión de issues de decisión", "options": ["Diaria programada con resumen ★", "Sólo al empezar cada sesión", "Dos veces por semana"]}
+     ]}
+  ]
+}
