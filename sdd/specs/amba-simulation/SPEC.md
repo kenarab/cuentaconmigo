@@ -1,6 +1,7 @@
 # SPEC · Simulación geolocalizada del AMBA: proyección con pocos datos
 
 Estado: **propuesta; decisiones S-1 a S-3 pendientes del autor.** Fecha: 31/10/2026.
+Eje: **D. Jornada y escrutinio** de la [visión](../vision/SPEC.md), el cierre visible del proceso.
 
 ## Objetivo
 

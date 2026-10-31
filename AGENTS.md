@@ -2,14 +2,19 @@
 
 ## Producto y alcance
 
-Plataforma comunitaria y **no partidaria** de auditoría ciudadana para las elecciones
-generales de Argentina de 2027. Dos módulos:
+Auditoría ciudadana **integral y no partidaria** del proceso electoral argentino de
+2027, en el que se elige presidente y se renueva el Congreso. La misión: que las
+elecciones no sean un negocio más para las plataformas, y que la presión pública
+basada en evidencia las ponga al servicio de la democracia. Construimos
+**herramientas externas**, independientes de las plataformas, en cuatro ejes
+(ver [sdd/specs/vision/SPEC.md](sdd/specs/vision/SPEC.md), fuente de prioridades):
 
-1. **Telegramas**: fiscales y autoridades de mesa fotografían el telegrama/acta de
-   escrutinio de su mesa; las imágenes se suben, se procesan de forma centralizada
-   y se comparan con los resultados provisorios oficiales publicados.
-2. **Desinformación**: herramientas para detectar, verificar y contrarrestar en tiempo
-   real noticias falsas virales sobre el proceso electoral, con esfuerzo comunitario.
+- **A. Plataformas** (eje central): publicidad política, algoritmos, desinformación,
+  veda y compromisos, medidos desde afuera.
+- **B. Desinformación**: detección, verificación y respuesta comunitaria.
+- **C. Campaña**: gasto y publicidad declarada vs. observada, plazos y debates.
+- **D. Jornada y escrutinio** (la "frutilla del postre"): captura de telegramas y
+  actas, cotejo y proyección.
 
 La SPEC de cada módulo (en `sdd/specs/`) es la fuente del producto. Leerla antes de
 cambiar comportamiento. Ninguna tecnología, stack ni arquitectura está decidida:
@@ -18,9 +23,11 @@ cualquier elección es una propuesta hasta que la acepte el autor.
 - Consultar **antes de decidir arquitectura** y **antes de instalar** herramientas
   o dependencias, incluso locales o temporales.
 - Neutralidad: no favorecer partidos ni candidatos en código, textos, datos ni
-  criterios de verificación. La desinformación se refuta con fuentes; no se silencia
-  a personas ni se reporta contenido a plataformas sin instrucción explícita.
-- Las imágenes son evidencia: conservar originales inmutables, procedencia y cadena
+  criterios de verificación. Las mismas métricas valen para todos los actores.
+- Herramientas externas: no usar los mecanismos de denuncia de las plataformas como
+  estrategia. Medir y documentar lo que hacen las plataformas; la desinformación se
+  refuta con fuentes y no se busca silenciar a personas.
+- Toda captura (telegrama, publicación, anuncio) es evidencia: conservar originales inmutables, procedencia y cadena
   de custodia. Separar lo extraído automáticamente de lo confirmado por personas.
   No afirmar irregularidades sin evidencia verificable.
 - Datos personales (nombres, DNI, firmas, teléfonos, ubicación de voluntarios)

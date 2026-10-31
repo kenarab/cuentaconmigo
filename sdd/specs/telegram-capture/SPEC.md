@@ -1,6 +1,7 @@
 # SPEC · Captura de telegramas y actas (prototipo iOS)
 
 Estado: **propuesta en implementación; aceptación pendiente del autor.**
+Eje: **D. Jornada y escrutinio** de la [visión](../vision/SPEC.md), el cierre visible del proceso.
 Fecha: 31/10/2026. Depende de [mobile-platform](../mobile-platform/SPEC.md).
 
 ## Problema
