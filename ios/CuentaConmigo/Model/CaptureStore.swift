@@ -20,7 +20,7 @@ final class CaptureStore {
     }
 
     init() {
-        guard let url = Bundle.main.url(forResource: "demo-2027", withExtension: "json"),
+        guard let url = Bundle.main.url(forResource: "generales-2023", withExtension: "json"),
               let data = try? Data(contentsOf: url),
               let template = try? FormTemplate.decode(data) else {
             fatalError("Bundled form template is missing or invalid")

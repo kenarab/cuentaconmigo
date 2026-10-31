@@ -1,0 +1,107 @@
+{
+  "id": "generales-2023",
+  "version": 1,
+  "fictitious": false,
+  "title": "Elecciones Generales 22/10/2023 · Presidente y Vicepresidente",
+  "documentTypes": [
+    "telegrama",
+    "acta",
+    "certificado"
+  ],
+  "mesaFields": [
+    {
+      "id": "distrito",
+      "label": "Distrito"
+    },
+    {
+      "id": "seccion",
+      "label": "Sección"
+    },
+    {
+      "id": "circuito",
+      "label": "Circuito"
+    },
+    {
+      "id": "mesa",
+      "label": "Mesa"
+    }
+  ],
+  "headerFields": [
+    {
+      "id": "electores",
+      "label": "Electores habilitados",
+      "required": false
+    },
+    {
+      "id": "votantes",
+      "label": "Total de votantes (sobres)",
+      "required": true
+    }
+  ],
+  "categories": [
+    {
+      "id": "presidente",
+      "label": "Presidente y Vicepresidente"
+    }
+  ],
+  "rows": [
+    {
+      "id": "agrupacion-132",
+      "label": "132 · Juntos por el Cambio",
+      "kind": "agrupacion"
+    },
+    {
+      "id": "agrupacion-133",
+      "label": "133 · Hacemos por Nuestro País",
+      "kind": "agrupacion"
+    },
+    {
+      "id": "agrupacion-134",
+      "label": "134 · Unión por la Patria",
+      "kind": "agrupacion"
+    },
+    {
+      "id": "agrupacion-135",
+      "label": "135 · La Libertad Avanza",
+      "kind": "agrupacion"
+    },
+    {
+      "id": "agrupacion-136",
+      "label": "136 · Frente de Izquierda y de Trabajadores - Unidad",
+      "kind": "agrupacion"
+    },
+    {
+      "id": "blanco",
+      "label": "Votos en blanco",
+      "kind": "especial"
+    },
+    {
+      "id": "nulos",
+      "label": "Votos nulos",
+      "kind": "especial"
+    },
+    {
+      "id": "recurridos",
+      "label": "Votos recurridos",
+      "kind": "especial"
+    },
+    {
+      "id": "impugnados",
+      "label": "Identidad impugnada",
+      "kind": "especial"
+    },
+    {
+      "id": "comando",
+      "label": "Votos del comando electoral",
+      "kind": "especial"
+    }
+  ],
+  "rules": {
+    "votantesMaxElectores": {
+      "severity": "error"
+    },
+    "categoryTotalEqualsVotantes": {
+      "severity": "warning"
+    }
+  }
+}

@@ -61,9 +61,19 @@ final class ContractTests: XCTestCase {
     }
 
     func testBundledTemplateMatchesContract() throws {
-        XCTAssertEqual(try load("ios/CuentaConmigo/Resources/demo-2027.json"),
-                       try load("contracts/templates/demo-2027.json"),
+        XCTAssertEqual(try load("ios/CuentaConmigo/Resources/generales-2023.json"),
+                       try load("contracts/templates/generales-2023.json"),
                        "Run ios/scripts/sync-contracts.sh")
+    }
+
+    func testRealElectionTemplatesDecode() throws {
+        for id in ["generales-2023", "balotaje-2015"] {
+            let t = try FormTemplate.decode(load("contracts/templates/\(id).json"))
+            XCTAssertEqual(t.id, id)
+            XCTAssertFalse(t.fictitious, id)
+            XCTAssertFalse(t.rows.isEmpty, id)
+            XCTAssertEqual(Set(t.rows.map(\.id)).count, t.rows.count, "duplicate row ids in \(id)")
+        }
     }
 }
 
