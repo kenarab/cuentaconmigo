@@ -207,7 +207,8 @@ def read_telegram(image_bytes, template):
         words = [w for w in tsv_words(page, ("--psm", "11")) if w["conf"] >= 30]
 
     best = None
-    for layout in layouts_for(template["id"]):
+    candidates = layouts_for(template["id"]) or [json.loads(p.read_text()) for p in sorted(LAYOUTS.glob("*.json"))]
+    for layout in candidates:
         t, used, err = align(layout, words, (W, H))
         if t and (best is None or (used, -err) > (best[2], -best[3])):
             best = (layout, t, used, err)
