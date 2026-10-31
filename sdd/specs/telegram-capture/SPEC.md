@@ -1,0 +1,106 @@
+# SPEC · Captura de telegramas y actas (prototipo iOS)
+
+Estado: **propuesta en implementación; aceptación pendiente del autor.**
+Fecha: 31/10/2026. Depende de [mobile-platform](../mobile-platform/SPEC.md).
+
+## Problema
+
+Al cerrar el escrutinio, fiscales y autoridades de mesa necesitan registrar una
+copia fiel del telegrama de escrutinio (y/o acta o certificado) de su mesa, con los
+números transcriptos y verificados, para cotejarlos luego con los resultados
+oficiales. Lo hacen bajo presión, de noche y con mala conectividad.
+
+## Alcance del prototipo (P0)
+
+Incluido:
+
+1. Escanear una o más páginas con el escáner nativo (recorte y perspectiva) o
+   importarlas desde Fotos (también permite probar en simulador).
+2. Elegir el tipo de documento: `telegrama`, `acta` o `certificado`.
+3. Identificar la mesa: distrito, sección, circuito y número de mesa.
+4. OCR en el dispositivo como **ayuda**: muestra los números detectados para
+   copiar a los campos; nunca completa ni confirma valores por sí solo.
+5. Cargar los valores por fila y categoría según la plantilla del formulario,
+   con la imagen a la vista y ampliable.
+6. Validar con las reglas de la plantilla y mostrar avisos claros.
+7. Confirmar la captura: queda **bloqueada** (sin más ediciones).
+8. Exportar el paquete de evidencia (JSON del contrato + imágenes) con el menú
+   de compartir del sistema.
+
+Fuera de P0: envío a un servidor central (D-003), cuentas y roles de usuario,
+cotejo con resultados oficiales, extracción automática por regiones del formulario,
+geolocalización, Android.
+
+## Evidencia y cadena de custodia
+
+- Cada página se guarda como JPEG **una sola vez** y nunca se reescribe.
+  Se registra su SHA-256 (hex en minúsculas) y la hora de captura (ISO-8601 UTC).
+- El paquete de captura (`contracts/schemas/capture.schema.json`) referencia las
+  páginas por nombre de archivo y hash. Cualquiera puede recomputar el hash.
+- Valores con origen explícito: `manual` (tipeado) u `ocr-accepted`
+  (sugerencia OCR aceptada por la persona). Nunca hay valores sin intervención humana.
+- Una captura confirmada no se edita. Corregir = nueva captura de la misma mesa.
+
+## Formulario y plantillas
+
+El formato vigente para 2027 no está relevado (ver preguntas abiertas). Por eso la
+estructura del formulario es **declarativa** (`contracts/templates/*.json`):
+categorías (cargos), filas (agrupaciones y votos especiales) y reglas.
+La plantilla incluida es **ficticia** (`demo-2027`, agrupaciones "Lista A/B/C")
+y la app lo indica en pantalla. Reemplazarla por la oficial no requiere cambiar código.
+
+## Reglas de validación (contrato)
+
+Definidas en la plantilla y probadas con `contracts/vectors/validation.json`:
+
+| Código | Severidad | Regla |
+| --- | --- | --- |
+| `missing_mesa` | error | Distrito, sección, circuito y número de mesa son obligatorios |
+| `missing_value` | error | Toda celda de la plantilla tiene valor (0 explícito si corresponde) |
+| `negative_value` | error | No hay valores negativos |
+| `votantes_exceed_electores` | error | `votantes` ≤ `electores` cuando ambos están cargados |
+| `category_total_mismatch` | aviso | Suma de cada categoría = `votantes` (regla a confirmar por electoral_analyst) |
+
+Los avisos permiten confirmar con una justificación escrita; los errores no.
+
+## Normalización de dígitos (contrato)
+
+El OCR devuelve texto. `normalizeDigits` convierte a entero no negativo: quita
+espacios y separadores de miles (`.` `,` espacio), corrige confusiones comunes
+(`O/o→0`, `l/I/|→1`, `S→5`, `B→8`) **sólo** si el token tiene al menos un dígito
+real, y rechaza el resto. Vectores en `contracts/vectors/digits.json`.
+
+## Privacidad y seguridad
+
+- Las fotos pueden contener nombres y firmas: son datos personales (Ley 25.326).
+  Se guardan en el contenedor de la app con Data Protection `complete`, excluidas
+  del respaldo de iCloud. No se piden ubicación ni contactos.
+- Permisos: sólo cámara (escáner). Importar de Fotos usa el selector sin permiso amplio.
+- La exportación la decide la persona; la app no envía nada a la red en P0.
+
+## UX
+
+Español rioplatense simple, botones grandes, tipografía dinámica y VoiceOver.
+Flujo: Inicio (capturas) → Nueva → Escanear/Importar → Datos de mesa → Valores
+(imagen arriba, campos abajo) → Revisión de validaciones → Confirmar → Exportar.
+
+## Criterios de aceptación
+
+1. `swift test` del núcleo pasa todos los vectores de `contracts/vectors`.
+2. El ejemplo `contracts/examples/capture.example.json` se decodifica y re-codifica
+   sin pérdida con los modelos del núcleo.
+3. La app compila para iOS 17+ sin firma (`xcodebuild … CODE_SIGNING_ALLOWED=NO`).
+4. En un iPhone real (autor): escanear, cargar, validar, confirmar y exportar una
+   captura de la plantilla demo; el hash exportado coincide con `shasum -a 256`.
+5. Una captura confirmada no permite editar valores.
+6. Ningún dato real ni personal en el repositorio.
+
+## Preguntas abiertas
+
+- Q1. Formato oficial 2027 del telegrama, acta y certificado (con Boleta Única de
+  Papel). Asignar a electoral_analyst con fuentes y fechas.
+- Q2. ¿La suma por categoría debe igualar a `votantes` o puede ser menor? Afecta
+  la severidad de `category_total_mismatch`.
+- Q3. ¿Qué identificación de mesa trae impresa el formulario (código de barras/QR)?
+  Podría reemplazar la carga manual.
+- Q4. Recepción central, identidad de fiscales y antifraude de capturas (D-003).
