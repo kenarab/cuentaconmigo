@@ -115,7 +115,15 @@ Con las recomendaciones ★ como provisorias hasta que se responda #3:
   sesgo y 5 % de mesas; 96,0 % con sesgo 0,7 y 5 %; 93,5 % sin sesgo y 2 %; 95,5 % con
   sesgo 0,7 y 10 %. Queda cerca del nominal, levemente por debajo con muestras sin
   sesgo, porque las mesas de un mismo circuito se parecen entre sí.
-  El criterio 4 está pendiente: falta cotejar los totales contra los publicados.
+- **Criterio 4 (cotejo de totales):**
+  - **Interno, exacto:** la suma del archivo normalizado coincide con el archivo oficial
+    de la DINE para las mismas mesas: 7.819.730 votos afirmativos en el AMBA.
+  - **Externo, aproximado:** sobre votos afirmativos del archivo oficial completo de
+    cada distrito, CABA da JxC 41,23 %, UxP 32,28 % y LLA 19,85 %. Coincide con el
+    41,2 % de Bullrich que publicó Buenos Aires Herald. PBA da UxP 42,88 %, LLA 25,72 %
+    y JxC 24,10 %, en línea con el "más de 42 %" de Massa que publicó Letra P.
+    Fuentes secundarias: falta cotejar con el sitio oficial de resultados y con el
+    escrutinio definitivo de la CNE.
 - Las descargas y los derivados quedan en `data/private/`, fuera de Git. En Git van
   los scripts, el prototipo y esta procedencia.
 
