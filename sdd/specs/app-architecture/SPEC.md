@@ -175,6 +175,14 @@ selector con **tres** valores también dentro de la pantalla E-12 del teléfono 
 —si se acepta AA-3— el intérprete JS leyendo `capture.flow.json`. Revisión Astra (`ux`,
 `legal`, `neutrality`) → decisión del autor y Andy → recién entonces Swift.
 
+**Estado de la etapa 0 (31/10/2026):** hecho como propuesta, con las opciones ★ de AA-2,
+AA-3 y AA-5 provisorias. El flujo está en `contracts/flows/` (intérprete JS de
+referencia y 79/79 vectores) y el prototipo en `design/prototypes/flujo/`
+([link privado](https://claude.ai/artifact/XKaKVJMsNjDmr91UJZ7rN7)). Incluye el selector
+F-1/F-2/F-3 en E-12, listas desplegables con la nómina 2025 y los telegramas oficiales de
+Andy como valores transcriptos. Faltan la verificación visual en un navegador, la
+revisión Astra (si el autor la autoriza) y la aprobación del autor.
+
 **Etapa 1 · Hackatón, en Swift, sin dependencias nuevas (opción A).**
 1. `contracts/flows/capture.flow.json` + `contracts/vectors/capture-flow.json`
    (`contract-change`).
