@@ -41,9 +41,16 @@ OCR/visión · mapas · UX · derecho electoral y datos personales · fact-check
 
 ## Tags
 
-elecciones, argentina, 2027, auditoría-ciudadana, plataformas, transparencia-algorítmica,
-publicidad-electoral, regulación, participación-ciudadana, red-social, consenso, agentes-ia, civic-tech, fiscalización,
-desinformación, datos-abiertos, transparencia
+democracia, escrutinio, participación ciudadana, elecciones 2027, auditoría ciudadana,
+fiscalización, transparencia, desinformación, plataformas digitales, consenso,
+red social ciudadana, agentes de IA, civic tech, datos abiertos, Argentina
+
+Versión corta (8): democracia, escrutinio, participación ciudadana, auditoría ciudadana,
+desinformación, plataformas digitales, civic tech, elecciones 2027
+
+## Imagen
+
+`design/cover/cover.png` (1200×630).
 
 ## Links
 
