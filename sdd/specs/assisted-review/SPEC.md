@@ -1,7 +1,10 @@
 # SPEC · Lectura en el servidor y revisión sobre la imagen del telegrama
 
 Estado: **pedido del autor del 31/10/2026; diseño propuesto (rol `planner`, Claude);
-decisiones RV-1 a RV-8 pendientes. Sin implementación.** Fecha: 31/10/2026.
+decisiones RV-1 a RV-8 pendientes.** Implementación inicial (31/10/2026, a pedido del
+autor): lectura por celda en el servidor (`POST /v1/readings`, form-layouts) y cotejo sobre
+la imagen en iOS (`ReadingReviewView`, e088b1e) con la escala ★ de RV-3; faltan las
+revisiones independientes (§3) y la confianza del acta (§4). Fecha: 31/10/2026.
 Depende de [scrutiny-backend](../scrutiny-backend/SPEC.md) (OCR en servidor, revisiones,
 tally), [telegram-capture](../telegram-capture/SPEC.md) (paquete y evidencia),
 [app-screens](../app-screens/SPEC.md) (E-07, E-08) y
