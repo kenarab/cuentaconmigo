@@ -1,18 +1,56 @@
 {
   "spec": "sdd/specs/telegram-capture/SPEC.md",
   "tasks": [
-    {"id": "TC-1", "role": "planner", "objective": "Contracts: schema, demo template, example and vectors",
-     "writes": ["contracts/"], "status": "planned"},
-    {"id": "TC-2", "role": "implementer", "objective": "TelegramaCore Swift package passing contract vectors",
-     "writes": ["ios/TelegramaCore/"], "status": "planned"},
-    {"id": "TC-3", "role": "capture_engineer", "objective": "SwiftUI app: scan/import, OCR assist, entry, validation, lock, export",
-     "writes": ["ios/CuentaConmigo/", "ios/CuentaConmigo.xcodeproj/", "ios/scripts/"], "status": "planned"},
-    {"id": "TC-4", "role": "owner", "objective": "Device test on a real iPhone (acceptance criterion 4)",
-     "writes": [], "status": "pending"},
-    {"id": "TC-5", "role": "electoral_analyst", "objective": "Answer Q1-Q3 with dated sources",
-     "writes": [], "status": "pending"},
-    {"id": "TC-6", "role": "reviewer", "objective": "Independent review of TC-1..TC-3",
-     "writes": [], "status": "pending"}
+    {
+      "id": "TC-1",
+      "role": "planner",
+      "objective": "Contracts: schema, demo template, example and vectors",
+      "writes": [
+        "contracts/"
+      ],
+      "status": "done"
+    },
+    {
+      "id": "TC-2",
+      "role": "implementer",
+      "objective": "TelegramaCore Swift package passing contract vectors",
+      "writes": [
+        "ios/TelegramaCore/"
+      ],
+      "status": "done"
+    },
+    {
+      "id": "TC-3",
+      "role": "capture_engineer",
+      "objective": "SwiftUI app: scan/import, OCR assist, entry, validation, lock, export",
+      "writes": [
+        "ios/CuentaConmigo/",
+        "ios/CuentaConmigo.xcodeproj/",
+        "ios/scripts/"
+      ],
+      "status": "done"
+    },
+    {
+      "id": "TC-4",
+      "role": "owner",
+      "objective": "Device test on a real iPhone (acceptance criterion 4)",
+      "writes": [],
+      "status": "pending"
+    },
+    {
+      "id": "TC-5",
+      "role": "electoral_analyst",
+      "objective": "Answer Q1-Q3 with dated sources",
+      "writes": [],
+      "status": "pending"
+    },
+    {
+      "id": "TC-6",
+      "role": "reviewer",
+      "objective": "Independent review of TC-1..TC-3",
+      "writes": [],
+      "status": "pending"
+    }
   ],
   "note": "All TC-1..TC-3 work was done by a single Claude Code session (planner acting for each role); no independent review yet."
 }
