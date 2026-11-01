@@ -1,0 +1,23 @@
+[package]
+name = "cc_core"
+version = "0.1.0"
+edition = "2021"
+description = "CuentaConmigo shared core: capture model, validation, flow, storage and server client"
+license = "MIT"
+publish = false
+
+[lib]
+crate-type = ["lib", "cdylib", "staticlib"]
+
+[dependencies]
+serde = { version = "=1.0.210", features = ["derive"] }
+serde_json = "=1.0.128"
+sha2 = "=0.10.8"
+thiserror = "=1.0.64"
+ureq = "=2.10.1"
+uuid = { version = "=1.10.0", features = ["v4"] }
+uniffi = { version = "=0.28.3", features = ["cli"] }
+
+[[bin]]
+name = "uniffi-bindgen"
+path = "src/bin/uniffi-bindgen.rs"
